@@ -1,5 +1,5 @@
 #!/bin/bash
-set -exo pipefail
+set -eo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 . ../shared.bash
@@ -33,7 +33,7 @@ does_not_exists() {
 }
 
 build-tag() {
-  pull
+  pull $3
   TAG="$1"
   echo "Building VM tag: $TAG..."
   if does_not_exists; then
@@ -44,6 +44,9 @@ build-tag() {
 
 #############################
 # Generate and push base tags
+# Tripple quote nested quotes and $
+####################################
+
 TAG=${TAG:-"base"}
 if does_not_exists; then
   suspend_and_push
@@ -53,8 +56,30 @@ build-tag "$TAG:port-forward-22" "
   sudo anka modify $TEMPLATE add port-forwarding --guest-port 22 ssh || true
 "
 # Install Brew & command line tools (git)
-## Tripple quote nested quotes and $
 build-tag "$TAG:brew-git" "
   $ANKA_RUN $TEMPLATE bash -c \"/bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
   $ANKA_RUN $TEMPLATE bash -c \"brew install jq\"
 "
+
+LEVEL_ONE_TAG=$TAG
+
+if [[ $2 == '--jenkins' ]]; then
+
+  ## Install OpenJDK8
+  build-tag "$LEVEL_ONE_TAG:openjdk-1.8.0_242" "
+    $ANKA_RUN $TEMPLATE bash -c \"$HELPERS cd /tmp && rm -f /tmp/OpenJDK* && \
+    curl -L -O https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg && \
+    [ \\\$(du -s /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg | awk '{print \\\$1}') -gt 190000 ] && \
+    sudo installer -pkg /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg -target / && \
+    [[ ! -z \\\$(java -version 2>&1 | grep 1.8.0_242) ]] && \
+    rm -f /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg\"
+  " $LEVEL_ONE_TAG
+
+  OPENJDK_TAGS="$TAG"
+
+  ## Jenkins misc (Only needed if you're running Jenkins on the same host you run the VMs)
+  build-tag "$OPENJDK_TAGS:jenkins" "
+    $ANKA_RUN $TEMPLATE sudo bash -c \"$HELPERS echo '192.168.64.1 anka.jenkins' >> /etc/hosts && [[ ! -z \\\$(grep anka.jenkins /etc/hosts) ]]\"
+  " $OPENJDK_TAGS
+
+fi

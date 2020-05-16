@@ -4,7 +4,7 @@
 
 This repo contains various scripts for setting up and testing Anka software on your local Apple machine.
 
-## How to use this repo
+## Using this repo
 
 ### Important Considerations
 
@@ -33,6 +33,7 @@ URLs and ports you can expect:
 
 - Controller: http://anka.controller:8090
 - Registry:   http://anka.registry:8091
+- Jenkins:    http://anka.jenkins:8092
 
 At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/getting-started/macos/#step-4-start-a-vm-instance-using-the-controller-ui)
 
@@ -64,9 +65,15 @@ At this point, you can try [starting a VM instance from the Anka Build Cloud UI.
 
 ---
 
-## Jenkins (`./JENKINS`)
+# CI Plugins and Integrations
 
-Coming soon!
+- [Jenkins](#jenkins-jenkins)
+
+## [Jenkins](https://ankadocs.veertu.com/docs/anka-build-cloud/ci-plugins/jenkins/) (`./JENKINS`)
+
+### `create-jenkins-docker.bash`
+
+- Running this script will start a Jenkins container and configure it to run on http://anka.jenkins:8092. It will install all of the necessary plugins and example Jobs that use [Static and Dynamic Labels](https://ankadocs.veertu.com/docs/anka-build-cloud/ci-plugins/jenkins/#install-and-configure-the-anka-plugin-in-jenkins).
 
 ---
 

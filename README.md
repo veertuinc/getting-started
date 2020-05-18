@@ -63,6 +63,10 @@ At this point, you can try [starting a VM instance from the Anka Build Cloud UI.
 
 - Running this script will generate a Tag for the VM Template
 
+### `create-ca-and-controller-certs.bash`
+
+- Running this script will generate all of the certificates you'll need to enable Certificate Authentication. By default, it will assume you are running everything on the same machine (127.0.0.1).
+
 ---
 
 ## Jenkins (`./JENKINS`)

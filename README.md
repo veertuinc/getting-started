@@ -4,7 +4,7 @@
 
 This repo contains various scripts for setting up and testing Anka software on your local Apple machine.
 
-## Using this repo
+## How to use this repo
 
 > You can set the ENV $DEBUG to true to see verbose execution output
 
@@ -26,9 +26,8 @@ This repo contains various scripts for setting up and testing Anka software on y
 Before integrating Anka with your CI, you need to install and configure the **Anka Virtualization CLI** and **Build Cloud Controller & Registry**.
 
 1. Obtain your trial license from https://veertu.com/getting-started-anka-trials/
-1. Install the **[Anka Virtualization and CLI package, then activate your license.](https://ankadocs.veertu.com/docs/anka-cli/installation/#install-the-anka-cli)**
-    - You can use `./ANKA/install-anka-virtualization.bash ${LICENSE}` to automate the install.
-2. Install the **Anka Build Cloud Controller & Registry** with `install-build-cloud-on-mac.bash`.
+1. Install the **[Anka Virtualization and CLI package, then activate your license.](https://ankadocs.veertu.com/docs/anka-cli/installation/#install-the-anka-cli)** with `./ANKA/install-anka-virtualization.bash ${LICENSE}`.
+2. Install the **Anka Build Cloud Controller & Registry** with `./ANKA/install-build-cloud-on-mac.bash`.
 3. Now generate your [Template and Tags](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage) with `./ANKA/create-template.bash`.
 
 URLs and ports you can expect:

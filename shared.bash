@@ -24,6 +24,15 @@ CLOUD_DOCKER_TAR="anka-controller-registry-1.7.1-9545c9f5.tar.gz"
 CLOUD_DOCKER=$(echo $CLOUD_DOCKER_TAR | awk -F'.tar.gz' '{print $1}')
 CLOUD_DOWNLOAD_URL="https://ankabeta.s3.amazonaws.com/$CLOUD_NATIVE_PACKAGE"
 
+GITLAB_PORT=8093
+GITLAB_RELEASE_TYPE=${GITLAB_RELEASE_TYPE:-"ce"}
+GITLAB_DOCKER_CONTAINER_NAME="anka.gitlab"
+GITLAB_DOCKER_TAG_VERSION="12.10.1-$RELEASE_TYPE.0"
+GITLAB_DOCKER_DATA_DIR="$HOME/$GITLAB_DOCKER_CONTAINER_NAME-data"
+GITLAB_ROOT_PASSWORD="adminpassword"
+GITLAB_EXAMPLE_PROJECT_NAME="gitlab-examples"
+GITLAB_ANKA_VM_TEMPLATE_TAG="base:port-forward-22:brew-git:gitlab"
+
 modify_hosts() {
   [[ -z $1 ]] && echo "ARG 1 missing" && exit 1
   if [[ $(uname) == "Darwin" ]]; then

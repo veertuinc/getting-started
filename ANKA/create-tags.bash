@@ -58,3 +58,30 @@ build-tag "$TAG:brew-git" "
   $ANKA_RUN $TEMPLATE bash -c \"/bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
   $ANKA_RUN $TEMPLATE bash -c \"brew install jq\"
 "
+
+LEVEL_ONE_TAG=$TAG
+
+if [[ $2 == '--teamcity' ]]; then
+
+  ## Install OpenJDK8
+  build-tag "$LEVEL_ONE_TAG:openjdk-1.8.0_242" "
+    $ANKA_RUN $TEMPLATE bash -c \"$HELPERS cd /tmp && rm -f /tmp/OpenJDK* && \
+    curl -L -O https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg && \
+    [ \\\$(du -s /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg | awk '{print \\\$1}') -gt 190000 ] && \
+    sudo installer -pkg /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg -target / && \
+    [[ ! -z \\\$(java -version 2>&1 | grep 1.8.0_242) ]] && \
+    rm -f /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg\"
+  " $LEVEL_ONE_TAG
+
+  OPENJDK_TAGS="$TAG"
+
+  ## TeamCity
+  build-tag "$OPENJDK_TAGS:teamcity" "
+    $ANKA_RUN $TEMPLATE sudo bash -c \"$HELPERS echo '192.168.64.1 $TEAMCITY_DOCKER_CONTAINER_NAME' >> /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"
+    $ANKA_RUN $TEMPLATE bash -c \"curl -O -L https://download.jetbrains.com/teamcity/TeamCity-$TEAMCITY_VERSION.tar.gz\"
+    $ANKA_RUN $TEMPLATE bash -c \"tar -xzvf TeamCity-$TEAMCITY_VERSION.tar.gz && mv Teamcity/BuildAgent /Users/anka/buildAgent\"
+    $ANKA_RUN $TEMPLATE bash -c \"echo >> buildAgent/conf/buildagent.properties\"
+    $ANKA_RUN $TEMPLATE bash -c \"sh buildAgent/bin/mac.launchd.sh load && sleep 5\"
+  " $LEVEL_ONE_TAG
+
+fi

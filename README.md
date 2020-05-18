@@ -6,6 +6,8 @@ This repo contains various scripts for setting up and testing Anka software on y
 
 ## How to use this repo
 
+> You can set the ENV $DEBUG to true to see verbose execution output
+
 ### Important Considerations
 
 - Running everything you need on a single machine can be resource intensive. We highly recommend having a modern Apple machine.

@@ -3,7 +3,9 @@ set -eo pipefail
 . ../shared.bash # source in the ports
 SERVICE_PORT="8080"
 CUR_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
-docker-compose down || true
+docker-compose down &>/dev/null || true
+docker stop $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
+docker rm $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
 rm -rf $JENKINS_DATA_DIR
 cd $CUR_DIR
 mkdir -p $JENKINS_DATA_DIR

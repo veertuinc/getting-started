@@ -17,7 +17,7 @@ This repo contains various scripts for setting up and testing Anka software on y
 
 ### Requirements
 
-- An Apple machine (ensure you have enough resources; running everything from your local machine can be resource-intensive)
+- An Apple machine
 - Docker Desktop installed on that same machine
 - [Homebrew](https://brew.sh/)
 

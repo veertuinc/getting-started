@@ -1,0 +1,32 @@
+{
+  "variables": {
+    "PROJECT_NAME": "",
+    "TEST_VAR": "TESTING123"
+  },
+  "builders": [
+    {
+      "type": "veertu-anka",
+      "disk_size": "80G",
+      "cpu_count": "6",
+      "ram_size": "10G",
+      "vm_name": "{{user `PROJECT_NAME`}}",
+      "source_vm_name": "{{user `source_vm_name`}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "file",
+      "source": "./welcome.txt",
+      "destination": "/Users/anka/"
+    },
+    {
+      "type": "shell",
+      "inline": ["ls -al /Users/anka/", "cat /Users/anka/welcome.txt"]
+    },
+    {
+      "type": "shell",
+      "environment_vars": "TEST_VAR={{user `TEST_VAR`}}",
+      "script": "./example.sh"
+    }
+  ]
+}

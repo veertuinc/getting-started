@@ -29,7 +29,7 @@ stop_and_push() {
 }
 
 does_not_exists() {
-  [[ -z $(sudo anka --machine-readable registry --remote $CLOUD_REGISTRY_REPO_NAME $CERTS describe $TEMPLATE | jq -r ".body.versions[] | select(.tag == \"$TAG\") | .tag") ]] && true || false
+  [[ -z $(sudo anka --machine-readable registry --remote $CLOUD_REGISTRY_REPO_NAME $CERTS describe $TEMPLATE | jq -r ".body.versions[] | select(.tag == \"$TAG\") | .tag" 2>/dev/null) ]] && true || false
 }
 
 build-tag() {

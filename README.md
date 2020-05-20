@@ -88,6 +88,8 @@ Coming soon!
 
 ### `install-teamcity-server-on-docker.bash`
 
+> Be sure to generate the required VM Tag using `./ANKA/create-tags.bash 10.15.4 --teamcity`
+
 - Running this script will setup TeamCity server within a docker container with plugins and a testing project.
 
 ---

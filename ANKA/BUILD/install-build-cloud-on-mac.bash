@@ -2,19 +2,25 @@
 set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
-. ../shared.bash
+. ../../shared.bash
 cleanup() {
   rm -f $STORAGE_LOCATION/$CLOUD_NATIVE_PACKAGE
 }
-trap cleanup EXIT
 sudo anka-controller stop &>/dev/null || true
 sudo /Library/Application\ Support/Veertu/Anka/tools/controller/uninstall.sh &>/dev/null || true
 sudo rm -rf /Library/Application\ Support/Veertu/Anka/anka-controller
 cd $STORAGE_LOCATION
 # Download
 echo "]] Downloading $CLOUD_NATIVE_PACKAGE"
-curl -S -L -O $CLOUD_DOWNLOAD_URL
-sudo installer -pkg $STORAGE_LOCATION/$CLOUD_NATIVE_PACKAGE -target /
+if [[ -z $1 ]]; then
+  trap cleanup EXIT
+  curl -S -L -O $CLOUD_DOWNLOAD_URL
+  INSTALLER_LOCATION="$STORAGE_LOCATION/$CLOUD_NATIVE_PACKAGE"
+else
+  [[ "${1:0:1}" != "/" ]] && echo "Ensure you're using the absolute path to your installer package" && exit 1
+  INSTALLER_LOCATION="$1"
+fi
+sudo installer -pkg $INSTALLER_LOCATION -target /
 sudo anka-controller stop &>/dev/null || true
 # Configuration
 echo "]] Modifying the /usr/local/bin/anka-controllerd configuration"
@@ -96,7 +102,7 @@ modify_hosts $CLOUD_CONTROLLER_ADDRESS &>/dev/null
 modify_hosts $CLOUD_REGISTRY_ADDRESS &>/dev/null
 # Join cluster
 echo "]] Joining this machine (Node) to the Cloud"
-if [[ "$(sudo ankacluster status)" == "Anka Agent is running" ]]; then
+if [[ "$(sudo ankacluster status)" =~ "is running" ]]; then
   WAIT=0
   sudo ankacluster disjoin &
   while ps -p $! | grep $! &>/dev/null; do

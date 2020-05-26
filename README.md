@@ -1,4 +1,4 @@
-# Anka Getting Started Scripts and Resources
+# Anka Getting Started Resources
 
 ### [Getting Started Documentation](https://ankadocs.veertu.com/docs/getting-started/)
 
@@ -30,12 +30,13 @@ Before integrating Anka with your CI, you need to install and configure the **An
 2. Install the **Anka Build Cloud Controller & Registry** with `./ANKA/install-build-cloud-on-mac.bash`.
 3. Now generate your [Template and Tags](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage) with `./ANKA/create-template.bash`.
 
+At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/getting-started/macos/#step-4-start-a-vm-instance-using-the-controller-ui)
+
 URLs and ports you can expect:
 
 - Controller: http://anka.controller:8090
 - Registry:   http://anka.registry:8091
-
-At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/getting-started/macos/#step-4-start-a-vm-instance-using-the-controller-ui)
+- TeamCity:   http://anka.teamcity:8094
 
 ---
 
@@ -43,11 +44,15 @@ At this point, you can try [starting a VM instance from the Anka Build Cloud UI.
 
 ### `install-anka-virtualization.bash`
 
-- Running this script will install the Anka Virtualization package/CLI onto the current machine.
+- Running this script will install the latest Anka Virtualization package/CLI onto the current machine.
+- If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA/install-anka-virtualization.bash "/Users/myUserName/Downloads/Anka-2.1.1.111.pkg"`).
+- If the first argument is `--uninstall`, it will only remove the existing install.
 
 ### `install-build-cloud-on-mac.bash`
 
-- Running this script will download and install the Anka Build Cloud Controller & Registry onto the current machine.
+- Running this script will download and install the latest Anka Build Cloud Controller & Registry onto the current machine.
+- If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA/install-build-cloud-on-mac.bash "/Users/myUserName/Downloads/AnkaControllerRegistry-1.4.0-8a38607d.pkg"`).
+- If the first argument is `--uninstall`, it will only remove the existing install.
 
 ### `create-template.bash`
 
@@ -65,6 +70,19 @@ At this point, you can try [starting a VM instance from the Anka Build Cloud UI.
 
 ---
 
+> **CI/CD platform scripts require that you first peform the [Initial Setup](#initial-setup) steps**
+
+## TeamCity (`./TEAMCITY`)
+
+### `install-teamcity-server-on-docker.bash`
+
+> **Be sure to generate the required VM Tag using `./ANKA/create-tags.bash 10.15.4 --teamcity`**
+
+- Running this script will setup TeamCity server, plugins, and a testing project within a docker container.
+- If the first argument is `--uninstall`, it will only remove the existing install.
+
+---
+
 ## Jenkins (`./JENKINS`)
 
 Coming soon!
@@ -78,12 +96,6 @@ Coming soon!
 ---
 
 ## Buildkite (`./BUILDKITE`)
-
-Coming soon!
-
----
-
-## TeamCity (`./TEAMCITY`)
 
 Coming soon!
 

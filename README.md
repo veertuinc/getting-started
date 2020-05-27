@@ -83,15 +83,18 @@ URLs and ports you can expect:
 
 ---
 
+## GitLab (`./GITLAB`)
+
+> **Be sure to generate the required VM Tag using `./ANKA/create-tags.bash 10.15.4 --gitlab`**
+- Running this script will setup GitLab and a testing project within a docker container, then two other containers with a shared and project specific [anka-gitlab-runner](https://github.com/veertuinc/gitlab-runner).
+- If the first argument is `--uninstall`, it will only remove the existing install.
+
+---
+
 ## Jenkins (`./JENKINS`)
 
 Coming soon!
 
----
-
-## GitLab (`./GITLAB`)
-
-Coming soon!
 
 ---
 

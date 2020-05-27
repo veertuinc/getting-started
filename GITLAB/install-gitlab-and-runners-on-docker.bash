@@ -3,6 +3,11 @@ set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 . ../shared.bash
+echo "]] Cleaning up the previous GitLab installation"
+docker stop $GITLAB_RUNNER_SHARED_RUNNER_NAME || true
+docker rm $GITLAB_RUNNER_SHARED_RUNNER_NAME || true
+docker stop $GITLAB_RUNNER_PROJECT_RUNNER_NAME || true
+docker rm $GITLAB_RUNNER_PROJECT_RUNNER_NAME || true
 docker-compose down || true
 docker stop $GITLAB_DOCKER_CONTAINER_NAME &>/dev/null || true
 docker rm $GITLAB_DOCKER_CONTAINER_NAME &>/dev/null || true
@@ -10,6 +15,7 @@ rm -rf $GITLAB_DOCKER_DATA_DIR
 rm -rf docker-compose.yml
 if [[ $1 != "--uninstall" ]]; then
   modify_hosts $GITLAB_DOCKER_CONTAINER_NAME
+  echo "]] Starting the GitLab Docker container"
 cat > docker-compose.yml <<BLOCK
 version: '3.7'
 services:
@@ -44,17 +50,15 @@ BLOCK
   ## API auth
   GITLAB_ACCESS_TOKEN=$(curl -s --request POST --data "grant_type=password&username=root&password=$GITLAB_ROOT_PASSWORD" http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/oauth/token | jq -r '.access_token')
   ## Create example project
-  curl -s --request DELETE -H "Authorization: Bearer $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects/$GITLAB_EXAMPLE_PROJECT_ID"
-  sleep 10
-  curl --request POST -H "Authorization: Bearer $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects?name=$GITLAB_EXAMPLE_PROJECT_NAME&import_url=https://github.com/veertuinc/$GITLAB_EXAMPLE_PROJECT_NAME.git&auto_devops_enabled=false&shared_runners_enabled=true"
+  echo "]] Importing example project"
+  curl --request POST -H "Authorization: Bearer $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects?name=$GITLAB_EXAMPLE_PROJECT_NAME&import_url=https://github.com/veertuinc/$GITLAB_EXAMPLE_PROJECT_NAME.git&auto_devops_enabled=false&shared_runners_enabled=true" 1>/dev/null
+  echo
   GITLAB_EXAMPLE_PROJECT_ID=$(curl -s --request GET -H "Authorization: Bearer $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects" | jq -r ".[] | select(.name==\"$GITLAB_EXAMPLE_PROJECT_NAME\") | .id")
   # GitLab Runner
   ## Collect the Shared runner token
   SHARED_REGISTRATION_TOKEN="$(docker exec -i $GITLAB_DOCKER_CONTAINER_NAME bash -c "gitlab-rails runner -e production \"puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token\"")"
-  echo "Registering Shared runner with token: $SHARED_REGISTRATION_TOKEN"
-  docker stop anka-gitlab-runner-shared || true
-  docker rm anka-gitlab-runner-shared || true
-  docker run --name anka-gitlab-runner-shared -ti -d veertu/anka-gitlab-runner-amd64 \
+  echo "]] Starting a shared Anka GitLab Runner (Docker container: $GITLAB_RUNNER_SHARED_RUNNER_NAME) and connecting it to your GitLab"
+  docker run --name $GITLAB_RUNNER_SHARED_RUNNER_NAME -ti -d veertu/anka-gitlab-runner-amd64 \
   --url "${URL_PROTOCOL}host.docker.internal:$GITLAB_PORT" \
   --registration-token $SHARED_REGISTRATION_TOKEN \
   --ssh-user $ANKA_VM_USER \
@@ -68,10 +72,8 @@ BLOCK
   --tag-list "localhost-shared,localhost,iOS"
   ## Collect the project runner token
   PROJECT_REGISTRATION_TOKEN=$(docker exec -i $GITLAB_DOCKER_CONTAINER_NAME bash -c "gitlab-rails runner -e production \"puts Project.find_by_id($GITLAB_EXAMPLE_PROJECT_ID).runners_token\"")
-  echo "Registering Project runner with token: $PROJECT_REGISTRATION_TOKEN"
-  docker stop anka-gitlab-runner-project-specific || true
-  docker rm anka-gitlab-runner-project-specific || true
-  docker run --name anka-gitlab-runner-project-specific -ti -d veertu/anka-gitlab-runner-amd64 \
+  echo "]] Starting a shared Anka GitLab Runner (Docker container: $GITLAB_RUNNER_PROJECT_RUNNER_NAME) and connecting it to your GitLab"
+  docker run --name $GITLAB_RUNNER_PROJECT_RUNNER_NAME -ti -d veertu/anka-gitlab-runner-amd64 \
   --url "${URL_PROTOCOL}host.docker.internal:$GITLAB_PORT" \
   --registration-token $PROJECT_REGISTRATION_TOKEN \
   --ssh-user $ANKA_VM_USER \

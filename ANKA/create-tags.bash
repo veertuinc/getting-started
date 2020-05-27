@@ -18,7 +18,7 @@ pull() {
 }
 
 suspend_and_push() {
-  echo "Suspending VM and pushing $TAG..."
+  echo "]] Suspending VM and pushing $TAG..."
   sudo anka suspend $TEMPLATE || true
   $ANKA_REGISTRY push $TEMPLATE $TAG || true
 }
@@ -35,7 +35,7 @@ does_not_exists() {
 build-tag() {
   pull
   TAG="$1"
-  echo "Building VM tag: $TAG..."
+  echo "]] Building VM tag: $TAG..."
   if does_not_exists; then
     eval "$2"
     suspend_and_push
@@ -60,6 +60,12 @@ build-tag "$TAG:brew-git" "
 "
 
 LEVEL_ONE_TAG=$TAG
+
+if [[ $2 == '--gitlab' ]]; then
+  build-tag "$LEVEL_ONE_TAG:gitlab" "
+    $ANKA_RUN $TEMPLATE sudo bash -c \"$HELPERS echo '192.168.64.1 anka.gitlab' >> /etc/hosts && [[ ! -z \\\$(grep anka.gitlab /etc/hosts) ]]\"
+  "
+fi
 
 if [[ $2 == '--teamcity' ]]; then
 

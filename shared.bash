@@ -10,7 +10,7 @@ PIPELINE_PLUGIN_VERSION="1.6.0"
 ANKA_VIRTUALIZATION_PACKAGE=${ANKA_VIRTUALIZATION_PACKAGE:-"Anka-2.2.3.118.pkg"}
 ANKA_VIRTUALIZATION_DOWNLOAD_URL="https://ankabeta.s3.amazonaws.com/$ANKA_VIRTUALIZATION_PACKAGE"
 ANKA_VM_USER=${ANKA_VM_USER:-"anka"}
-ANKA_VM_PASSWORD=${ANKA_VM_USER:-"admin"}
+ANKA_VM_PASSWORD=${ANKA_VM_PASSWORD:-"admin"}
 ANKA_VM_TEMPLATE_UUID="c0847bc9-5d2d-4dbc-ba6a-240f7ff08032" # Used in https://github.com/veertuinc/jenkins-dynamic-label-example
 
 CLOUD_CONTROLLER_ADDRESS=${CLOUD_CONTROLLER_ADDRESS:-"anka.controller"}
@@ -33,6 +33,8 @@ GITLAB_ROOT_PASSWORD="adminpassword"
 GITLAB_EXAMPLE_PROJECT_NAME="gitlab-examples"
 GITLAB_ANKA_VM_TEMPLATE_TAG="base:port-forward-22:brew-git:gitlab"
 
+GITLAB_RUNNER_PROJECT_RUNNER_NAME="anka-gitlab-runner-project-specific"
+GITLAB_RUNNER_SHARED_RUNNER_NAME="anka-gitlab-runner-shared"
 GITLAB_ANKA_RUNNER_VERSION=${GITLAB_ANKA_RUNNER_VERSION:-"1.0-rc1"}
 GITLAB_RUNNER_LOCATION="/tmp/anka-gitlab-runner"
 GITLAB_RUNNER_DESTINATION="/usr/local/bin/"

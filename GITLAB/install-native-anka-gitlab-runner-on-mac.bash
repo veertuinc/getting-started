@@ -15,6 +15,7 @@ rm -rf $GITLAB_RUNNER_DESTINATION
 if [[ $1 != "--uninstall" ]]; then
   mkdir -p $GITLAB_RUNNER_LOCATION
   cd $GITLAB_RUNNER_LOCATION
+  modify_hosts $GITLAB_DOCKER_CONTAINER_NAME
   curl -L -o anka-gitlab-runner.tar.gz https://github.com/veertuinc/gitlab-runner/releases/download/$GITLAB_ANKA_RUNNER_VERSION/gitlab-runner_${GITLAB_ANKA_RUNNER_VERSION}_darwin_amd64.tar.gz
   tar -xzvf anka-gitlab-runner.tar.gz
   cp -rfp $GITLAB_RUNNER_LOCATION/gitlab-runner-darwin-* $GITLAB_RUNNER_DESTINATION

@@ -18,6 +18,8 @@ if [[ $1 != "--uninstall" ]]; then
   cp -f $TEAMCITY_DOCKER_CONTAINER_NAME-data.tar.gz $HOME/
   cd $HOME
   tar -xzf $TEAMCITY_DOCKER_DATA_DIR.tar.gz
+  rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
+  cd $SCRIPT_DIR
 cat > docker-compose.yml <<BLOCK
 version: '3.7'
 services:

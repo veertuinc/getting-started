@@ -35,7 +35,7 @@ GITLAB_ANKA_VM_TEMPLATE_TAG="base:port-forward-22:brew-git:gitlab"
 
 GITLAB_RUNNER_PROJECT_RUNNER_NAME="anka-gitlab-runner-project-specific"
 GITLAB_RUNNER_SHARED_RUNNER_NAME="anka-gitlab-runner-shared"
-GITLAB_ANKA_RUNNER_VERSION=${GITLAB_ANKA_RUNNER_VERSION:-"1.0-rc1"}
+GITLAB_ANKA_RUNNER_VERSION=${GITLAB_ANKA_RUNNER_VERSION:-"1.0"}
 GITLAB_RUNNER_LOCATION="/tmp/anka-gitlab-runner"
 GITLAB_RUNNER_DESTINATION="/usr/local/bin/"
 GITLAB_RUNNER_LOCATION="/tmp/anka-gitlab-runner"

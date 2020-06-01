@@ -36,13 +36,10 @@ URLs and ports you can expect:
 
 - Controller: http://anka.controller:8090
 - Registry:   http://anka.registry:8091
-<<<<<<< HEAD
 - Jenkins:    http://anka.jenkins:8092
+- TeamCity:   http://anka.teamcity:8094
 
 At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/getting-started/macos/#step-4-start-a-vm-instance-using-the-controller-ui)
-=======
-- TeamCity:   http://anka.teamcity:8094
->>>>>>> master
 
 ---
 

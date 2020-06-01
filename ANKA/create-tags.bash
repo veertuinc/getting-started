@@ -63,8 +63,7 @@ build-tag "$TAG:brew-git" "
 
 LEVEL_ONE_TAG=$TAG
 
-if [[ $2 == '--jenkins' ]]; then
-
+if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
   ## Install OpenJDK8
   build-tag "$LEVEL_ONE_TAG:openjdk-1.8.0_242" "
     $ANKA_RUN $TEMPLATE bash -c \"$HELPERS cd /tmp && rm -f /tmp/OpenJDK* && \
@@ -76,10 +75,21 @@ if [[ $2 == '--jenkins' ]]; then
   " $LEVEL_ONE_TAG
 
   OPENJDK_TAGS="$TAG"
+fi
 
+if [[ $2 == '--jenkins' ]]; then
   ## Jenkins misc (Only needed if you're running Jenkins on the same host you run the VMs)
   build-tag "$OPENJDK_TAGS:jenkins" "
     $ANKA_RUN $TEMPLATE sudo bash -c \"$HELPERS echo '192.168.64.1 anka.jenkins' >> /etc/hosts && [[ ! -z \\\$(grep anka.jenkins /etc/hosts) ]]\"
   " $OPENJDK_TAGS
+fi
 
+if [[ $2 == '--teamcity' ]]; then
+  build-tag "$OPENJDK_TAGS:teamcity" "
+    $ANKA_RUN $TEMPLATE sudo bash -c \"$HELPERS echo '192.168.64.1 $TEAMCITY_DOCKER_CONTAINER_NAME' >> /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"
+    $ANKA_RUN $TEMPLATE bash -c \"curl -O -L https://download.jetbrains.com/teamcity/TeamCity-$TEAMCITY_VERSION.tar.gz\"
+    $ANKA_RUN $TEMPLATE bash -c \"tar -xzvf TeamCity-$TEAMCITY_VERSION.tar.gz && mv Teamcity/BuildAgent /Users/anka/buildAgent\"
+    $ANKA_RUN $TEMPLATE bash -c \"echo >> buildAgent/conf/buildagent.properties\"
+    $ANKA_RUN $TEMPLATE bash -c \"sh buildAgent/bin/mac.launchd.sh load && sleep 5\"
+  " $LEVEL_ONE_TAG
 fi

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR"
 . ../shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with brew install jq." && exit 1
 TEMPLATE=$1

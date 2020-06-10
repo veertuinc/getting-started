@@ -1,7 +1,7 @@
 <?xml version='1.1' encoding='UTF-8'?>
 <hudson>
   <disabledAdministrativeMonitors/>
-  <version>2.238</version>
+  <version>2.242</version>
   <installStateName>RUNNING</installStateName>
   <numExecutors>2</numExecutors>
   <mode>NORMAL</mode>
@@ -16,7 +16,7 @@
   <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
   <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
   <clouds>
-    <com.veertu.plugin.anka.AnkaMgmtCloud plugin="anka-build@1.23.0">
+    <com.veertu.plugin.anka.AnkaMgmtCloud plugin="anka-build@2.1.0">
       <name>Anka Cloud</name>
       <templates>
         <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
@@ -40,8 +40,8 @@
             </com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
           </environments>
           <retentionStrategy class="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">
-            <idleMinutes>0</idleMinutes>
-            <idleMinutes defined-in="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">3</idleMinutes>
+            <idleMinutes>3</idleMinutes>
+            <reconnectionRetries>0</reconnectionRetries>
           </retentionStrategy>
           <nameTemplate>local-anka-cloud-label-ssh</nameTemplate>
           <javaArgs></javaArgs>
@@ -56,11 +56,13 @@
             <tag></tag>
             <deleteLatest>false</deleteLatest>
           </saveImageParameters>
+          <cloudName>Anka Cloud</cloudName>
+          <instanceCapacity>0</instanceCapacity>
+          <idleMinutes>0</idleMinutes>
           <schedulingTimeout>1800</schedulingTimeout>
           <labelSet class="sorted-set">
             <hudson.model.labels.LabelAtom>local-anka-cloud-label-ssh</hudson.model.labels.LabelAtom>
           </labelSet>
-          <cloudName>Anka Cloud</cloudName>
         </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
         <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
           <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
@@ -83,8 +85,8 @@
             </com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
           </environments>
           <retentionStrategy class="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">
-            <idleMinutes>0</idleMinutes>
-            <idleMinutes defined-in="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">3</idleMinutes>
+            <idleMinutes>3</idleMinutes>
+            <reconnectionRetries>0</reconnectionRetries>
           </retentionStrategy>
           <nameTemplate>local-anka-cloud-label-jnlp</nameTemplate>
           <javaArgs></javaArgs>
@@ -99,11 +101,13 @@
             <tag></tag>
             <deleteLatest>false</deleteLatest>
           </saveImageParameters>
+          <cloudName>Anka Cloud</cloudName>
+          <instanceCapacity>0</instanceCapacity>
+          <idleMinutes>0</idleMinutes>
           <schedulingTimeout>1800</schedulingTimeout>
           <labelSet class="sorted-set">
             <hudson.model.labels.LabelAtom>local-anka-cloud-label-jnlp</hudson.model.labels.LabelAtom>
           </labelSet>
-          <cloudName>Anka Cloud</cloudName>
         </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
         <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
           <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
@@ -126,8 +130,8 @@
             </com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
           </environments>
           <retentionStrategy class="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">
-            <idleMinutes>0</idleMinutes>
-            <idleMinutes defined-in="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">3</idleMinutes>
+            <idleMinutes>3</idleMinutes>
+            <reconnectionRetries>0</reconnectionRetries>
           </retentionStrategy>
           <nameTemplate></nameTemplate>
           <javaArgs></javaArgs>
@@ -143,11 +147,13 @@
             <tag></tag>
             <deleteLatest>false</deleteLatest>
           </saveImageParameters>
+          <cloudName>Anka Cloud</cloudName>
+          <instanceCapacity>0</instanceCapacity>
+          <idleMinutes>0</idleMinutes>
           <schedulingTimeout>1800</schedulingTimeout>
           <labelSet class="sorted-set">
             <hudson.model.labels.LabelAtom>local-anka-cloud-label-jnlp-cache-builder</hudson.model.labels.LabelAtom>
           </labelSet>
-          <cloudName>Anka Cloud</cloudName>
         </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
         <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
           <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
@@ -170,8 +176,8 @@
             </com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
           </environments>
           <retentionStrategy class="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">
-            <idleMinutes>0</idleMinutes>
-            <idleMinutes defined-in="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">3</idleMinutes>
+            <idleMinutes>3</idleMinutes>
+            <reconnectionRetries>0</reconnectionRetries>
           </retentionStrategy>
           <nameTemplate>local-anka-cloud-label-ssh-cache-builder</nameTemplate>
           <javaArgs></javaArgs>
@@ -187,33 +193,22 @@
             <tag></tag>
             <deleteLatest>false</deleteLatest>
           </saveImageParameters>
+          <cloudName>Anka Cloud</cloudName>
+          <instanceCapacity>0</instanceCapacity>
+          <idleMinutes>0</idleMinutes>
           <schedulingTimeout>1800</schedulingTimeout>
           <labelSet class="sorted-set">
             <hudson.model.labels.LabelAtom>local-anka-cloud-label-ssh-cache-builder</hudson.model.labels.LabelAtom>
           </labelSet>
-          <cloudName>Anka Cloud</cloudName>
         </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
       </templates>
       <ankaMgmtUrl>http://host.docker.internal:8090</ankaMgmtUrl>
-      <ankaAPI>
-        <communicator>
-          <mgmtUrl>http://host.docker.internal:8090</mgmtUrl>
-          <timeout>30000</timeout>
-          <maxRetries>10</maxRetries>
-          <skipTLSVerification>false</skipTLSVerification>
-        </communicator>
-      </ankaAPI>
       <credentialsId></credentialsId>
       <skipTLSVerification>false</skipTLSVerification>
-      <saveImageRequestsHolder>
-        <requests/>
-        <mutex/>
-      </saveImageRequestsHolder>
-      <daemon>
-        <mutex/>
-        <instanceMap/>
-        <nodeMap/>
-      </daemon>
+      <cloudInstanceCap>0</cloudInstanceCap>
+      <vmPollTime>5000</vmPollTime>
+      <maxConnections>50</maxConnections>
+      <connectionKeepAliveSeconds>120</connectionKeepAliveSeconds>
     </com.veertu.plugin.anka.AnkaMgmtCloud>
   </clouds>
   <scmCheckoutRetryCount>0</scmCheckoutRetryCount>

@@ -7,21 +7,19 @@ cleanup() {
   sudo anka delete --yes $TEMPLATE
 }
 trap cleanup ERR INT
-# TODO: Support existing installers
-[[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with brew." && exit 1
+[[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
 TEMP_DIR="/tmp/anka-mac-resources"
 MOUNT_DIR="$TEMP_DIR/mount"
 mkdir -p $MOUNT_DIR
 cd $TEMP_DIR
 if [[ -z $1 ]]; then # interactive installer
   # Download the macOS installer script and prepare the install.app
-  echo "Downloading Mac Installer .app (requires root) ..."
-  curl -S -L -O https://raw.githubusercontent.com/munki/macadmin-scripts/master/installinstallmacos.py
-  sudo chmod +x installinstallmacos.py
-  sudo ./installinstallmacos.py --raw
+  echo "]] Downloading Mac Installer .app (requires root) ..."
+  cp $SCRIPT_DIR/download-macos-installer.py $TEMP_DIR/
+  sudo ./download-macos-installer.py --raw
   INSTALL_IMAGE=$(basename $TEMP_DIR/Install_*.sparseimage)
   TEMPLATE="$(echo $INSTALL_IMAGE | sed -n 's/.*macOS_\([0-9][0-9]\..*\)-.*/\1/p')"
-  echo "Mounting $INSTALL_IMAGE to $MOUNT_DIR ..."
+  echo "]] Mounting $INSTALL_IMAGE to $MOUNT_DIR ..."
   sudo hdiutil attach $INSTALL_IMAGE -mountpoint $MOUNT_DIR
   INSTALL_APP=$(basename $MOUNT_DIR/Applications/Install*.app)
   INSTALLER_LOCATION="/Applications/$INSTALL_APP"
@@ -39,7 +37,7 @@ curl -s -X DELETE ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_POR
 sudo anka delete --yes $ANKA_VM_TEMPLATE_UUID &>/dev/null || true
 sudo anka delete --yes $TEMPLATE &>/dev/null || true
 # Create Base Template
-echo "Creating $TEMPLATE using $INSTALLER_LOCATION ..."
+echo "]] Creating $TEMPLATE using $INSTALLER_LOCATION ..."
 sudo anka create --ram-size 10G --cpu-count 6 --disk-size 80G --app "$INSTALLER_LOCATION" $TEMPLATE
 ## Change UUID for Template
 CUR_UUID=$(sudo anka --machine-readable list | jq -r ".body[] | select(.name==\"$TEMPLATE\") | .uuid")

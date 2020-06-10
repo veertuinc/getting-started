@@ -1,9 +1,10 @@
 #!/bin/bash
 set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR"
 . ../shared.bash
 SERVICE_PORT="8080"
+echo "]] Cleaning up the previous Jenkins installation"
 docker-compose down &>/dev/null || true
 docker stop $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
 docker rm $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
@@ -13,6 +14,7 @@ if [[ $1 != "--uninstall" ]]; then
   modify_hosts $JENKINS_DOCKER_CONTAINER_NAME
   mkdir -p $JENKINS_DATA_DIR
   cp -f .log.properties $JENKINS_DATA_DIR/log.properties # Enable debug logging
+  echo "]] Starting the Jenkins Docker container"
 cat > docker-compose.yml <<BLOCK
 version: '3.7'
 services:
@@ -30,7 +32,7 @@ services:
       - JAVA_OPTS="-Djava.util.logging.config.file=/var/jenkins_home/log.properties"
 BLOCK
   docker-compose up -d
-  echo "Waiting 60 seconds for Jenkins to start properly..."
+  echo "]] Waiting 60 seconds for Jenkins to start properly..."
   sleep 60
   # Disable the "Unlock Jenkins" (initialAdminPassword) 
   sed -i '' 's/NEW/RUNNING/' $JENKINS_DATA_DIR/config.xml
@@ -47,12 +49,13 @@ cat > $JENKINS_DATA_DIR/jenkins.model.JenkinsLocationConfiguration.xml <<BLOCK
 BLOCK
   docker-compose restart
   # Plugins
-  echo "Installing Plugins (may take a while)..."
+  echo "]] Installing Plugins (may take a while)..."
   sleep 80 # Waits for "jenkins.slaves.restarter.JnlpSlaveRestarterInstaller install" to finish
   jenkins_plugin_install "github@$GITHUB_PLUGIN_VERSION"
   jenkins_plugin_install "anka-build@$ANKA_PLUGIN_VERSION"
   jenkins_plugin_install "pipeline-model-definition@$PIPELINE_PLUGIN_VERSION"
   # Credential
+  echo "]] Adding the needed credentials"
   curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/credentials/store/system/domain/_/createCredentials \
   --data-urlencode 'json={
     "": "0",
@@ -66,13 +69,15 @@ BLOCK
     }
   }'
   # Clone the jobs examples
+  echo "]] Adding example jobs"
   git clone https://github.com/veertuinc/jenkins-job-examples.git $JENKINS_DATA_DIR/jobs
   docker-compose stop
-  # Add in the config.xml with the cloud 
+  # Add in the config.xml with the cloud
+  echo "]] Adding the configuration you'll need"
   cp -rf .config.xml $JENKINS_DATA_DIR/config.xml
   docker-compose start
   #
   echo "================================================================================="
-  echo "Jenkins is now accessible at: http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT
-Documentation: https://ankadocs.veertu.com/docs/anka-build-cloud/ci-plugins/jenkins"
+  echo "Jenkins UI: http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT
+Documentation: https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/jenkins"
 fi

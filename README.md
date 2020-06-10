@@ -26,9 +26,9 @@ This repo contains various scripts for setting up and testing Anka software on y
 Before integrating Anka with your CI, you need to install and configure the **Anka Virtualization CLI** and **Build Cloud Controller & Registry**.
 
 1. Obtain your trial license from https://veertu.com/getting-started-anka-trials/
-1. Install the **[Anka Virtualization and CLI package, then activate your license](https://ankadocs.veertu.com/docs/anka-cli/installation/#install-the-anka-cli)** with `./ANKA/install-anka-virtualization.bash ${LICENSE}`.
-2. Install the **Anka Build Cloud Controller & Registry** with `./ANKA/install-build-cloud-on-mac.bash`.
-3. Now generate your [Template and Tags](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage) with `./ANKA/create-template.bash`.
+1. Install the **[Anka Virtualization CLI package, then activate your license](https://ankadocs.veertu.com/docs/anka-cli/installation/#install-the-anka-cli)** with `./ANKA_BUILD_CLOUD/install-anka-build-virtualization-on-mac.bash`.
+2. Install the **Anka Build Cloud Controller & Registry** with `./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-mac.bash`.
+3. Now generate your [Template and Tags](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage) with `./ANKA_BUILD_CLOUD/create-template.bash`.
 
 At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/getting-started/macos/#step-4-start-a-vm-instance-using-the-controller-ui)
 
@@ -39,22 +39,20 @@ URLs and ports you can expect:
 - Jenkins:    http://anka.jenkins:8092
 - TeamCity:   http://anka.teamcity:8094
 
-At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/getting-started/macos/#step-4-start-a-vm-instance-using-the-controller-ui)
-
 ---
 
-## ANKA (`./ANKA`)
+## ANKA (`./ANKA_BUILD_CLOUD`)
 
-### `install-anka-virtualization.bash`
+### `install-anka-build-virtualization.bash`
 
 - Running this script will install the latest Anka Virtualization package/CLI onto the current machine.
-- If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA/install-anka-virtualization.bash "/Users/myUserName/Downloads/Anka-2.1.1.111.pkg"`).
+- If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA_BUILD_CLOUD/install-anka-virtualization.bash "/Users/myUserName/Downloads/Anka-2.1.1.111.pkg"`).
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
-### `install-build-cloud-on-mac.bash`
+### `install-build-controller-and-registry-on-mac.bash`
 
 - Running this script will download and install the latest Anka Build Cloud Controller & Registry onto the current machine.
-- If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA/install-build-cloud-on-mac.bash "/Users/myUserName/Downloads/AnkaControllerRegistry-1.4.0-8a38607d.pkg"`).
+- If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA_BUILD_CLOUD/install-build-cloud-on-mac.bash "/Users/myUserName/Downloads/AnkaControllerRegistry-1.4.0-8a38607d.pkg"`).
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
 ### `create-template.bash`
@@ -63,7 +61,7 @@ At this point, you can try [starting a VM instance from the Anka Build Cloud UI.
 
 - Running this script will guide you through downloading Apple's macOS installer and then use it to create your first VM Template.
 - Without any arguments, the script will guide you through downloading a specific version of the macOS installer .app. 
-- If the first argument is an **absolute* path to your installer .app, the script will not use the guided downloader: (`./ANKA/create-template.bash "/Applications/Install macOS Catalina.app"`).
+- If the first argument is an **absolute* path to your installer .app, the script will not use the guided downloader: (`./ANKA_BUILD_CLOUD/create-template.bash "/Applications/Install macOS Catalina.app"`).
 
 ### `create-tags.bash`
 
@@ -82,19 +80,21 @@ At this point, you can try [starting a VM instance from the Anka Build Cloud UI.
 
 ---
 
-## [Jenkins](https://ankadocs.veertu.com/docs/anka-build-cloud/ci-plugins/jenkins/) (`./JENKINS`)
+## [Jenkins](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/jenkins/) (`./JENKINS`)
 
-### `create-jenkins-docker.bash`
+> **Be sure to generate the required VM Tag using `./ANKA_BUILD_CLOUD/create-tags.bash 10.15.5 --jenkins`**
 
-- Running this script will start a Jenkins container and configure it to run on http://anka.jenkins:8092. It will install all of the necessary plugins and example Jobs that use [Static and Dynamic Labels](https://ankadocs.veertu.com/docs/anka-build-cloud/ci-plugins/jenkins/#install-and-configure-the-anka-plugin-in-jenkins).
+### `install-jenkins-on-docker.bash`
+
+- Running this script will start a Jenkins container and configure it to run on http://anka.jenkins:8092. It will install all of the necessary plugins and example Jobs that use [Static and Dynamic Labels](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/jenkins/#install-and-configure-the-anka-plugin-in-jenkins).
 
 ---
 
-## [TeamCity](https://ankadocs.veertu.com/docs/anka-build-cloud/ci-plugins/teamcity/) (`./TEAMCITY`)
+## [TeamCity](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/teamcity/) (`./TEAMCITY`)
 
 ### `install-teamcity-server-on-docker.bash`
 
-> **Be sure to generate the required VM Tag using `./ANKA/create-tags.bash 10.15.4 --teamcity`**
+> **Be sure to generate the required VM Tag using `./ANKA_BUILD_CLOUD/create-tags.bash 10.15.5 --teamcity`**
 
 - Running this script will setup TeamCity server, plugins, and a testing project within a docker container.
 - If the first argument is `--uninstall`, it will only remove the existing install.

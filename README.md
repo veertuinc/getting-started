@@ -82,9 +82,9 @@ URLs and ports you can expect:
 
 ## [Jenkins](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/jenkins/) (`./JENKINS`)
 
-> **Be sure to generate the required VM Tag using `./ANKA_BUILD_CLOUD/create-tags.bash 10.15.5 --jenkins`**
-
 ### `install-jenkins-on-docker.bash`
+
+> **Be sure to generate the required VM Tag using `./ANKA_BUILD_CLOUD/create-tags.bash 10.15.5 --jenkins`**
 
 - Running this script will start a Jenkins container and configure it to run on http://anka.jenkins:8092. It will install all of the necessary plugins and example Jobs that use [Static and Dynamic Labels](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/jenkins/#install-and-configure-the-anka-plugin-in-jenkins).
 

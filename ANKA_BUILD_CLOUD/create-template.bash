@@ -4,7 +4,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 . ../shared.bash
 cleanup() {
-  sudo anka delete --yes $TEMPLATE
+  sudo anka delete --yes $TEMPLATE || true
 }
 trap cleanup ERR INT
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
@@ -33,7 +33,7 @@ else
 fi
 cd $HOME
 # Cleanup already existing Template
-curl -s -X DELETE ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/api/v1/registry/vm\?id\=$ANKA_VM_TEMPLATE_UUID &>/dev/null
+curl -s -X DELETE ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/api/v1/registry/vm\?id\=$ANKA_VM_TEMPLATE_UUID &>/dev/null || true
 sudo anka delete --yes $ANKA_VM_TEMPLATE_UUID &>/dev/null || true
 sudo anka delete --yes $TEMPLATE &>/dev/null || true
 # Create Base Template
@@ -44,8 +44,8 @@ CUR_UUID=$(sudo anka --machine-readable list | jq -r ".body[] | select(.name==\"
 sudo mv "$(sudo anka config vm_lib_dir)/$CUR_UUID" "$(sudo anka config vm_lib_dir)/$ANKA_VM_TEMPLATE_UUID"
 sudo sed -i '' "s/$CUR_UUID/$ANKA_VM_TEMPLATE_UUID/" "$(sudo anka config vm_lib_dir)/$ANKA_VM_TEMPLATE_UUID/$CUR_UUID.yaml"
 sudo mv "$(sudo anka config vm_lib_dir)/$ANKA_VM_TEMPLATE_UUID/$CUR_UUID.yaml" "$(sudo anka config vm_lib_dir)/$ANKA_VM_TEMPLATE_UUID/$ANKA_VM_TEMPLATE_UUID.yaml"
-# Add Registry to CLI
-if [[ -z $(sudo anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME) ]]; then
+# Add Registry to CLI (if the registry was installed locally)
+if [[ ! -z $(grep anka.registry /etc/hosts) && -z $(sudo anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME) ]]; then
   sudo anka registry add $CLOUD_REGISTRY_REPO_NAME ${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT
   sudo anka registry list-repos
 fi

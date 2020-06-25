@@ -2,11 +2,16 @@
 set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
-. ../../shared.bash
+. ../shared.bash
 # Cleanup
 cleanup() {
   rm -f $STORAGE_LOCATION/$CLOUD_NATIVE_PACKAGE
 }
+# Warn about node being joined
+if [[ "$(sudo ankacluster status)" =~ "is running" ]]; then
+  echo "You have this machine (node) joined to the Cloud! Please disjoin before uninstalling or reinstalling with: sudo ankacluster disjoin"
+  exit 1
+fi
 echo "]] Cleaning up the previous Anka Cloud installation"
 sudo anka-controller stop &>/dev/null || true
 sudo /Library/Application\ Support/Veertu/Anka/tools/controller/uninstall.sh 2>/dev/null || true
@@ -105,23 +110,7 @@ BLOCK
   # Set Hosts
   modify_hosts $CLOUD_CONTROLLER_ADDRESS &>/dev/null
   modify_hosts $CLOUD_REGISTRY_ADDRESS &>/dev/null
-  # Join cluster
   echo "]] Joining this machine (Node) to the Cloud"
-  if [[ "$(sudo ankacluster status)" =~ "is running" ]]; then
-    WAIT=0
-    sudo ankacluster disjoin &
-    while ps -p $! | grep $! &>/dev/null; do
-      echo "The current machine (Node) is joined to a cluster. Waiting for it to disjoin..."
-      if [[ $WAIT < 10 ]]; then
-        sleep 20
-      else
-        echo "Something is taking too long to disjoin... Forcfully disjoining"
-        sudo kill -9 $(pgrep anka_agent) &>/dev/null || true
-        sudo kill -9 $(pgrep anka_agent_helper) &>/dev/null || true
-      fi
-      ((WAIT++))
-    done
-  fi
   sleep 20
   sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT
   #

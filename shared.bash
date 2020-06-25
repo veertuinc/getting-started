@@ -3,9 +3,9 @@
 STORAGE_LOCATION=${STORAGE_LOCATION:-"/tmp"}
 URL_PROTOCOL="http://"
 
-ANKA_PLUGIN_VERSION="1.23.0"
+ANKA_PLUGIN_VERSION="2.1.0"
 GITHUB_PLUGIN_VERSION="1.30.0"
-PIPELINE_PLUGIN_VERSION="1.6.0"
+PIPELINE_PLUGIN_VERSION="1.7.0"
 
 ANKA_VIRTUALIZATION_PACKAGE=${ANKA_VIRTUALIZATION_PACKAGE:-"Anka-2.2.3.118.pkg"}
 ANKA_VIRTUALIZATION_DOWNLOAD_URL="https://ankabeta.s3.amazonaws.com/$ANKA_VIRTUALIZATION_PACKAGE"
@@ -19,10 +19,16 @@ CLOUD_CONTROLLER_PORT="8090"
 
 CLOUD_REGISTRY_PORT="8091"
 CLOUD_REGISTRY_REPO_NAME="local-demo"
-CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry-1.7.1-9545c9f5.pkg"}
-CLOUD_DOCKER_TAR="anka-controller-registry-1.7.1-9545c9f5.tar.gz"
+CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry-1.8.0-91225db0.pkg"}
+CLOUD_DOCKER_TAR="anka-controller-registry-1.8.0-91225db0.tar.gz"
 CLOUD_DOCKER=$(echo $CLOUD_DOCKER_TAR | awk -F'.tar.gz' '{print $1}')
 CLOUD_DOWNLOAD_URL="https://ankabeta.s3.amazonaws.com/$CLOUD_NATIVE_PACKAGE"
+
+JENKINS_PORT=8092
+JENKINS_SERVICE_PORT="8080"
+JENKINS_DOCKER_CONTAINER_NAME="anka.jenkins"
+JENKINS_TAG_VERSION=${JENKINS_TAG_VERSION:-"lts"}
+JENKINS_DATA_DIR="$HOME/$JENKINS_DOCKER_CONTAINER_NAME-data"
 
 TEAMCITY_PORT="8094"
 TEAMCITY_VERSION="2020.1"
@@ -40,4 +46,24 @@ modify_hosts() {
   HOSTS_LOCATION="/etc/hosts"
   $SED "/$1/d" $HOSTS_LOCATION
   echo "127.0.0.1 $1" | sudo tee -a $HOSTS_LOCATION
+}
+
+jenkins_obtain_crumb() {
+  COOKIEJAR="$(mktemp)"
+  CRUMB=$(curl -u "admin: admin" --cookie-jar "$COOKIEJAR" -s "http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)")
+}
+
+jenkins_plugin_install() {
+  PLUGIN_NAME=$(echo $1 | cut -d@ -f1)
+  PLUGIN_VERSION=$(echo $1 | cut -d@ -f2)
+  jenkins_obtain_crumb
+  curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"${PLUGIN_NAME}@${PLUGIN_VERSION}\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins
+  TRIES=0
+  while [[ "$(docker logs --tail 100 $JENKINS_DOCKER_CONTAINER_NAME 2>&1 | grep "INFO: Installation successful: ${PLUGIN_NAME}$")" != "INFO: Installation successful: $PLUGIN_NAME" ]]; do
+    echo "Installation of $PLUGIN_NAME plugin still pending..."
+    sleep 20
+    [[ $TRIES == 20 ]] && echo "Something is wrong with the Jenkins $PLUGIN_NAME installation..." && docker logs --tail 10 $JENKINS_DOCKER_CONTAINER_NAME && exit 1
+    ((TRIES++))
+  done
+  true
 }

@@ -91,5 +91,5 @@ if [[ $2 == '--teamcity' ]]; then
     $ANKA_RUN $TEMPLATE bash -c \"tar -xzvf TeamCity-$TEAMCITY_VERSION.tar.gz && mv Teamcity/BuildAgent /Users/anka/buildAgent\"
     $ANKA_RUN $TEMPLATE bash -c \"echo >> buildAgent/conf/buildagent.properties\"
     $ANKA_RUN $TEMPLATE bash -c \"sh buildAgent/bin/mac.launchd.sh load && sleep 5\"
-  " $LEVEL_ONE_TAG
+  " $OPENJDK_TAGS
 fi

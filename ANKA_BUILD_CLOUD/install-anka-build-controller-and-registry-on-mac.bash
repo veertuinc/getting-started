@@ -112,7 +112,7 @@ BLOCK
   modify_hosts $CLOUD_REGISTRY_ADDRESS &>/dev/null
   echo "]] Joining this machine (Node) to the Cloud"
   sleep 20
-  sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT
+  sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT || true
   #
   echo "============================================================================="
   echo "Controller UI:  $URL_PROTOCOL$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT"

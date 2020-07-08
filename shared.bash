@@ -3,7 +3,7 @@
 STORAGE_LOCATION=${STORAGE_LOCATION:-"/tmp"}
 URL_PROTOCOL="http://"
 
-ANKA_PLUGIN_VERSION="2.1.0"
+ANKA_PLUGIN_VERSION="2.1.2"
 GITHUB_PLUGIN_VERSION="1.30.0"
 PIPELINE_PLUGIN_VERSION="1.7.0"
 
@@ -59,10 +59,10 @@ jenkins_plugin_install() {
   jenkins_obtain_crumb
   curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"${PLUGIN_NAME}@${PLUGIN_VERSION}\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins
   TRIES=0
-  while [[ "$(docker logs --tail 100 $JENKINS_DOCKER_CONTAINER_NAME 2>&1 | grep "INFO: Installation successful: ${PLUGIN_NAME}$")" != "INFO: Installation successful: $PLUGIN_NAME" ]]; do
+  while [[ "$(docker logs --tail 500 $JENKINS_DOCKER_CONTAINER_NAME 2>&1 | grep "INFO: Installation successful: ${PLUGIN_NAME}$")" != "INFO: Installation successful: $PLUGIN_NAME" ]]; do
     echo "Installation of $PLUGIN_NAME plugin still pending..."
-    sleep 20
-    [[ $TRIES == 20 ]] && echo "Something is wrong with the Jenkins $PLUGIN_NAME installation..." && docker logs --tail 10 $JENKINS_DOCKER_CONTAINER_NAME && exit 1
+    sleep 5
+    [[ $TRIES == 25 ]] && echo "Something is wrong with the Jenkins $PLUGIN_NAME installation..." && docker logs --tail 10 $JENKINS_DOCKER_CONTAINER_NAME && exit 1
     ((TRIES++))
   done
   true

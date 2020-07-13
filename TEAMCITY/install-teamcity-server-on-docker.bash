@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
-cd $SCRIPT_DIR
+cd "$SCRIPT_DIR"
 . ../shared.bash
 SERVICE_PORT="8111"
 # Cleanup
@@ -18,6 +18,8 @@ if [[ $1 != "--uninstall" ]]; then
   cp -f $TEAMCITY_DOCKER_CONTAINER_NAME-data.tar.gz $HOME/
   cd $HOME
   tar -xzf $TEAMCITY_DOCKER_DATA_DIR.tar.gz
+  rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
+  cd "$SCRIPT_DIR"
 cat > docker-compose.yml <<BLOCK
 version: '3.7'
 services:
@@ -35,6 +37,7 @@ BLOCK
   # docker logs --tail 100 $DOCKER_CONTAINER_NAME
   modify_hosts $TEAMCITY_DOCKER_CONTAINER_NAME
   echo "============================================================================"
-  echo "Teamcity UI: ${URL_PROTOCOL}$TEAMCITY_DOCKER_CONTAINER_NAME:$TEAMCITY_PORT"
-  echo "Logins: admin / admin"
+  echo "Teamcity UI: ${URL_PROTOCOL}$TEAMCITY_DOCKER_CONTAINER_NAME:$TEAMCITY_PORT
+Logins: admin / admin
+Documentation: https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/teamcity"
 fi

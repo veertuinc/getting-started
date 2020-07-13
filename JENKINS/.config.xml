@@ -1,0 +1,235 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<hudson>
+  <disabledAdministrativeMonitors/>
+  <version>2.222.3</version>
+  <installStateName>RUNNING</installStateName>
+  <numExecutors>2</numExecutors>
+  <mode>NORMAL</mode>
+  <useSecurity>true</useSecurity>
+  <authorizationStrategy class="hudson.security.AuthorizationStrategy$Unsecured"/>
+  <securityRealm class="hudson.security.SecurityRealm$None"/>
+  <disableRememberMe>false</disableRememberMe>
+  <projectNamingStrategy class="jenkins.model.ProjectNamingStrategy$DefaultProjectNamingStrategy"/>
+  <workspaceDir>${JENKINS_HOME}/workspace/${ITEM_FULL_NAME}</workspaceDir>
+  <buildsDir>${ITEM_ROOTDIR}/builds</buildsDir>
+  <jdks/>
+  <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
+  <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
+  <clouds>
+    <com.veertu.plugin.anka.AnkaMgmtCloud plugin="anka-build@2.1.2">
+      <name>Anka Cloud</name>
+      <templates>
+        <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
+          <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
+          <tag>base:port-forward-22:brew-git:openjdk-1.8.0_242:jenkins</tag>
+          <launchDelay>0</launchDelay>
+          <remoteFS>/Users/anka/</remoteFS>
+          <labelString>local-anka-cloud-label-ssh</labelString>
+          <templateDescription></templateDescription>
+          <numberOfExecutors>1</numberOfExecutors>
+          <mode>EXCLUSIVE</mode>
+          <credentialsId>anka</credentialsId>
+          <extraArgs></extraArgs>
+          <launchMethod>ssh</launchMethod>
+          <keepAliveOnError>false</keepAliveOnError>
+          <SSHPort>22</SSHPort>
+          <environments>
+            <com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
+              <name>TESTING</name>
+              <value>true</value>
+            </com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
+          </environments>
+          <retentionStrategy class="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">
+            <idleMinutes>1</idleMinutes>
+            <reconnectionRetries>0</reconnectionRetries>
+          </retentionStrategy>
+          <nameTemplate>local-anka-cloud-label-ssh</nameTemplate>
+          <javaArgs></javaArgs>
+          <jnlpJenkinsOverrideUrl></jnlpJenkinsOverrideUrl>
+          <jnlpTunnel></jnlpTunnel>
+          <priority>0</priority>
+          <saveImageParameters>
+            <waitForBuildToFinish>false</waitForBuildToFinish>
+            <suspend>false</suspend>
+            <description></description>
+            <saveImage>false</saveImage>
+            <templateID>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</templateID>
+            <tag></tag>
+            <deleteLatest>false</deleteLatest>
+          </saveImageParameters>
+          <cloudName>Anka Cloud</cloudName>
+          <instanceCapacity>0</instanceCapacity>
+          <idleMinutes>0</idleMinutes>
+          <schedulingTimeout>1800</schedulingTimeout>
+          <labelSet class="sorted-set">
+            <hudson.model.labels.LabelAtom>local-anka-cloud-label-ssh</hudson.model.labels.LabelAtom>
+          </labelSet>
+        </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
+        <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
+          <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
+          <tag>base:port-forward-22:brew-git:openjdk-1.8.0_242:jenkins</tag>
+          <launchDelay>0</launchDelay>
+          <remoteFS>/Users/anka/</remoteFS>
+          <labelString>local-anka-cloud-label-jnlp</labelString>
+          <templateDescription></templateDescription>
+          <numberOfExecutors>1</numberOfExecutors>
+          <mode>EXCLUSIVE</mode>
+          <credentialsId>anka</credentialsId>
+          <extraArgs></extraArgs>
+          <launchMethod>jnlp</launchMethod>
+          <keepAliveOnError>false</keepAliveOnError>
+          <SSHPort>22</SSHPort>
+          <environments>
+            <com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
+              <name>TESTING</name>
+              <value>true</value>
+            </com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
+          </environments>
+          <retentionStrategy class="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">
+            <idleMinutes>1</idleMinutes>
+            <reconnectionRetries>0</reconnectionRetries>
+          </retentionStrategy>
+          <nameTemplate>local-anka-cloud-label-jnlp</nameTemplate>
+          <javaArgs></javaArgs>
+          <jnlpJenkinsOverrideUrl></jnlpJenkinsOverrideUrl>
+          <jnlpTunnel></jnlpTunnel>
+          <priority>0</priority>
+          <saveImageParameters>
+            <waitForBuildToFinish>false</waitForBuildToFinish>
+            <suspend>false</suspend>
+            <description></description>
+            <saveImage>false</saveImage>
+            <templateID>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</templateID>
+            <tag></tag>
+            <deleteLatest>false</deleteLatest>
+          </saveImageParameters>
+          <cloudName>Anka Cloud</cloudName>
+          <instanceCapacity>0</instanceCapacity>
+          <idleMinutes>0</idleMinutes>
+          <schedulingTimeout>1800</schedulingTimeout>
+          <labelSet class="sorted-set">
+            <hudson.model.labels.LabelAtom>local-anka-cloud-label-jnlp</hudson.model.labels.LabelAtom>
+          </labelSet>
+        </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
+        <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
+          <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
+          <tag>base:port-forward-22:brew-git:openjdk-1.8.0_242:jenkins</tag>
+          <launchDelay>0</launchDelay>
+          <remoteFS>/Users/anka/</remoteFS>
+          <labelString>local-anka-cloud-label-jnlp-cache-builder</labelString>
+          <templateDescription></templateDescription>
+          <numberOfExecutors>1</numberOfExecutors>
+          <mode>EXCLUSIVE</mode>
+          <credentialsId>anka</credentialsId>
+          <extraArgs></extraArgs>
+          <launchMethod>jnlp</launchMethod>
+          <keepAliveOnError>false</keepAliveOnError>
+          <SSHPort>22</SSHPort>
+          <environments>
+            <com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
+              <name>TESTING</name>
+              <value>true</value>
+            </com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
+          </environments>
+          <retentionStrategy class="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">
+            <idleMinutes>1</idleMinutes>
+            <reconnectionRetries>0</reconnectionRetries>
+          </retentionStrategy>
+          <nameTemplate></nameTemplate>
+          <javaArgs></javaArgs>
+          <jnlpJenkinsOverrideUrl></jnlpJenkinsOverrideUrl>
+          <jnlpTunnel></jnlpTunnel>
+          <priority>0</priority>
+          <saveImageParameters>
+            <waitForBuildToFinish>false</waitForBuildToFinish>
+            <suspend>true</suspend>
+            <description></description>
+            <saveImage>true</saveImage>
+            <templateID>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</templateID>
+            <tag></tag>
+            <deleteLatest>false</deleteLatest>
+          </saveImageParameters>
+          <cloudName>Anka Cloud</cloudName>
+          <instanceCapacity>0</instanceCapacity>
+          <idleMinutes>0</idleMinutes>
+          <schedulingTimeout>1800</schedulingTimeout>
+          <labelSet class="sorted-set">
+            <hudson.model.labels.LabelAtom>local-anka-cloud-label-jnlp-cache-builder</hudson.model.labels.LabelAtom>
+          </labelSet>
+        </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
+        <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
+          <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
+          <tag>base:port-forward-22:brew-git:openjdk-1.8.0_242:jenkins</tag>
+          <launchDelay>0</launchDelay>
+          <remoteFS>/Users/anka/</remoteFS>
+          <labelString>local-anka-cloud-label-ssh-cache-builder</labelString>
+          <templateDescription></templateDescription>
+          <numberOfExecutors>1</numberOfExecutors>
+          <mode>EXCLUSIVE</mode>
+          <credentialsId>anka</credentialsId>
+          <extraArgs></extraArgs>
+          <launchMethod>ssh</launchMethod>
+          <keepAliveOnError>false</keepAliveOnError>
+          <SSHPort>22</SSHPort>
+          <environments>
+            <com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
+              <name>TESTING</name>
+              <value>true</value>
+            </com.veertu.plugin.anka.AnkaCloudSlaveTemplate_-EnvironmentEntry>
+          </environments>
+          <retentionStrategy class="com.veertu.plugin.anka.RunOnceCloudRetentionStrategy">
+            <idleMinutes>1</idleMinutes>
+            <reconnectionRetries>0</reconnectionRetries>
+          </retentionStrategy>
+          <nameTemplate>local-anka-cloud-label-ssh-cache-builder</nameTemplate>
+          <javaArgs></javaArgs>
+          <jnlpJenkinsOverrideUrl></jnlpJenkinsOverrideUrl>
+          <jnlpTunnel></jnlpTunnel>
+          <priority>0</priority>
+          <saveImageParameters>
+            <waitForBuildToFinish>false</waitForBuildToFinish>
+            <suspend>true</suspend>
+            <description></description>
+            <saveImage>true</saveImage>
+            <templateID>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</templateID>
+            <tag></tag>
+            <deleteLatest>false</deleteLatest>
+          </saveImageParameters>
+          <cloudName>Anka Cloud</cloudName>
+          <instanceCapacity>0</instanceCapacity>
+          <idleMinutes>0</idleMinutes>
+          <schedulingTimeout>1800</schedulingTimeout>
+          <labelSet class="sorted-set">
+            <hudson.model.labels.LabelAtom>local-anka-cloud-label-ssh-cache-builder</hudson.model.labels.LabelAtom>
+          </labelSet>
+        </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
+      </templates>
+      <ankaMgmtUrl>http://host.docker.internal:8090</ankaMgmtUrl>
+      <credentialsId></credentialsId>
+      <skipTLSVerification>false</skipTLSVerification>
+      <cloudInstanceCap>0</cloudInstanceCap>
+      <vmPollTime>5000</vmPollTime>
+      <durabilityMode>durable</durabilityMode>
+      <maxConnections>50</maxConnections>
+      <connectionKeepAliveSeconds>120</connectionKeepAliveSeconds>
+    </com.veertu.plugin.anka.AnkaMgmtCloud>
+  </clouds>
+  <scmCheckoutRetryCount>0</scmCheckoutRetryCount>
+  <views>
+    <hudson.model.AllView>
+      <owner class="hudson" reference="../../.."/>
+      <name>all</name>
+      <filterExecutors>false</filterExecutors>
+      <filterQueue>false</filterQueue>
+      <properties class="hudson.model.View$PropertyList"/>
+    </hudson.model.AllView>
+  </views>
+  <primaryView>all</primaryView>
+  <slaveAgentPort>50000</slaveAgentPort>
+  <label></label>
+  <crumbIssuer class="hudson.security.csrf.DefaultCrumbIssuer">
+    <excludeClientIPFromCrumb>false</excludeClientIPFromCrumb>
+  </crumbIssuer>
+  <nodeProperties/>
+  <globalNodeProperties/>
+</hudson>

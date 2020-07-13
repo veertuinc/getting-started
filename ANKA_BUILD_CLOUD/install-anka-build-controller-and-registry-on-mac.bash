@@ -36,12 +36,13 @@ if [[ $1 != "--uninstall" ]]; then
   echo "]] Modifying the /usr/local/bin/anka-controllerd configuration"
 cat << BLOCK | sudo tee /usr/local/bin/anka-controllerd > /dev/null
 #!/bin/bash
-ANKA_CERTS_LOCATION="$HOME"
-LOG_DIR="/Library/Logs/Veertu/AnkaController"
-LISTEN_ADDRESS=":$CLOUD_CONTROLLER_PORT"
-DATA_DIR="/Library/Application Support/Veertu/Anka/anka-controller"
-REGISTRY_BASE_PATH="/Library/Application Support/Veertu/Anka/registry"
-/Library/Application\ Support/Veertu/Anka/bin/anka-controller \\
+export ANKA_STANDALONE="true"
+export ANKA_LISTEN_ADDR=":$CLOUD_CONTROLLER_PORT"
+export ANKA_DATA_DIR="$CLOUD_CONTROLLER_DATA_DIR"
+export ANKA_ENABLE_CENTRAL_LOGGING="true"
+export ANKA_LOG_DIR="$CLOUD_CONTROLLER_LOG_DIR"
+export ANKA_RUN_REGISTRY="true"
+export ANKA_REGISTRY_BASE_PATH="$CLOUD_REGISTRY_BASE_PATH"
 BLOCK
   if [[ $1 == "--certificate-authentication" ]]; then # Certificate Auth
     URL_PROTOCOL="https://"
@@ -50,47 +51,27 @@ BLOCK
     echo "]] Generating Certificates"
     $SCRIPT_DIR/create-ca-and-controller-certs.bash # Generate all of the certs you'll need
 cat << BLOCK | sudo tee -a /usr/local/bin/anka-controllerd > /dev/null
---standalone \\
---listen_addr "\$LISTEN_ADDRESS" \\
---enable-central-logging \\
---log_dir "\$LOG_DIR" \\
---data-dir "\$DATA_DIR" \\
---run-registry \\
---registry-base-path  "\$REGISTRY_BASE_PATH" \\
---registry-listen-address "$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT" \\
---anka-registry "$URL_PROTOCOL$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT" \\
---use-https \\
---enable-auth \\
---ca-cert \$ANKA_CERTS_LOCATION/anka-ca-crt.pem \\
---server-cert \$ANKA_CERTS_LOCATION/anka-controller-crt.pem \\
---server-key \$ANKA_CERTS_LOCATION/anka-controller-key.pem
+export ANKA_USE_HTTPS="false"
+export ANKA_SKIP_TLS_VERIFICATION="false"
+export ANKA_SERVER_CERT="/mnt/cert/anka-controller-crt.pem"
+export ANKA_SERVER_KEY="/mnt/cert/anka-controller-key.pem"
+export ANKA_CA_CERT="/mnt/cert/anka-ca-crt.pem"
+export ANKA_CERTS_LOCATION="\$HOME"
+export ANKA_ENABLE_AUTH="true"
 BLOCK
   elif [[ $1 == "--root-token-authentication" ]]; then # Root Token Auth
 cat << BLOCK | sudo tee -a /usr/local/bin/anka-controllerd > /dev/null
---standalone \\
---listen_addr "\$LISTEN_ADDRESS" \\
---enable-central-logging \\
---log_dir "\$LOG_DIR" \\
---data-dir "\$DATA_DIR" \\
---run-registry \\
---registry-base-path  "\$REGISTRY_BASE_PATH" \\
---registry-listen-address "$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT" \\
---anka-registry "$URL_PROTOCOL$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT" \\
---root-token 1111111111
-BLOCK
-  else ## Basic
-cat << BLOCK | sudo tee -a /usr/local/bin/anka-controllerd > /dev/null
---standalone \\
---listen_addr "\$LISTEN_ADDRESS" \\
---enable-central-logging \\
---log_dir "\$LOG_DIR" \\
---data-dir "\$DATA_DIR" \\
---run-registry \\
---registry-base-path  "\$REGISTRY_BASE_PATH" \\
---registry-listen-address "$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT" \\
---anka-registry "$URL_PROTOCOL$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT"
+export ANKA_REGISTRY_LISTEN_ADDRESS="$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT"
+export ANKA_ANKA_REGISTRY="$URL_PROTOCOL$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT"
+export ANKA_ENABLE_AUTH="true"
+export ANKA_ROOT_TOKEN="1111111111"
 BLOCK
   fi
+cat << BLOCK | sudo tee -a /usr/local/bin/anka-controllerd > /dev/null 
+export ANKA_REGISTRY_LISTEN_ADDRESS="$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT"
+export ANKA_ANKA_REGISTRY="$URL_PROTOCOL$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT"
+/Library/Application\ Support/Veertu/Anka/bin/anka-controller
+BLOCK
   echo "]] Starting the Anka Build Cloud Controller & Registry"
   sudo anka-controller start &>/dev/null || true
   ANKA_CONTROLLER_STATUS=$(sudo anka-controller status)

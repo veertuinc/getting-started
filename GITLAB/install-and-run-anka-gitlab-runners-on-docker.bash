@@ -30,7 +30,7 @@ if [[ $1 != "--uninstall" ]]; then
   --anka-tag $GITLAB_ANKA_VM_TEMPLATE_TAG \
   --executor anka \
   $EXTRAS \
-  --clone-url "${URL_PROTOCOL}$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
+  --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
   --tag-list "localhost-shared,localhost,iOS"
   ## Collect the project runner token
   PROJECT_REGISTRATION_TOKEN=$(docker exec -i $GITLAB_DOCKER_CONTAINER_NAME bash -c "gitlab-rails runner -e production \"puts Project.find_by_id($GITLAB_EXAMPLE_PROJECT_ID).runners_token\"")
@@ -46,6 +46,6 @@ if [[ $1 != "--uninstall" ]]; then
   --anka-tag $GITLAB_ANKA_VM_TEMPLATE_TAG \
   --executor anka \
   $EXTRAS \
-  --clone-url "${URL_PROTOCOL}$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
+  --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
   --tag-list "localhost-specific,localhost,iOS"
 fi

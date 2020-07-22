@@ -34,7 +34,7 @@ if [[ $1 != "--uninstall" ]]; then
   --tag-list "localhost-shared,localhost,iOS"
   ## Collect the project runner token
   PROJECT_REGISTRATION_TOKEN=$(docker exec -i $GITLAB_DOCKER_CONTAINER_NAME bash -c "gitlab-rails runner -e production \"puts Project.find_by_id($GITLAB_EXAMPLE_PROJECT_ID).runners_token\"")
-  echo "]] Starting a shared Anka GitLab Runner (Docker container: $GITLAB_RUNNER_PROJECT_RUNNER_NAME) and connecting it to your GitLab"
+  echo "]] Starting a project specific Anka GitLab Runner (Docker container: $GITLAB_RUNNER_PROJECT_RUNNER_NAME) and connecting it to your GitLab"
   docker run --name $GITLAB_RUNNER_PROJECT_RUNNER_NAME $VOLUMES -ti -d veertu/anka-gitlab-runner-amd64 \
   --url "http://host.docker.internal:$GITLAB_PORT" \
   --registration-token $PROJECT_REGISTRATION_TOKEN \

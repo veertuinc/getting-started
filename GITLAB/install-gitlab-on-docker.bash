@@ -48,6 +48,7 @@ BLOCK
   done
   # Create project
   ## API auth
+  
   GITLAB_ACCESS_TOKEN=$(curl -s --request POST --data "grant_type=password&username=root&password=$GITLAB_ROOT_PASSWORD" http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/oauth/token | jq -r '.access_token')
   ## Create example project
   echo "]] Importing example project"

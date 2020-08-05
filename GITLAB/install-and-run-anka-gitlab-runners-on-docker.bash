@@ -9,8 +9,9 @@ docker rm $GITLAB_RUNNER_SHARED_RUNNER_NAME || true
 docker stop $GITLAB_RUNNER_PROJECT_RUNNER_NAME || true
 docker rm $GITLAB_RUNNER_PROJECT_RUNNER_NAME || true
 if [[ $1 == "--https" ]]; then
-  VOLUMES="-v $HOME:/certs"
+  VOLUMES="-v $CERT_DIRECTORY:/certs"
   EXTRAS="--anka-root-ca-path /certs/anka-ca-crt.pem --anka-cert-path /certs/anka-gitlab-crt.pem --anka-key-path /certs/anka-gitlab-key.pem"
+  URL_PROTOCOL="https://"
 fi
 if [[ $1 != "--uninstall" ]]; then
   GITLAB_ACCESS_TOKEN=$(curl -s --request POST --data "grant_type=password&username=root&password=$GITLAB_ROOT_PASSWORD" http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/oauth/token | jq -r '.access_token')

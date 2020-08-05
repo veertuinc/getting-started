@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -exo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
 . ../shared.bash
@@ -8,7 +8,7 @@ TEMPLATE=$1
 [[ -z $TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1
 HELPERS="set -exo pipefail;"
 CERTS=""
-[[ -f "$HOME/anka-node-$(hostname)-crt.pem" ]] && CERTS="--cacert $HOME/anka-ca-crt.pem -c $HOME/anka-node-$(hostname)-crt.pem -k $HOME/anka-node-$(hostname)-key.pem"
+[[ -f "$HOME/anka-node-$(hostname)-crt.pem" ]] && CERTS="--cacert /Users/nathanpierce/macmini-vault-registry/ca-root-crt.pem --cert /Users/nathanpierce/macmini-vault-registry/client-crt.pem --key /Users/nathanpierce/macmini-vault-registry/client-key.pem"
 ANKA_RUN="sudo anka run -N -n"
 ANKA_REGISTRY="sudo anka registry --remote $CLOUD_REGISTRY_REPO_NAME $CERTS"
 

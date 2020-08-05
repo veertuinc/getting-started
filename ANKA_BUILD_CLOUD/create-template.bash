@@ -1,12 +1,12 @@
 #!/bin/bash
-set -eo pipefail
+set -exo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 . ../shared.bash
-cleanup() {
-  sudo anka delete --yes $TEMPLATE || true
-}
-trap cleanup ERR INT
+# cleanup() {
+#   sudo anka delete --yes $TEMPLATE || true
+# }
+# trap cleanup ERR INT
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
 TEMP_DIR="/tmp/anka-mac-resources"
 MOUNT_DIR="$TEMP_DIR/mount"

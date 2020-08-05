@@ -69,6 +69,12 @@ URLs and ports you can expect:
 
 - Running this script will generate a Tag for the VM Template
 
+### `generate-certs.bash`
+
+- Running this script will generate all of the certificates you'll need to enable Certificate Authentication. By default, it will assume you are running everything on the same machine (127.0.0.1).
+
+---
+
 # CI Plugins and Integrations
 
 - [Jenkins](#jenkins-jenkins)

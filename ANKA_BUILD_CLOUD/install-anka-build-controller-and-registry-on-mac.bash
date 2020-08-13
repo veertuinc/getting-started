@@ -93,6 +93,8 @@ BLOCK
   modify_hosts $CLOUD_REGISTRY_ADDRESS &>/dev/null
   echo "]] Joining this machine (Node) to the Cloud"
   sleep 20
+  # Ensure we have the right Anka Agent version installed (for rolling back versions)
+  curl -O ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/pkg/AnkaAgent.pkg -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
   sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT || true
   #
   echo "============================================================================="

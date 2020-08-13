@@ -11,8 +11,8 @@ docker rm $GITLAB_RUNNER_PROJECT_RUNNER_NAME || true
 docker-compose down || true
 docker stop $GITLAB_DOCKER_CONTAINER_NAME &>/dev/null || true
 docker rm $GITLAB_DOCKER_CONTAINER_NAME &>/dev/null || true
-sudo rm -rf $GITLAB_DOCKER_DATA_DIR
-sudo rm -rf docker-compose.yml
+[[ -d $GITLAB_DOCKER_DATA_DIR ]] && sudo rm -rf $GITLAB_DOCKER_DATA_DIR
+rm -rf docker-compose.yml
 if [[ $1 != "--uninstall" ]]; then
   modify_hosts $GITLAB_DOCKER_CONTAINER_NAME
   echo "]] Starting the GitLab Docker container"

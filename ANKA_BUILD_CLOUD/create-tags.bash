@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -exo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
 . ../shared.bash
@@ -8,7 +8,7 @@ TEMPLATE=$1
 [[ -z $TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1
 HELPERS="set -exo pipefail;"
 CERTS=""
-[[ -f "$HOME/anka-node-$(hostname)-crt.pem" ]] && CERTS="--cacert $HOME/anka-ca-crt.pem -c $HOME/anka-node-$(hostname)-crt.pem -k $HOME/anka-node-$(hostname)-key.pem"
+[[ -f "$HOME/anka-node-$(hostname)-crt.pem" ]] && CERTS="--cacert /Users/nathanpierce/macmini-vault-registry/ca-root-crt.pem --cert /Users/nathanpierce/macmini-vault-registry/client-crt.pem --key /Users/nathanpierce/macmini-vault-registry/client-key.pem"
 ANKA_RUN="sudo anka run -N -n"
 ANKA_REGISTRY="sudo anka registry --remote $CLOUD_REGISTRY_REPO_NAME $CERTS"
 
@@ -18,7 +18,7 @@ pull() {
 }
 
 suspend_and_push() {
-  echo "Suspending VM and pushing $TAG..."
+  echo "]] Suspending VM and pushing $TAG..."
   sudo anka suspend $TEMPLATE || true
   $ANKA_REGISTRY push $TEMPLATE $TAG || true
 }
@@ -35,7 +35,7 @@ does_not_exists() {
 build-tag() {
   pull $3
   TAG="$1"
-  echo "Building VM tag: $TAG..."
+  echo "]] Building VM tag: $TAG..."
   if does_not_exists; then
     eval "$2"
     suspend_and_push
@@ -62,6 +62,12 @@ build-tag "$TAG:brew-git" "
 "
 
 LEVEL_ONE_TAG=$TAG
+
+if [[ $2 == '--gitlab' ]]; then
+  build-tag "$LEVEL_ONE_TAG:gitlab" "
+    $ANKA_RUN $TEMPLATE sudo bash -c \"$HELPERS echo '192.168.64.1 anka.gitlab' >> /etc/hosts && [[ ! -z \\\$(grep anka.gitlab /etc/hosts) ]]\"
+  "
+fi
 
 if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
   ## Install OpenJDK8

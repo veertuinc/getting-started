@@ -123,7 +123,7 @@ URLs and ports you can expect:
 
 ### `install-and-run-native-ank-gitlab-runner-on-mac.bash`
 
-- Running this script will setup 
+- Running this script will setup two gitlab runners that are registered as a shared and project specific runner with your gitlab instance.
 - If the first argument is `--uninstall`, it will only remove the existing containers
 
 ---

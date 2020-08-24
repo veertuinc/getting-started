@@ -37,6 +37,7 @@ URLs and ports you can expect:
 - Controller: http://anka.controller:8090
 - Registry:   http://anka.registry:8091
 - Jenkins:    http://anka.jenkins:8092
+- GitLab:     http://anka.gitlab:8093
 - TeamCity:   http://anka.teamcity:8094
 
 ---
@@ -78,6 +79,7 @@ URLs and ports you can expect:
 # CI Plugins and Integrations
 
 - [Jenkins](#jenkins-jenkins)
+- [GitLab](#gitlab-gitlab)
 - [TeamCity](#teamcity-teamcity)
 
 ---
@@ -107,7 +109,7 @@ URLs and ports you can expect:
 
 ---
 
-## GitLab (`./GITLAB`)
+## [GitLab](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/gitlab/) (`./GITLAB`)
 
 > **Be sure to generate the required VM Tag using `./ANKA/create-tags.bash 10.15.5 --gitlab`**
 

@@ -49,15 +49,15 @@ BLOCK
     EXTRA_NOTE="Certificates have been generated and are stored under $HOME
     Documentation about certificate authentication can be found at https://ankadocs.veertu.com/docs/anka-build-cloud/advanced-security-features/certificate-authentication/"
     echo "]] Generating Certificates"
-    $SCRIPT_DIR/create-ca-and-controller-certs.bash # Generate all of the certs you'll need
+    $SCRIPT_DIR/generate-certs.bash # Generate all of the certs you'll need
 cat << BLOCK | sudo tee -a /usr/local/bin/anka-controllerd > /dev/null
-export ANKA_USE_HTTPS="false"
-export ANKA_SKIP_TLS_VERIFICATION="false"
-export ANKA_SERVER_CERT="/mnt/cert/anka-controller-crt.pem"
-export ANKA_SERVER_KEY="/mnt/cert/anka-controller-key.pem"
-export ANKA_CA_CERT="/mnt/cert/anka-ca-crt.pem"
-export ANKA_CERTS_LOCATION="\$HOME"
-export ANKA_ENABLE_AUTH="true"
+export ANKA_USE_HTTPS="true"
+export ANKA_SKIP_TLS_VERIFICATION="true"
+export ANKA_SERVER_CERT="$HOME/anka-controller-crt.pem"
+export ANKA_SERVER_KEY="$HOME/anka-controller-key.pem"
+export ANKA_CA_CERT="$HOME/anka-ca-crt.pem"
+export ANKA_CLIENT_CERT="$HOME/anka-controller-crt.pem"
+export ANKA_CLIENT_CERT_KEY="$HOME/anka-controller-key.pem"
 BLOCK
   elif [[ $1 == "--root-token-authentication" ]]; then # Root Token Auth
 cat << BLOCK | sudo tee -a /usr/local/bin/anka-controllerd > /dev/null
@@ -93,6 +93,8 @@ BLOCK
   modify_hosts $CLOUD_REGISTRY_ADDRESS &>/dev/null
   echo "]] Joining this machine (Node) to the Cloud"
   sleep 20
+  # Ensure we have the right Anka Agent version installed (for rolling back versions)
+  curl -O ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/pkg/AnkaAgent.pkg -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
   sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT || true
   #
   echo "============================================================================="

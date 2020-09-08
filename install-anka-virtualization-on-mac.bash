@@ -2,10 +2,10 @@
 set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
-. ../shared.bash
+. ./shared.bash
 # Cleanup
 cleanup() {
-  rm -f $STORAGE_LOCATION/$CLOUD_NATIVE_PACKAGE
+  rm -f $STORAGE_LOCATION/$ANKA_VIRTUALIZATION_PACKAGE
 }
 trap cleanup EXIT
 echo "]] Cleaning up the previous Anka Virtualization CLI installation"
@@ -34,7 +34,7 @@ if [[ $1 != "--uninstall" ]]; then
   echo "]] Activating license"
   if [[ -z $ANKA_LICENSE ]]; then
     while true; do
-      read -p "Input your Anka license: " ANKA_LICENSE
+      read -p "Input your Anka license (type \"skip\" to skip this): " ANKA_LICENSE
       case $ANKA_LICENSE in
         "" ) echo "Want to type something?";;
         "skip" ) echo "skipping license activate"; break;;
@@ -42,12 +42,13 @@ if [[ $1 != "--uninstall" ]]; then
       esac
     done
   fi
-  sudo anka license activate -f $ANKA_LICENSE
-  sudo anka license accept-eula || true
-  sudo anka license validate
-  #
+  if [[ $ANKA_LICENSE != "skip" ]]; then 
+    sudo anka license activate -f $ANKA_LICENSE
+    sudo anka license accept-eula || true
+    sudo anka license validate
+  fi
   ANKA_STATUS=$(sudo anka version)
-  if [[ $ANKA_STATUS =~ "Anka Build" ]]; then
+  if [[ $ANKA_STATUS =~ "Anka " ]]; then
     echo $ANKA_STATUS
   else
     echo $ANKA_STATUS

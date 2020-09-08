@@ -2,7 +2,7 @@
 set -exo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
-. ../shared.bash
+. ./shared.bash
 # cleanup() {
 #   sudo anka delete --yes $TEMPLATE || true
 # }

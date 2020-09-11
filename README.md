@@ -67,10 +67,10 @@ URLs and ports you can expect:
 
 ## ANKA BUILD CLOUD [(`./ANKA_BUILD_CLOUD`)](./ANKA_BUILD_CLOUD)
 
-### [`install-build-controller-and-registry-on-mac.bash`](./install-build-controller-and-registry-on-mac.bash)
+### [`install-anka-build-controller-and-registry-on-mac.bash`](./install-anka-build-controller-and-registry-on-mac.bash)
 
 - Running this script will download and install the latest Anka Build Cloud Controller & Registry onto the current machine.
-- If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA_BUILD_CLOUD/install-build-cloud-on-mac.bash "/Users/myUserName/Downloads/AnkaControllerRegistry-1.4.0-8a38607d.pkg"`).
+- If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-mac.bash "/Users/myUserName/Downloads/AnkaControllerRegistry-1.4.0-8a38607d.pkg"`).
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
 ### [`generate-certs.bash`](./ANKA_BUILD_CLOUD/generate-certs.bash)

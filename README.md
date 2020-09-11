@@ -49,7 +49,7 @@ URLs and ports you can expect:
 - If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./install-anka-virtualization.bash "/Users/myUserName/Downloads/Anka-2.1.1.111.pkg"`).
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
-### [`create-vm-template.bash`])(./create-vm-template.bash)
+### [`create-vm-template.bash`](./create-vm-template.bash)
 
 > [Understanding VM templates, Tags, and Disk Usage](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage)
 

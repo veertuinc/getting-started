@@ -2,7 +2,7 @@
 set -exo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
-. ../shared.bash
+. ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with brew install jq." && exit 1
 TEMPLATE=$1
 [[ -z $TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1

@@ -27,7 +27,7 @@ This repo contains various scripts for setting up and testing Anka software on y
 Before integrating Anka with your CI, you need to install and configure the **Anka Virtualization CLI** and **Build Cloud Controller & Registry**.
 
 1. Obtain your trial license from https://veertu.com/getting-started-anka-trials/
-1. Install the **[Anka Virtualization CLI package, then activate your license](https://ankadocs.veertu.com/docs/anka-cli/installation/#install-the-anka-cli)** with `./install-anka-virtualization-on-mac.bash`.
+1. Install the **[Anka Virtualization CLI package, then activate your license](https://ankadocs.veertu.com/docs/anka-build-cloud/virtualization-cli/installation/)** with `./install-anka-virtualization-on-mac.bash`.
 2. Install the **Anka Build Cloud Controller & Registry** with `./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-mac.bash`.
 3. Now generate your [Template and Tags](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage) with `./create-vm-template.bash`.
 
@@ -43,13 +43,13 @@ URLs and ports you can expect:
 
 ---
 
-### `install-anka-virtualization.bash`
+### [`install-anka-virtualization.bash`](./install-anka-virtualization.bash)
 
 - Running this script will install the latest Anka Virtualization package/CLI onto the current machine.
 - If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./install-anka-virtualization.bash "/Users/myUserName/Downloads/Anka-2.1.1.111.pkg"`).
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
-### `create-vm-template.bash`
+### [`create-vm-template.bash`])(./create-vm-template.bash)
 
 > [Understanding VM templates, Tags, and Disk Usage](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage)
 
@@ -57,7 +57,7 @@ URLs and ports you can expect:
 - Without any arguments, the script will guide you through downloading a specific version of the macOS installer .app. 
 - If the first argument is an **absolute* path to your installer .app, the script will not use the guided downloader: (`./create-template.bash "/Applications/Install macOS Catalina.app"`).
 
-### `create-vm-template-tags.bash`
+### [`create-vm-template-tags.bash`](./create-vm-template-tags.bash)
 
 > `create-template.bash` will run this script once the Template is created.
 
@@ -65,9 +65,9 @@ URLs and ports you can expect:
 
 ---
 
-## ANKA BUILD CLOUD (`./ANKA_BUILD_CLOUD`)
+## ANKA BUILD CLOUD [(`./ANKA_BUILD_CLOUD`)](./ANKA_BUILD_CLOUD)
 
-### `install-build-controller-and-registry-on-mac.bash`
+### [`install-build-controller-and-registry-on-mac.bash`](./install-build-controller-and-registry-on-mac.bash)
 
 - Running this script will download and install the latest Anka Build Cloud Controller & Registry onto the current machine.
 - If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA_BUILD_CLOUD/install-build-cloud-on-mac.bash "/Users/myUserName/Downloads/AnkaControllerRegistry-1.4.0-8a38607d.pkg"`).
@@ -77,7 +77,7 @@ URLs and ports you can expect:
 
 - Running this script will generate all of the certificates you'll need to enable Certificate Authentication. By default, it will assume you are running everything on the same machine (127.0.0.1).
 
-## ANKA BUILD CLOUD > KUBERNETES (`./ANKA_BUILD_CLOUD/KUBERNETES`)
+## ANKA BUILD CLOUD > KUBERNETES [(`./ANKA_BUILD_CLOUD/KUBERNETES`)](./ANKA_BUILD_CLOUD/KUBERNETES)
 
 > **These scripts should be executed in the order they're shown in this readme**
 
@@ -85,22 +85,22 @@ URLs and ports you can expect:
 
 > They are also very resource intensive, so if you don't at least have 10vCPUs and 16GB memory, we don't suggest running it locally
 
-### `install-docker-minikube.bash`
+### [`install-docker-minikube.bash`](./ANKA_BUILD_CLOUD/KUBERNETES/install-docker-minikube.bash)
 
 - Running this script will start a single kubernetes/minikube node with a third of the available resources on your machine.
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
-### `deploy-namespace.bash`
+### [`deploy-namespace.bash`](./ANKA_BUILD_CLOUD/KUBERNETES/deploy-namespace.bash)
 
 - Running this script will setup a context and namespace of "anka" so that if you already have minikube setup, you're not potentially impacting it.
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
-### `deploy-etcd.bash`
+### [`deploy-etcd.bash`](./ANKA_BUILD_CLOUD/KUBERNETES/deploy-etcd.bash)
 
 - Running this script will setup a 4 pod etcd cluster.
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
-### `deploy-build-cloud.bash`
+### [`deploy-build-cloud.bash`](./ANKA_BUILD_CLOUD/KUBERNETES/deploy-build-cloud.bash)
 
 - Running this script will setup a 2 pod Anka Build Cloud cluster, each pod containing a controller and also a registry pod.
 - If the first argument is `--uninstall`, it will only remove the existing install.
@@ -127,9 +127,9 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 ---
 
-## [Jenkins](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/jenkins/) (`./JENKINS`)
+## [Jenkins](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/jenkins/) [(`./JENKINS`)](./JENKINS)
 
-### `install-jenkins-on-docker.bash`
+### [`install-jenkins-on-docker.bash`](./JENKINS/install-jenkins-on-docker.bash)
 
 > **Be sure to generate the required VM Tag using `./create-vm-template-tags.bash 10.15.5 --jenkins`**
 
@@ -137,9 +137,9 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 ---
 
-## [TeamCity](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/teamcity/) (`./TEAMCITY`)
+## [TeamCity](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/teamcity/) [(`./TEAMCITY`)](./TEAMCITY)
 
-### `install-teamcity-server-on-docker.bash`
+### [`install-teamcity-server-on-docker.bash`](./TEAMCITY/install-teamcity-server-on-docker.bash)
 
 > **Be sure to generate the required VM Tag using `./create-vm-template-tags.bash 10.15.5 --teamcity`**
 
@@ -148,21 +148,21 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 ---
 
-## [GitLab](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/gitlab/) (`./GITLAB`)
+## [GitLab](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/gitlab/) [(`./GITLAB`)](./GITLAB)
 
 > **Be sure to generate the required VM Tag using `./create-vm-template-tags.bash 10.15.5 --gitlab`**
 
-### `install-gitlab-on-docker.bash`
+### [`install-gitlab-on-docker.bash`](./GITLAB/install-gitlab-on-docker.bash)
 
 - Running this script will setup GitLab and a testing project within a docker container, then two other containers with a shared and project specific [anka-gitlab-runner](https://github.com/veertuinc/gitlab-runner).
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
-### `install-and-run-anka-gitlab-runner-on-docker.bash`
+### [`install-and-run-anka-gitlab-runner-on-docker.bash`](./GITLAB/install-and-run-anka-gitlab-runner-on-docker.bash)
 
 - Running this script will setup two gitlab runner containers that are registered as a shared and project specific runner with your gitlab instance.
 - If the first argument is `--uninstall`, it will only remove the existing containers
 
-### `install-and-run-native-ank-gitlab-runner-on-mac.bash`
+### [`install-and-run-native-ank-gitlab-runner-on-mac.bash`](./GITLAB/install-and-run-native-ank-gitlab-runner-on-mac.bash)
 
 - Running this script will setup two gitlab runners that are registered as a shared and project specific runner with your gitlab instance.
 - If the first argument is `--uninstall`, it will only remove the existing containers

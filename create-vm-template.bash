@@ -49,4 +49,4 @@ if [[ ! -z $(grep anka.registry /etc/hosts) && -z $(sudo anka registry list-repo
   sudo anka registry add $CLOUD_REGISTRY_REPO_NAME ${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT
   sudo anka registry list-repos
 fi
-$SCRIPT_DIR/create-tags.bash $TEMPLATE
+$SCRIPT_DIR/create-vm-template-tags.bash $TEMPLATE

@@ -172,11 +172,11 @@ BLOCK
 kubectl apply -f etcd.yaml 
 echo "==================================================================="
 echo "- etcd data is stored inside of the minikube (kube node) docker container under /data/etcd"
-echo "- High Availability requires 4 or more pods for etcd. With 4, one can crash and the other 3 will still have a quorum, allowing puts and gets of keys and values."
+echo "- the etcd cluster requires more than 50% of the instances to be up. If you lose 1 pod out of the 3, it will be fine. If you lose 2, the cluster will fail."
 echo
 echo "Testing ETCD can be done by running 'minikube tunnel' and then executing:"
 echo 
-echo 'watch -n 1 "curl -s http://127.0.0.1:2379/health; echo && kubectl exec -it etcd-0 -- /bin/sh -c \"RND=\\\$RANDOM; echo \\\$RND; ETCDCTL_API=3; etcdctl member list && etcdctl --endpoints=http://etcd-2:2379 put \\\$RND bar && etcdctl get \\\$RND\""'
+echo 'watch -n 1 "curl -s http://127.0.0.1:2379/health; echo && kubectl exec -it etcd-0 -- /bin/sh -c \"RND=\\\$RANDOM; echo \\\$RND; ETCDCTL_API=3; etcdctl member list && etcdctl --endpoints=http://etcd-2.etcd:2379 put \\\$RND bar && etcdctl get \\\$RND\""'
 echo
 echo "Once the watch is running, kubectl delete pods etcd-1 and confirm that the put and get is still functional."
 

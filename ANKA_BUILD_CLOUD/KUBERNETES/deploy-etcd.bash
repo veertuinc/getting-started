@@ -3,7 +3,7 @@ set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 . ../../shared.bash
-REPLICAS=4
+REPLICAS=3
 [[ -z $(minikube status | grep "host: Running") ]] && echo "You must install minikube first..." && exit 1
 if [[ $1 == '--uninstall' ]]; then
   kubectl delete -f etcd.yaml || true &
@@ -55,20 +55,6 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: etcd-2-data
-spec:
-  storageClassName: local-storage
-  capacity:
-    storage: 500Mi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/data/etcd"
-    type: DirectoryOrCreate
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: etcd-3-data
 spec:
   storageClassName: local-storage
   capacity:
@@ -190,7 +176,7 @@ echo "- High Availability requires 4 or more pods for etcd. With 4, one can cras
 echo
 echo "Testing ETCD can be done by running 'minikube tunnel' and then executing:"
 echo 
-echo 'watch -n 1 "curl -s http://127.0.0.1:2379/health && echo && kubectl exec -it etcd-0 -- /bin/sh -c \"RND=\\\$RANDOM; echo \\\$RND; ETCDCTL_API=3; etcdctl member list && etcdctl put \\\$RND bar && etcdctl get \\\$RND\""'
+echo 'watch -n 1 "curl -s http://127.0.0.1:2379/health; echo && kubectl exec -it etcd-0 -- /bin/sh -c \"RND=\\\$RANDOM; echo \\\$RND; ETCDCTL_API=3; etcdctl member list && etcdctl --endpoints=http://etcd-2:2379 put \\\$RND bar && etcdctl get \\\$RND\""'
 echo
 echo "Once the watch is running, kubectl delete pods etcd-1 and confirm that the put and get is still functional."
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -exo pipefail
+set -eo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 . ./shared.bash
@@ -15,7 +15,7 @@ cd $TEMP_DIR
 if [[ -z $1 ]]; then # interactive installer
   # Download the macOS installer script and prepare the install.app
   echo "]] Downloading Mac Installer .app (requires root) ..."
-  cp $SCRIPT_DIR/download-macos-installer.py $TEMP_DIR/
+  cp $SCRIPT_DIR/.misc/download-macos-installer.py $TEMP_DIR/
   sudo ./download-macos-installer.py --raw
   INSTALL_IMAGE=$(basename $TEMP_DIR/Install_*.sparseimage)
   TEMPLATE="$(echo $INSTALL_IMAGE | sed -n 's/.*macOS_\([0-9][0-9]\..*\)-.*/\1/p')"

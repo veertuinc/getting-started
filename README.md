@@ -62,6 +62,7 @@ URLs and ports you can expect:
 > `create-template.bash` will run this script once the Template is created.
 
 - Running this script will generate a Tag for the VM Template
+- Uses script from https://github.com/munki/macadmin-scripts (Copyright 2017 Greg Neagle.)
 
 ---
 

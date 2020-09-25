@@ -16,7 +16,7 @@ if [[ -z $1 ]]; then # interactive installer
   # Download the macOS installer script and prepare the install.app
   echo "]] Downloading Mac Installer .app (requires root) ..."
   cp $SCRIPT_DIR/.misc/download-macos-installer.py $TEMP_DIR/
-  sudo ./download-macos-installer.py --raw
+  sudo ./download-macos-installer.py --raw --workdir $TEMP_DIR/
   INSTALL_IMAGE=$(basename $TEMP_DIR/Install_*.sparseimage)
   TEMPLATE="$(echo $INSTALL_IMAGE | sed -n 's/.*macOS_\([0-9][0-9]\..*\)-.*/\1/p')"
   echo "]] Mounting $INSTALL_IMAGE to $MOUNT_DIR ..."

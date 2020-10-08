@@ -38,6 +38,7 @@ services:
           gitlab_rails['gitlab_shell_ssh_port'] = 2244
           gitlab_rails['initial_root_password'] = "$GITLAB_ROOT_PASSWORD"
           gitlab_rails['signin_enabled'] = false
+          postgresql['max_files_per_process'] = 25
 BLOCK
   docker-compose up -d
   # Check if it's still starting...

@@ -54,7 +54,7 @@ if [[ $1 != "--uninstall" ]]; then
   --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
   --tag-list "localhost-specific,localhost,iOS"
 
-  sudo anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION} install --user $USER
+  sudo anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION} install --user $USER --config $HOME/.gitlab-runner/anka-config.toml
   sudo anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION} start
   echo "]] Verifying runners"
   anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION} verify

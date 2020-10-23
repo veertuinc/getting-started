@@ -12,6 +12,11 @@ CERTS=""
 ANKA_RUN="sudo anka run -N -n"
 ANKA_REGISTRY="sudo anka registry --remote $CLOUD_REGISTRY_REPO_NAME $CERTS"
 
+cleanup() {
+  sudo anka stop --yes $TEMPLATE || true
+}
+trap cleanup INT
+
 pull() {
   [[ ! -z $1 ]] && TAG=$1
   $ANKA_REGISTRY pull $TEMPLATE -t $TAG

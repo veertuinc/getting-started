@@ -23,7 +23,7 @@ if [[ $1 != "--uninstall" ]]; then
   if [[ -z $1 ]]; then
     echo "]] Downloading $CLOUD_NATIVE_PACKAGE"
     trap cleanup EXIT
-    curl -S -L -O $CLOUD_DOWNLOAD_URL
+    curl -S -L -O "$CLOUDFRONT_URL/$CLOUD_NATIVE_PACKAGE"
     INSTALLER_LOCATION="$STORAGE_LOCATION/$CLOUD_NATIVE_PACKAGE"
   else
     [[ "${1:0:1}" != "/" ]] && echo "Ensure you're using the absolute path to your installer package" && exit 1

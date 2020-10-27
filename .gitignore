@@ -1,3 +1,4 @@
 docker-compose.yml
 .DS_Store
 *.yaml
+ANKA_BUILD_CLOUD/anka-controller-reg*

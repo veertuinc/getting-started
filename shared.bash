@@ -7,14 +7,17 @@ ANKA_PLUGIN_VERSION="2.1.2"
 GITHUB_PLUGIN_VERSION="1.30.0"
 PIPELINE_PLUGIN_VERSION="1.7.0"
 
+CLOUDFRONT_URL="https://d1efqjhnhbvc57.cloudfront.net"
+
 ANKA_VIRTUALIZATION_PACKAGE=${ANKA_VIRTUALIZATION_PACKAGE:-"Anka-2.2.3.118.pkg"}
-ANKA_VIRTUALIZATION_DOWNLOAD_URL="https://d1efqjhnhbvc57.cloudfront.net/$ANKA_VIRTUALIZATION_PACKAGE"
+ANKA_VIRTUALIZATION_DOWNLOAD_URL="$CLOUDFRONT_URL/$ANKA_VIRTUALIZATION_PACKAGE"
 ANKA_VM_USER=${ANKA_VM_USER:-"anka"}
 ANKA_VM_PASSWORD=${ANKA_VM_PASSWORD:-"admin"}
 ANKA_VM_TEMPLATE_UUID="c0847bc9-5d2d-4dbc-ba6a-240f7ff08032" # Used in https://github.com/veertuinc/jenkins-dynamic-label-example
 
 CLOUD_CONTROLLER_ADDRESS=${CLOUD_CONTROLLER_ADDRESS:-"anka.controller"}
 CLOUD_REGISTRY_ADDRESS=${CLOUD_REGISTRY_ADDRESS:-"anka.registry"}
+CLOUD_ETCD_ADDRESS=${CLOUD_ETCD_ADDRESS:-"anka.etcd"}
 CLOUD_CONTROLLER_PORT="8090"
 CLOUD_CONTROLLER_DATA_DIR="/Library/Application Support/Veertu/Anka/anka-controller"
 CLOUD_CONTROLLER_LOG_DIR="/Library/Logs/Veertu/AnkaController"
@@ -22,10 +25,9 @@ CLOUD_CONTROLLER_LOG_DIR="/Library/Logs/Veertu/AnkaController"
 CLOUD_REGISTRY_PORT="8089" # 8089 is the default
 CLOUD_REGISTRY_REPO_NAME=${CLOUD_REGISTRY_REPO_NAME:-"local-demo"}
 CLOUD_REGISTRY_BASE_PATH="/Library/Application Support/Veertu/Anka/registry"
-CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry-1.9.0-4a9f310f.pkg"}
-CLOUD_DOCKER_TAR="anka-controller-registry-1.9.0-4a9f310f.tar.gz"
-CLOUD_DOCKER=$(echo $CLOUD_DOCKER_TAR | awk -F'.tar.gz' '{print $1}')
-CLOUD_DOWNLOAD_URL="https://d1efqjhnhbvc57.cloudfront.net/$CLOUD_NATIVE_PACKAGE"
+CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry-1.11.1-1df83172.pkg"}
+CLOUD_DOCKER_TAR=${CLOUD_DOCKER_TAR:-"anka-controller-registry-1.11.1-1df83172.tar.gz"}
+CLOUD_DOCKER_FOLDER="$(echo $CLOUD_DOCKER_TAR | awk -F'.tar.gz' '{print $1}')"
 
 JENKINS_PORT=8092
 JENKINS_SERVICE_PORT="8080"

@@ -74,6 +74,12 @@ URLs and ports you can expect:
 - If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-mac.bash "/Users/myUserName/Downloads/AnkaControllerRegistry-1.4.0-8a38607d.pkg"`).
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
+### [`install-anka-build-controller-and-registry-on-docker.bash`](./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash)
+
+- Running this script will download and install the latest Anka Build Cloud Controller & Registry onto your machine using docker + docker-compose.
+- If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash "/Users/myUserName/Downloads/anka-controller-registry-1.11.1-1df83172.tar.gz"`).
+- If the first argument is `--uninstall`, it will only remove the existing install.
+
 ### [`generate-certs.bash`](./ANKA_BUILD_CLOUD/generate-certs.bash)
 
 - Running this script will generate all of the certificates you'll need to enable Certificate Authentication. By default, it will assume you are running everything on the same machine (127.0.0.1).

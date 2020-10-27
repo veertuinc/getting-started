@@ -83,12 +83,14 @@ BLOCK
   modify_hosts $CLOUD_CONTROLLER_ADDRESS &>/dev/null
   modify_hosts $CLOUD_REGISTRY_ADDRESS &>/dev/null
   modify_hosts $CLOUD_ETCD_ADDRESS &>/dev/null
-  echo "]] Joining this machine (Node) to the Cloud"
-  sleep 20
   # Ensure we have the right Anka Agent version installed (for rolling back versions)
-  cd $STORAGE_LOCATION
-  curl -O ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/pkg/AnkaAgent.pkg -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
-  sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT || true
+  if [[ $(uname) == "Darwin" ]]; then
+    echo "]] Joining this machine (Node) to the Cloud"
+    sleep 20
+    cd $STORAGE_LOCATION
+    curl -O ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/pkg/AnkaAgent.pkg -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
+    sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT || true
+  fi
   #
   echo "============================================================================="
   echo "Controller UI:  $URL_PROTOCOL$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT"

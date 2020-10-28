@@ -76,13 +76,12 @@ services:
     volumes:
       - "/Library/Application Support/Veertu/Anka/registry:/mnt/vol"
 BLOCK
-  
   echo "]] Starting the Anka Build Cloud Controller & Registry"
   docker-compose up -d
   # Set Hosts
-  modify_hosts $CLOUD_CONTROLLER_ADDRESS
-  modify_hosts $CLOUD_REGISTRY_ADDRESS
-  modify_hosts $CLOUD_ETCD_ADDRESS
+  modify_hosts $CLOUD_CONTROLLER_ADDRESS &>/dev/null
+  modify_hosts $CLOUD_REGISTRY_ADDRESS &>/dev/null
+  modify_hosts $CLOUD_ETCD_ADDRESS &>/dev/null
   # Ensure we have the right Anka Agent version installed (for rolling back versions)
   if [[ $(uname) == "Darwin" ]]; then
     echo "]] Joining this machine (Node) to the Cloud"

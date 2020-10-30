@@ -12,7 +12,7 @@ TEMP_DIR="/tmp/anka-mac-resources"
 MOUNT_DIR="$TEMP_DIR/mount"
 mkdir -p $MOUNT_DIR
 cd $TEMP_DIR
-if [[ -z $1 ]]; then # interactive installer
+if [[ "$1" == "--no-anka-create" ]] || [[ -z $1 ]]; then # interactive installer
   # Download the macOS installer script and prepare the install.app
   echo "]] Downloading Mac Installer .app (requires root) ..."
   cp $SCRIPT_DIR/.misc/download-macos-installer.py $TEMP_DIR/

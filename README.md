@@ -43,7 +43,7 @@ URLs and ports you can expect:
 
 ---
 
-### [`install-anka-virtualization.bash`](./install-anka-virtualization.bash)
+### [`install-anka-virtualization-on-mac.bash`](./install-anka-virtualization-on-mac.bash)
 
 - Running this script will install the latest Anka Virtualization package/CLI onto the current machine.
 - If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./install-anka-virtualization.bash "/Users/myUserName/Downloads/Anka-2.1.1.111.pkg"`).

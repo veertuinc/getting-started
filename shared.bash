@@ -25,8 +25,8 @@ CLOUD_CONTROLLER_LOG_DIR="/Library/Logs/Veertu/AnkaController"
 CLOUD_REGISTRY_PORT="8089" # 8089 is the default
 CLOUD_REGISTRY_REPO_NAME=${CLOUD_REGISTRY_REPO_NAME:-"local-demo"}
 CLOUD_REGISTRY_BASE_PATH="/Library/Application Support/Veertu/Anka/registry"
-CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry-1.11.1-1df83172.pkg"}
-CLOUD_DOCKER_TAR=${CLOUD_DOCKER_TAR:-"anka-controller-registry-1.11.1-1df83172.tar.gz"}
+CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry-1.11.2-ae2c9036.pkg"}
+CLOUD_DOCKER_TAR=${CLOUD_DOCKER_TAR:-"anka-controller-registry-1.11.2-ae2c9036.tar.gz"}
 CLOUD_DOCKER_FOLDER="$(echo $CLOUD_DOCKER_TAR | awk -F'.tar.gz' '{print $1}')"
 
 JENKINS_PORT=8092

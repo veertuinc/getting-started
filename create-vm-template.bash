@@ -39,7 +39,7 @@ if [[ "$1" != "--no-anka-create" ]]; then
   sudo anka delete --yes $TEMPLATE &>/dev/null || true
   # Create Base Template
   echo "]] Creating $TEMPLATE using $INSTALLER_LOCATION ..."
-  sudo anka create --ram-size 10G --cpu-count 6 --disk-size 80G --app "$INSTALLER_LOCATION" $TEMPLATE
+  sudo anka create --disk-size 100G --app "$INSTALLER_LOCATION" $TEMPLATE
   ## Change UUID for Template
   CUR_UUID=$(sudo anka --machine-readable list | jq -r ".body[] | select(.name==\"$TEMPLATE\") | .uuid")
   sudo mv "$(sudo anka config vm_lib_dir)/$CUR_UUID" "$(sudo anka config vm_lib_dir)/$ANKA_VM_TEMPLATE_UUID"

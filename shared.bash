@@ -4,8 +4,8 @@ STORAGE_LOCATION=${STORAGE_LOCATION:-"/tmp"}
 URL_PROTOCOL=${URL_PROTOCOL:-"http://"}
 
 ANKA_PLUGIN_VERSION="2.2.1"
-GITHUB_PLUGIN_VERSION="1.30.0"
-PIPELINE_PLUGIN_VERSION="1.7.0"
+GITHUB_PLUGIN_VERSION="1.32.0"
+PIPELINE_PLUGIN_VERSION="1.7.2"
 
 CLOUDFRONT_URL="https://d1efqjhnhbvc57.cloudfront.net"
 
@@ -83,7 +83,7 @@ jenkins_plugin_install() {
   while [[ "$(docker logs --tail 500 $JENKINS_DOCKER_CONTAINER_NAME 2>&1 | grep "INFO: Installation successful: ${PLUGIN_NAME}$")" != "INFO: Installation successful: $PLUGIN_NAME" ]]; do
     echo "Installation of $PLUGIN_NAME plugin still pending..."
     sleep 5
-    [[ $TRIES == 25 ]] && echo "Something is wrong with the Jenkins $PLUGIN_NAME installation..." && docker logs --tail 10 $JENKINS_DOCKER_CONTAINER_NAME && exit 1
+    [[ $TRIES == 25 ]] && echo "Something is wrong with the Jenkins $PLUGIN_NAME installation..." && docker logs --tail 50 $JENKINS_DOCKER_CONTAINER_NAME && exit 1
     ((TRIES++))
   done
   true

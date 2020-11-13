@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -exo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 . ./shared.bash
@@ -11,6 +11,7 @@ cd $SCRIPT_DIR
 TEMP_DIR="/tmp/anka-mac-resources"
 MOUNT_DIR="$TEMP_DIR/mount"
 mkdir -p $MOUNT_DIR
+rm -f $TEMP_DIR/Install_*.sparseimage
 cd $TEMP_DIR
 if [[ "$1" == "--no-anka-create" ]] || [[ -z $1 ]]; then # interactive installer
   # Download the macOS installer script and prepare the install.app

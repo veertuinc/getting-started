@@ -27,11 +27,11 @@ This repo contains various scripts for setting up and testing Anka software on y
 Before integrating Anka with your CI, you need to install and configure the **Anka Virtualization CLI** and **Build Cloud Controller & Registry**.
 
 1. Obtain your trial license from https://veertu.com/getting-started-anka-trials/
-1. Install the **[Anka Virtualization CLI package, then activate your license](https://ankadocs.veertu.com/docs/anka-build-cloud/virtualization-cli/installation/)** with `./install-anka-virtualization-on-mac.bash`.
+1. Install the **[Anka Virtualization CLI package, then activate your license](https://ankadocs.veertu.com/docs/getting-started/installing-the-anka-virtualization-package/)** with `./install-anka-virtualization-on-mac.bash`.
 2. Install the **Anka Build Cloud Controller & Registry** with `./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-mac.bash`.
-3. Now generate your [Template and Tags](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage) with `./create-vm-template.bash`.
+3. Now generate your [Template and Tags](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#anka-build-license--cloud-understanding-vm-templates-tags-and-disk-usage) with `./create-vm-template.bash`.
 
-At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/getting-started/macos/#step-4-start-a-vm-instance-using-the-controller-ui)
+At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/anka-build-cloud/working-with-controller-and-api/#instances-view)
 
 URLs and ports you can expect:
 

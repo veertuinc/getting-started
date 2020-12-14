@@ -7,7 +7,7 @@ cd $SCRIPT_DIR
 cleanup() {
   rm -f $STORAGE_LOCATION/$ANKA_VIRTUALIZATION_PACKAGE
 }
-trap cleanup EXIT
+trap cleanup 0
 echo "]] Cleaning up the previous Anka Virtualization CLI installation"
 sudo /Library/Application\ Support/Veertu/Anka/tools/uninstall.sh -f 2>/dev/null || true
 # Install

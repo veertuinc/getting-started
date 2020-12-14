@@ -55,11 +55,11 @@ URLs and ports you can expect:
 
 - Running this script will guide you through downloading Apple's macOS installer and then use it to create your first VM Template.
 - Without any arguments, the script will guide you through downloading a specific version of the macOS installer .app. 
-- If the first argument is an **absolute* path to your installer .app, the script will not use the guided downloader: (`./create-template.bash "/Applications/Install macOS Catalina.app"`).
+- If the first argument is an **absolute* path to your installer .app, the script will not use the guided downloader: (`./create-vm-template.bash "/Applications/Install macOS Catalina.app"`).
 
 ### [`create-vm-template-tags.bash`](./create-vm-template-tags.bash)
 
-> `create-template.bash` will run this script once the Template is created.
+> `create-vm-template.bash` will run this script once the Template is created.
 
 - Running this script will generate a Tag for the VM Template
 - Uses script from https://github.com/munki/macadmin-scripts (Copyright 2017 Greg Neagle)

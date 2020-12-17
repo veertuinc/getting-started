@@ -63,7 +63,7 @@ services:
        - anka-etcd
        - anka-registry
     restart: always
-    entrypoint: ["/bin/bash", "-c", "anka-controller --standalone --enable-central-logging --anka-registry http://$CLOUD_REGISTRY_ADDRESS:8089 --etcd-endpoints $CLOUD_ETCD_ADDRESS:2379 --log_dir /var/log/anka-controller --local-anka-registry http://anka-registry:8085"]
+    entrypoint: ["/bin/bash", "-c", "anka-controller --enable-central-logging --anka-registry http://$CLOUD_REGISTRY_ADDRESS:8089 --etcd-endpoints $CLOUD_ETCD_ADDRESS:2379 --log_dir /var/log/anka-controller --local-anka-registry http://anka-registry:8085"]
 
   anka-registry:
     container_name: $CLOUD_REGISTRY_ADDRESS

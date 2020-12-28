@@ -16,6 +16,7 @@ echo "]] Cleaning up the previous Anka Cloud installation"
 sudo anka-controller stop &>/dev/null || true
 sudo /Library/Application\ Support/Veertu/Anka/tools/controller/uninstall.sh 2>/dev/null || true
 sudo rm -rf /Library/Application\ Support/Veertu/Anka/anka-controller
+sudo rm -rf /tmp/AnkaAgent.pkg
 # Install
 if [[ $1 != "--uninstall" ]]; then
   cd $STORAGE_LOCATION

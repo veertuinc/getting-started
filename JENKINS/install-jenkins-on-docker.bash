@@ -52,8 +52,8 @@ BLOCK
   echo "]] Installing Plugins (may take a while)..."
   sleep 80 # Waits for "jenkins.slaves.restarter.JnlpSlaveRestarterInstaller install" to finish
   jenkins_plugin_install "github@$GITHUB_PLUGIN_VERSION"
-  jenkins_plugin_install "anka-build@$ANKA_PLUGIN_VERSION"
-  jenkins_plugin_install "pipeline-model-definition@$PIPELINE_PLUGIN_VERSION"
+  jenkins_plugin_install "anka-build@$JENKINS_PLUGIN_VERSION"
+  jenkins_plugin_install "pipeline-model-definition@$JENKINS_PIPELINE_PLUGIN_VERSION"
   # Credential
   echo "]] Adding the needed credentials"
   curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/credentials/store/system/domain/_/createCredentials \

@@ -16,6 +16,7 @@ echo "]] Cleaning up the previous Anka Cloud installation"
 sudo anka-controller stop &>/dev/null || true
 sudo /Library/Application\ Support/Veertu/Anka/tools/controller/uninstall.sh 2>/dev/null || true
 sudo rm -rf /Library/Application\ Support/Veertu/Anka/anka-controller
+sudo rm -rf /tmp/AnkaAgent.pkg
 # Install
 if [[ $1 != "--uninstall" ]]; then
   cd $STORAGE_LOCATION
@@ -23,7 +24,7 @@ if [[ $1 != "--uninstall" ]]; then
   if [[ -z $1 ]]; then
     echo "]] Downloading $CLOUD_NATIVE_PACKAGE"
     trap cleanup EXIT
-    curl -S -L -O $CLOUD_DOWNLOAD_URL
+    curl -S -L -O "$CLOUDFRONT_URL/$CLOUD_NATIVE_PACKAGE"
     INSTALLER_LOCATION="$STORAGE_LOCATION/$CLOUD_NATIVE_PACKAGE"
   else
     [[ "${1:0:1}" != "/" ]] && echo "Ensure you're using the absolute path to your installer package" && exit 1
@@ -95,7 +96,7 @@ BLOCK
   sleep 20
   # Ensure we have the right Anka Agent version installed (for rolling back versions)
   curl -O ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/pkg/AnkaAgent.pkg -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
-  sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT || true
+  sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT --host host.docker.internal || true
   #
   echo "============================================================================="
   echo "Controller UI:  $URL_PROTOCOL$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT"

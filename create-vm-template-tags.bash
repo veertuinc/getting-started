@@ -62,6 +62,7 @@ build-tag "$TAG:port-forward-22" "
 "
 # Install Brew & command line tools (git)
 build-tag "$TAG:brew-git" "
+  $ANKA_RUN $TEMPLATE bash -c \"sudo xcodebuild -license || true\"
   $ANKA_RUN $TEMPLATE bash -c \"/bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
   $ANKA_RUN $TEMPLATE bash -c \"brew install jq\"
 "

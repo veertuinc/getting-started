@@ -27,11 +27,11 @@ This repo contains various scripts for setting up and testing Anka software on y
 Before integrating Anka with your CI, you need to install and configure the **Anka Virtualization CLI** and **Build Cloud Controller & Registry**.
 
 1. Obtain your trial license from https://veertu.com/getting-started-anka-trials/
-1. Install the **[Anka Virtualization CLI package, then activate your license](https://ankadocs.veertu.com/docs/anka-build-cloud/virtualization-cli/installation/)** with `./install-anka-virtualization-on-mac.bash`.
+1. Install the **[Anka Virtualization CLI package, then activate your license](https://ankadocs.veertu.com/docs/getting-started/installing-the-anka-virtualization-package/)** with `./install-anka-virtualization-on-mac.bash`.
 2. Install the **Anka Build Cloud Controller & Registry** with `./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-mac.bash`.
-3. Now generate your [Template and Tags](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage) with `./create-vm-template.bash`.
+3. Now generate your [Template and Tags](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#anka-build-license--cloud-understanding-vm-templates-tags-and-disk-usage) with `./create-vm-template.bash`.
 
-At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/getting-started/macos/#step-4-start-a-vm-instance-using-the-controller-ui)
+At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/anka-build-cloud/working-with-controller-and-api/#instances-view)
 
 URLs and ports you can expect:
 
@@ -43,7 +43,7 @@ URLs and ports you can expect:
 
 ---
 
-### [`install-anka-virtualization.bash`](./install-anka-virtualization.bash)
+### [`install-anka-virtualization-on-mac.bash`](./install-anka-virtualization-on-mac.bash)
 
 - Running this script will install the latest Anka Virtualization package/CLI onto the current machine.
 - If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./install-anka-virtualization.bash "/Users/myUserName/Downloads/Anka-2.1.1.111.pkg"`).
@@ -55,11 +55,11 @@ URLs and ports you can expect:
 
 - Running this script will guide you through downloading Apple's macOS installer and then use it to create your first VM Template.
 - Without any arguments, the script will guide you through downloading a specific version of the macOS installer .app. 
-- If the first argument is an **absolute* path to your installer .app, the script will not use the guided downloader: (`./create-template.bash "/Applications/Install macOS Catalina.app"`).
+- If the first argument is an **absolute* path to your installer .app, the script will not use the guided downloader: (`./create-vm-template.bash "/Applications/Install macOS Catalina.app"`).
 
 ### [`create-vm-template-tags.bash`](./create-vm-template-tags.bash)
 
-> `create-template.bash` will run this script once the Template is created.
+> `create-vm-template.bash` will run this script once the Template is created.
 
 - Running this script will generate a Tag for the VM Template
 - Uses script from https://github.com/munki/macadmin-scripts (Copyright 2017 Greg Neagle)
@@ -72,6 +72,12 @@ URLs and ports you can expect:
 
 - Running this script will download and install the latest Anka Build Cloud Controller & Registry onto the current machine.
 - If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-mac.bash "/Users/myUserName/Downloads/AnkaControllerRegistry-1.4.0-8a38607d.pkg"`).
+- If the first argument is `--uninstall`, it will only remove the existing install.
+
+### [`install-anka-build-controller-and-registry-on-docker.bash`](./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash)
+
+- Running this script will download and install the latest Anka Build Cloud Controller & Registry onto your machine using docker + docker-compose.
+- If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash "/Users/myUserName/Downloads/anka-controller-registry-1.11.1-1df83172.tar.gz"`).
 - If the first argument is `--uninstall`, it will only remove the existing install.
 
 ### [`generate-certs.bash`](./ANKA_BUILD_CLOUD/generate-certs.bash)

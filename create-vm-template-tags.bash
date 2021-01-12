@@ -7,8 +7,6 @@ cd "$SCRIPT_DIR"
 TEMPLATE=$1
 [[ -z $TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1
 HELPERS="set -exo pipefail;"
-CERTS=""
-[[ -f "$HOME/anka-node-$(hostname)-crt.pem" ]] && CERTS="--cacert /Users/nathanpierce/macmini-vault-registry/ca-root-crt.pem --cert /Users/nathanpierce/macmini-vault-registry/client-crt.pem --key /Users/nathanpierce/macmini-vault-registry/client-key.pem"
 ANKA_RUN="sudo anka run -N -n"
 ANKA_REGISTRY="sudo anka registry --remote $CLOUD_REGISTRY_REPO_NAME $CERTS"
 

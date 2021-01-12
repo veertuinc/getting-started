@@ -62,7 +62,9 @@ TEAMCITY_DOCKER_TAG_VERSION=${TEAMCITY_DOCKER_TAG_VERSION:-"$TEAMCITY_VERSION-li
 TEAMCITY_DOCKER_CONTAINER_NAME="anka.teamcity"
 TEAMCITY_DOCKER_DATA_DIR="$HOME/$TEAMCITY_DOCKER_CONTAINER_NAME-data"
 
+USE_CERTS=${USE_CERTS:-false}
 CERT_DIRECTORY=${CERT_DIRECTORY:-"$HOME/anka-build-cloud-certs"}
+[[ "$USE_CERTS" == true ]] && CERTS="--cacert $CERT_DIRECTORY/anka-ca-crt.pem --cert $CERT_DIRECTORY/anka-node-$(hostname)-crt.pem --key $CERT_DIRECTORY/anka-node-$(hostname)-key.pem"
 
 modify_hosts() {
   [[ -z $1 ]] && echo "ARG 1 missing" && exit 1

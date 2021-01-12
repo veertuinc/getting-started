@@ -10,6 +10,7 @@ cd $SCRIPT_DIR
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
 TEMP_DIR="/tmp/anka-mac-resources"
 MOUNT_DIR="$TEMP_DIR/mount"
+sudo chmod -R 777 $TEMP_DIR
 mkdir -p $MOUNT_DIR
 rm -f $TEMP_DIR/Install_*.sparseimage
 cd $TEMP_DIR

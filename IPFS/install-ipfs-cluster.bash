@@ -11,21 +11,21 @@ BIN_PATH="/usr/local/bin"
 # rm -f $BIN_PATH/ipfs-cluster-*
 if [[ $1 != "--uninstall" ]]; then
   # brew install ipfs
-  # VERSION="v0.13.1"
+  VERSION="v0.13.1"
   # Prepare
   mkdir -p $STORAGE_LOCATION
   pushd $STORAGE_LOCATION &>/dev/null
   # INSTALL
-  # get-binary() {
-  #   BINARY=$1
-  #   TAR="${BINARY}_${VERSION}_darwin-amd64.tar.gz"
-  #   curl -o $STORAGE_LOCATION/$TAR -O https://dist.ipfs.io/$BINARY/$VERSION/$TAR
-  #   tar -xvzf $TAR
-  #   mv $STORAGE_LOCATION/$BINARY/$BINARY $BIN_PATH/$BINARY
-  # }
-  # get-binary "ipfs-cluster-ctl"
-  # get-binary "ipfs-cluster-service"
-  # get-binary "ipfs-cluster-follow"
+  get-binary() {
+    BINARY=$1
+    TAR="${BINARY}_${VERSION}_darwin-amd64.tar.gz"
+    curl -o $STORAGE_LOCATION/$TAR -O https://dist.ipfs.io/$BINARY/$VERSION/$TAR
+    tar -xvzf $TAR
+    mv $STORAGE_LOCATION/$BINARY/$BINARY $BIN_PATH/$BINARY
+  }
+  get-binary "ipfs-cluster-ctl"
+  get-binary "ipfs-cluster-service"
+  get-binary "ipfs-cluster-follow"
   # Init
   ipfs-cluster-service init --consensus crdt
   ipfs init --profile server

@@ -10,7 +10,8 @@ HELPERS="set -exo pipefail;"
 CERTS=""
 [[ -f "$HOME/anka-node-$(hostname)-crt.pem" ]] && CERTS="--cacert /Users/nathanpierce/macmini-vault-registry/ca-root-crt.pem --cert /Users/nathanpierce/macmini-vault-registry/client-crt.pem --key /Users/nathanpierce/macmini-vault-registry/client-key.pem"
 ANKA_RUN="sudo anka run -N -n"
-ANKA_REGISTRY="sudo anka registry --remote $CLOUD_REGISTRY_REPO_NAME $CERTS"
+[[ ! -z "$(sudo anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME)" ]] && REMOTE="--remote $CLOUD_REGISTRY_REPO_NAME"
+ANKA_REGISTRY="sudo anka registry $REMOTE $CERTS"
 
 pull() {
   [[ ! -z $1 ]] && TAG=$1
@@ -29,7 +30,7 @@ stop_and_push() {
 }
 
 does_not_exists() {
-  [[ -z $(sudo anka --machine-readable registry --remote $CLOUD_REGISTRY_REPO_NAME $CERTS describe $TEMPLATE | jq -r ".body.versions[] | select(.tag == \"$TAG\") | .tag" 2>/dev/null) ]] && true || false
+  [[ -z $(sudo anka --machine-readable registry $REMOTE $CERTS describe $TEMPLATE | jq -r ".body.versions[] | select(.tag == \"$TAG\") | .tag" 2>/dev/null) ]] && true || false
 }
 
 build-tag() {

@@ -60,6 +60,8 @@ build-tag "$TAG:port-forward-22" "
 build-tag "$TAG:brew-git" "
   $ANKA_RUN $TEMPLATE bash -c \"sudo xcodebuild -license || true\"
   $ANKA_RUN $TEMPLATE bash -c \"/bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
+  $ANKA_RUN $TEMPLATE bash -c \"sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.coreduetd.osx.plist\"
+  $ANKA_RUN $TEMPLATE bash -c \"sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist\"
   $ANKA_RUN $TEMPLATE bash -c \"brew install jq\"
 "
 

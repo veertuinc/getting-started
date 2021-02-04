@@ -47,7 +47,7 @@ build-tag() {
 # Tripple quote nested quotes and $
 ####################################
 
-TAG=${TAG:-"base"}
+TAG=${TAG:-"vanilla"}
 if does_not_exists; then
   suspend_and_push
 fi

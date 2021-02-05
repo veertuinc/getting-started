@@ -36,7 +36,7 @@ if [[ $1 != "--uninstall" ]]; then
   --name "localhost shared runner" \
   --anka-controller-address "http://anka.controller:8090/" \
   --anka-template-uuid c0847bc9-5d2d-4dbc-ba6a-240f7ff08032 \
-  --anka-tag base:port-forward-22:brew-git:gitlab \
+  --anka-tag vanilla:port-forward-22:brew-git:gitlab \
   --executor anka \
   --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
   --tag-list "localhost-shared,localhost,iOS"
@@ -49,7 +49,7 @@ if [[ $1 != "--uninstall" ]]; then
   --name "localhost specific runner" \
   --anka-controller-address "http://anka.controller:8090/" \
   --anka-template-uuid c0847bc9-5d2d-4dbc-ba6a-240f7ff08032 \
-  --anka-tag base:port-forward-22:brew-git:gitlab \
+  --anka-tag vanilla:port-forward-22:brew-git:gitlab \
   --executor anka \
   --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
   --tag-list "localhost-specific,localhost,iOS"

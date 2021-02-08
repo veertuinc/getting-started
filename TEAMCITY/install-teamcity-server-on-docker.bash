@@ -14,12 +14,12 @@ rm -rf docker-compose.yml
 rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
 # Install
 if [[ $1 != "--uninstall" ]]; then
-  # echo "]] Starting the TeamCity Docker container"
-  # cp -f $TEAMCITY_DOCKER_CONTAINER_NAME-data.tar.gz $HOME/
-  # cd $HOME
-  # tar -xzf $TEAMCITY_DOCKER_DATA_DIR.tar.gz
-  # rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
-  # cd "$SCRIPT_DIR"
+  echo "]] Starting the TeamCity Docker container"
+  cp -f $TEAMCITY_DOCKER_CONTAINER_NAME-data.tar.gz $HOME/
+  cd $HOME
+  tar -xzf $TEAMCITY_DOCKER_DATA_DIR.tar.gz
+  rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
+  cd "$SCRIPT_DIR"
 cat > docker-compose.yml <<BLOCK
 version: '3.7'
 services:
@@ -33,7 +33,8 @@ services:
       - $TEAMCITY_DOCKER_DATA_DIR:/data/teamcity_server/datadir
       - $TEAMCITY_DOCKER_DATA_DIR/logs:/opt/teamcity/logs
     environment:
-      - TEAMCITY_SERVER_MEM_OPTS="-Xmx750m"
+      TEAMCITY_SERVER_MEM_OPTS: "-Xmx1240m"
+      TEAMCITY_SERVER_OPTS: "-Dteamcity.kotlinConfigsDsl.pluginsCompilationXmx=512m"
 BLOCK
   docker-compose up -d
   # docker logs --tail 100 $DOCKER_CONTAINER_NAME

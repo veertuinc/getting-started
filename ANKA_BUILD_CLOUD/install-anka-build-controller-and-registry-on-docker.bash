@@ -4,7 +4,7 @@ SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 . ../shared.bash
 # Warn about node being joined
-if [[ "$(sudo ankacluster status)" =~ "is running" ]]; then
+if [[ "$(sudo ankacluster status)" =~ "running" ]]; then
   echo "You have this machine (node) joined to the Cloud! Please disjoin before uninstalling or reinstalling with: sudo ankacluster disjoin"
   exit 1
 fi

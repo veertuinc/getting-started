@@ -13,6 +13,7 @@ CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry-1.14.0-1762
 CLOUD_DOCKER_TAR=${CLOUD_DOCKER_TAR:-"anka-controller-registry-1.14.0-17620328.tar.gz"}
 ANKA_VIRTUALIZATION_PACKAGE=${ANKA_VIRTUALIZATION_PACKAGE:-"Anka-2.3.3.127.pkg"}
 TEAMCITY_VERSION="2020.2.2"
+PROMETHEUS_BINARY_VERSION=${PROMETHEUS_BINARY_VERSION:-"2.0.0"}
 
 CLOUDFRONT_URL="https://d1efqjhnhbvc57.cloudfront.net"
 
@@ -53,12 +54,20 @@ GITLAB_RUNNER_DESTINATION="/usr/local/bin/"
 GITLAB_RUNNER_VM_TEMPLATE_UUID="${GITLAB_RUNNER_VM_TEMPLATE_UUID:-"5d1b40b9-7e68-4807-a290-c59c66e926b4"}" # This is used in CI/CD; change screwdriver runner-setup script if you change the name of the var
 
 
+PROMETHEUS_PORT="8095"
+PROMETHEUS_DOCKER_CONTAINER_NAME="anka.prometheus"
+PROMETHEUS_DOCKER_TAG_VERSION=${PROMETHEUS_DOCKER_TAG_VERSION:-"2.21.0"}
+PROMETHEUS_DOCKER_DATA_DIR="$HOME/$PROMETHEUS_DOCKER_CONTAINER_NAME-data"
+PROMETHEUS_BINARY_NAME="anka-prometheus-exporter"
+
 TEAMCITY_PORT="8094"
 TEAMCITY_DOCKER_TAG_VERSION=${TEAMCITY_DOCKER_TAG_VERSION:-"$TEAMCITY_VERSION-linux"}
 TEAMCITY_DOCKER_CONTAINER_NAME="anka.teamcity"
 TEAMCITY_DOCKER_DATA_DIR="$HOME/$TEAMCITY_DOCKER_CONTAINER_NAME-data"
 
+USE_CERTS=${USE_CERTS:-false}
 CERT_DIRECTORY=${CERT_DIRECTORY:-"$HOME/anka-build-cloud-certs"}
+[[ "$USE_CERTS" == true ]] && CERTS="--cacert $CERT_DIRECTORY/anka-ca-crt.pem --cert $CERT_DIRECTORY/anka-node-$(hostname)-crt.pem --key $CERT_DIRECTORY/anka-node-$(hostname)-key.pem"
 
 modify_hosts() {
   [[ -z $1 ]] && echo "ARG 1 missing" && exit 1
@@ -68,8 +77,9 @@ modify_hosts() {
     SED="sudo sed -i"
   fi
   HOSTS_LOCATION="/etc/hosts"
+  echo "]] Adding $1 to $HOSTS_LOCATION (requires root)"
   $SED "/$1/d" $HOSTS_LOCATION
-  echo "127.0.0.1 $1" | sudo tee -a $HOSTS_LOCATION
+  ( echo "127.0.0.1 $1" | sudo tee -a $HOSTS_LOCATION ) &>/dev/null
 }
 
 jenkins_obtain_crumb() {

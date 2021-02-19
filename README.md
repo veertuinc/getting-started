@@ -178,8 +178,22 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 ---
 
-## Buildkite (`./BUILDKITE`)
+# Monitoring
+## Prometheus Exporter [(`./PROMETHEUS`)](./PROMETHEUS)
 
-Coming soon!
+[Prometheus](https://prometheus.io/docs/introduction/overview/) is a powerful monitoring and alerting toolkit. You can use it to store Anka Controller, Registry, VM metrics to build out or integrating into existing graphing tools like [Grafana](https://grafana.com/).
+
+The scripts included in this directory can be run, respectively, to setup both prometheus and also our anka-prometheus-exporter. 
+### [`install-prometheus-on-docker.bash`](./PROMETHEUS/install-prometheus-on-docker.bash)
+
+- Running this script will create a docker container pre-configured and ready for the anka-prometheus-exporter. It is setup to run on http://anka.prometheus:8095.
+- If the first argument is `--uninstall`, it will only remove the existing containers
+
+### [`install-and-run-anka-prometheus-on-mac.bash`](./PROMETHEUS/install-and-run-anka-prometheus-on-mac.bash)
+
+- Running this script will start a background process for the exporter which is connected and pulling from the Anka Build Cloud, which is also running locally.
+- If the first argument is `--uninstall`, it will only kill the running exporter
+
+> The process will not persist through restarts. You can just re-run the script to start it again.
 
 ---

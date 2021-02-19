@@ -21,7 +21,7 @@
       <templates>
         <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
           <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
-          <tag>base:port-forward-22:brew-git:openjdk-1.8.0_242:jenkins</tag>
+          <tag>v1</tag>
           <launchDelay>0</launchDelay>
           <remoteFS>/Users/anka/</remoteFS>
           <labelString>local-anka-cloud-label-ssh</labelString>
@@ -67,7 +67,7 @@
         </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
         <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
           <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
-          <tag>base:port-forward-22:brew-git:openjdk-1.8.0_242:jenkins</tag>
+          <tag>v1</tag>
           <launchDelay>0</launchDelay>
           <remoteFS>/Users/anka/</remoteFS>
           <labelString>local-anka-cloud-label-jnlp</labelString>
@@ -113,7 +113,7 @@
         </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
         <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
           <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
-          <tag>base:port-forward-22:brew-git:openjdk-1.8.0_242:jenkins</tag>
+          <tag>v1</tag>
           <launchDelay>0</launchDelay>
           <remoteFS>/Users/anka/</remoteFS>
           <labelString>local-anka-cloud-label-jnlp-cache-builder</labelString>
@@ -159,7 +159,7 @@
         </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
         <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
           <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
-          <tag>base:port-forward-22:brew-git:openjdk-1.8.0_242:jenkins</tag>
+          <tag>v1</tag>
           <launchDelay>0</launchDelay>
           <remoteFS>/Users/anka/</remoteFS>
           <labelString>local-anka-cloud-label-ssh-cache-builder</labelString>

@@ -121,10 +121,14 @@ spec:
       containers:
         - name: controller
           env:
-            - name: ANKA_REGISTRY_ADDR
+            - name: ANKA_STANDLONE
+              value: "false"
+            - name: ANKA_LISTEN_ADDR
+              value: ":80"
+            - name: ANKA_ANKA_REGISTRY
               value: "http://anka.registry:8089"
-            - name: LOCAL_ANKA_REGISTRY
-              value: "--local-anka-registry http://localhost:8089"
+            - name: ANKA_LOCAL_ANKA_REGISTRY
+              value: "http://localhost:8089"
             - name: ANKA_ETCD_ENDPOINTS
               value: "http://etcd-client:2379"
           image: veertu/anka-build-cloud-controller:v1.11.0
@@ -133,6 +137,7 @@ spec:
             - containerPort: 80
               name: controller
               protocol: TCP
+          command: ["/bin/bash", "-c", "anka-controller"]
         - name: registry
           image: veertu/anka-build-cloud-registry:v1.11.0
           imagePullPolicy: IfNotPresent

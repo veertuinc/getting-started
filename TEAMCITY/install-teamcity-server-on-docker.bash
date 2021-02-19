@@ -32,6 +32,9 @@ services:
     volumes:
       - $TEAMCITY_DOCKER_DATA_DIR:/data/teamcity_server/datadir
       - $TEAMCITY_DOCKER_DATA_DIR/logs:/opt/teamcity/logs
+    environment:
+      TEAMCITY_SERVER_MEM_OPTS: "-Xmx1240m"
+      TEAMCITY_SERVER_OPTS: "-Dteamcity.kotlinConfigsDsl.pluginsCompilationXmx=512m"
 BLOCK
   docker-compose up -d
   # docker logs --tail 100 $DOCKER_CONTAINER_NAME

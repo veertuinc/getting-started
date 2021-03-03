@@ -43,7 +43,7 @@ BLOCK
   docker-compose up -d
   # Check if it's still starting...
   while [[ ! "$(docker logs --tail 100 $GITLAB_DOCKER_CONTAINER_NAME 2>&1)" =~ '==> /var/log/' ]]; do 
-    echo "GitLab still starting..."
+    echo "GitLab still starting (this may take a while)..."
     docker logs --tail 50 $GITLAB_DOCKER_CONTAINER_NAME 2>&1
     sleep 60
   done

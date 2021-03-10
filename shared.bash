@@ -45,6 +45,7 @@ GITLAB_PORT="8093"
 GITLAB_DOCKER_CONTAINER_NAME="anka.gitlab"
 GITLAB_DOCKER_DATA_DIR="$HOME/$GITLAB_DOCKER_CONTAINER_NAME-data"
 GITLAB_ROOT_PASSWORD="rootpassword"
+GITLAB_ACCESS_TOKEN="token-string-here123"
 GITLAB_EXAMPLE_PROJECT_NAME="gitlab-examples"
 GITLAB_ANKA_VM_TEMPLATE_TAG="vanilla:port-forward-22:brew-git:gitlab"
 GITLAB_RUNNER_PROJECT_RUNNER_NAME="anka-gitlab-runner-project-specific"
@@ -52,7 +53,6 @@ GITLAB_RUNNER_SHARED_RUNNER_NAME="anka-gitlab-runner-shared"
 GITLAB_RUNNER_LOCATION="/tmp/anka-gitlab-runner"
 GITLAB_RUNNER_DESTINATION="/usr/local/bin/"
 GITLAB_RUNNER_VM_TEMPLATE_UUID="${GITLAB_RUNNER_VM_TEMPLATE_UUID:-"5d1b40b9-7e68-4807-a290-c59c66e926b4"}" # This is used in CI/CD; change screwdriver runner-setup script if you change the name of the var
-
 
 PROMETHEUS_PORT="8095"
 PROMETHEUS_DOCKER_CONTAINER_NAME="anka.prometheus"

@@ -4,7 +4,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
 . ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with brew install jq." && exit 1
-SOURCE_TEMPLATE=$1
+SOURCE_TEMPLATE=${1-"11.2"}
 [[ -z $SOURCE_TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1
 HELPERS="set -exo pipefail;"
 ANKA_RUN="sudo anka run -N -n"
@@ -81,7 +81,7 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
 "
 
 if [[ $2 == '--gitlab' ]]; then
-  NEW_TEMPLATE="11.2-gitlab"
+  NEW_TEMPLATE="$SOURCE_TEMPLATE-gitlab"
   NEW_TAG="v1"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && sudo anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE
   # Modify UUID (don't use in production; for getting-started demo only)
@@ -92,10 +92,13 @@ if [[ $2 == '--gitlab' ]]; then
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $NEW_TEMPLATE sudo bash -c \"$HELPERS echo '192.168.64.1 anka.gitlab' >> /etc/hosts && [[ ! -z \\\$(grep anka.gitlab /etc/hosts) ]]\"
   "
+  prepare-and-push $NEW_TEMPLATE "v1-with-file" "suspend" "
+    $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS touch /Users/anka/Desktop/test.file\"
+  "
 fi
 
 if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
-  NEW_TEMPLATE="11.2-openjdk-1.8.0_242"
+  NEW_TEMPLATE="$SOURCE_TEMPLATE-openjdk-1.8.0_242"
   NEW_TAG="v1"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && sudo anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE
   ## Install OpenJDK8
@@ -111,7 +114,7 @@ fi
 
 if [[ $2 == '--jenkins' ]]; then
   NEW_TAG="v1"
-  JENKINS_TEMPLATE="11.2-openjdk-1.8.0_242-jenkins"
+  JENKINS_TEMPLATE="$SOURCE_TEMPLATE-openjdk-1.8.0_242-jenkins"
   does_not_exist $JENKINS_TEMPLATE $NEW_TAG && sudo anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE
   # Modify UUID (don't use in production; for getting-started demo only)
   CUR_UUID=$(sudo anka --machine-readable list | jq -r ".body[] | select(.name==\"$JENKINS_TEMPLATE\") | .uuid")
@@ -126,7 +129,7 @@ fi
 
 if [[ $2 == '--teamcity' ]]; then
   NEW_TAG="v1"
-  TEAMCITY_TEMPLATE="11.2-openjdk-1.8.0_242-teamcity"
+  TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-openjdk-1.8.0_242-teamcity"
   does_not_exist $TEAMCITY_TEMPLATE $NEW_TAG && sudo anka clone $NEW_TEMPLATE $TEAMCITY_TEMPLATE
   prepare-and-push $TEAMCITY_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $TEAMCITY_TEMPLATE sudo bash -c \"$HELPERS echo '192.168.64.1 $TEAMCITY_DOCKER_CONTAINER_NAME' >> /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"

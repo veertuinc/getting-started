@@ -12,7 +12,7 @@ ANKA_RUN="sudo anka run -N -n"
 ANKA_REGISTRY="sudo anka registry $REMOTE $CERTS"
 
 cleanup() {
-  sudo anka stop --yes $TEMPLATE || true
+  sudo anka stop -f $TEMPLATE || true
 }
 trap cleanup INT
 

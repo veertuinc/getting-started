@@ -7,9 +7,9 @@ SERVICE_PORT="8080"
 echo "]] Cleaning up the previous Jenkins installation"
 docker-compose down &>/dev/null || true
 docker stop $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
-docker rm $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
-rm -rf $JENKINS_DATA_DIR
-rm -f docker-compose.yml
+# docker rm $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
+# rm -rf $JENKINS_DATA_DIR
+# rm -f docker-compose.yml
 if [[ $1 != "--uninstall" ]]; then
   modify_hosts $JENKINS_DOCKER_CONTAINER_NAME
   mkdir -p $JENKINS_DATA_DIR
@@ -31,6 +31,7 @@ services:
       # - JENKINS_OPTS=" --httpPort=-1 --httpsPort=$SERVICE_PORT "
       - JAVA_OPTS="-Djava.util.logging.config.file=/var/jenkins_home/log.properties"
 BLOCK
+  docker-compose pull || true
   docker-compose up -d
   echo "]] Waiting 60 seconds for Jenkins to start properly..."
   sleep 60

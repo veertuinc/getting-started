@@ -41,7 +41,9 @@ stop_and_push() {
 does_not_exist() {
   TEMPLATE=$1
   TAG=$2
-  [[ -z $(sudo anka --machine-readable registry $REMOTE $CERTS describe $TEMPLATE | jq -r ".body.versions[] | select(.tag == \"$TAG\") | .tag" 2>/dev/null) ]] && true || false
+  if [[ $(sudo anka --machine-readable registry $REMOTE $CERTS describe $TEMPLATE | jq  -r '.status') != "ERROR" ]]; then
+    [[ -z $(sudo anka --machine-readable registry $REMOTE $CERTS describe $TEMPLATE | jq -r ".body.versions[] | select(.tag == \"$TAG\") | .tag" 2>/dev/null) ]] && true || false
+  fi
 }
 
 prepare-and-push() {

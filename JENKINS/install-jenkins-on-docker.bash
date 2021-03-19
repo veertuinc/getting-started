@@ -7,9 +7,9 @@ SERVICE_PORT="8080"
 echo "]] Cleaning up the previous Jenkins installation"
 docker-compose down &>/dev/null || true
 docker stop $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
-# docker rm $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
-# rm -rf $JENKINS_DATA_DIR
-# rm -f docker-compose.yml
+docker rm $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
+rm -rf $JENKINS_DATA_DIR
+rm -f docker-compose.yml
 if [[ $1 != "--uninstall" ]]; then
   modify_hosts $JENKINS_DOCKER_CONTAINER_NAME
   mkdir -p $JENKINS_DATA_DIR

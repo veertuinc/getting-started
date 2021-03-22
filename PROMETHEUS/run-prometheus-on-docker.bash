@@ -31,9 +31,9 @@ BLOCK
   docker-compose up -d
   # Check if it's still starting...
   while [[ ! "$(docker logs --tail 100 $PROMETHEUS_DOCKER_CONTAINER_NAME 2>&1)" =~ 'Server is ready to receive web requests' ]]; do 
+    docker logs --tail 10 $PROMETHEUS_DOCKER_CONTAINER_NAME 2>&1
     echo "Container still starting..."
-    docker logs --tail 50 $PROMETHEUS_DOCKER_CONTAINER_NAME 2>&1
-    sleep 60
+    sleep 20
   done
   echo "============================================================================"
   echo "Prometheus UI: ${URL_PROTOCOL}$PROMETHEUS_DOCKER_CONTAINER_NAME:$PROMETHEUS_PORT"

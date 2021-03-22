@@ -184,7 +184,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 [Prometheus](https://prometheus.io/docs/introduction/overview/) is a powerful monitoring and alerting toolkit. You can use it to store Anka Controller, Registry, VM metrics to build out or integrating into existing graphing tools like [Grafana](https://grafana.com/).
 
 The scripts included in this directory can be run, respectively, to setup both prometheus and also our anka-prometheus-exporter. 
-### [`install-prometheus-on-docker.bash`](./PROMETHEUS/install-prometheus-on-docker.bash)
+### [`install-prometheus-on-docker.bash`](./PROMETHEUS/run-prometheus-on-docker.bash)
 
 - Running this script will create a docker container pre-configured and ready for the anka-prometheus-exporter. It is setup to run on http://anka.prometheus:8095.
 - If the first argument is `--uninstall`, it will only remove the existing containers

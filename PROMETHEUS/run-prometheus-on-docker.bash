@@ -37,6 +37,5 @@ BLOCK
   done
   echo "============================================================================"
   echo "Prometheus UI: ${URL_PROTOCOL}$PROMETHEUS_DOCKER_CONTAINER_NAME:$PROMETHEUS_PORT"
-  echo "To delete all of the metrics, you can run:"
-  echo "  curl -X POST -g 'http://localhost:8095/api/v1/admin/tsdb/delete_series?match[]={__name__=~\".+\"}'"
+  echo "To delete all of the metrics, simply re-run this script"
 fi

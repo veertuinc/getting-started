@@ -20,6 +20,7 @@ CLOUDFRONT_URL="https://d1efqjhnhbvc57.cloudfront.net"
 ANKA_VIRTUALIZATION_DOWNLOAD_URL="$CLOUDFRONT_URL/$ANKA_VIRTUALIZATION_PACKAGE"
 ANKA_VM_USER=${ANKA_VM_USER:-"anka"}
 ANKA_VM_PASSWORD=${ANKA_VM_PASSWORD:-"admin"}
+ANKA_BASE_VM_TEMPLATE_UUID="${ANKA_BASE_VM_TEMPLATE_UUID:-"c12ccfa5-8757-411e-9505-128190e9854e"}" # Used in cloud_tests
 
 CLOUD_CONTROLLER_ADDRESS=${CLOUD_CONTROLLER_ADDRESS:-"anka.controller"}
 CLOUD_REGISTRY_ADDRESS=${CLOUD_REGISTRY_ADDRESS:-"anka.registry"}
@@ -100,4 +101,17 @@ jenkins_plugin_install() {
     ((TRIES++))
   done
   true
+}
+
+modify_uuid() {
+  # Modify UUID (don't use in production; for getting-started demo only)
+  [[ -z "$1" ]] && echo "no arguments... Please provide JENKINS_TEMPLATE_NAME as ARG1" && exit 1
+  [[ -z "$2" ]] && echo "Please provided the new UUID as ARG2" && exit 2
+  JENKINS_TEMPLATE_NAME=$1
+  DEST_UUID=$2
+  CUR_UUID=$(sudo anka --machine-readable list | jq -r ".body[] | select(.name==\"$JENKINS_TEMPLATE_NAME\") | .uuid")
+  sudo mv "$(sudo anka config vm_lib_dir)/$CUR_UUID" "$(sudo anka config vm_lib_dir)/$DEST_UUID"
+  sudo sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(sudo anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml"
+  sudo mv "$(sudo anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml" "$(sudo anka config vm_lib_dir)/$DEST_UUID/$DEST_UUID.yaml"
+
 }

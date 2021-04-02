@@ -1,8 +1,9 @@
 <?xml version='1.1' encoding='UTF-8'?>
 <hudson>
-  <disabledAdministrativeMonitors/>
-  <version>2.222.3</version>
-  <installStateName>RUNNING</installStateName>
+  <disabledAdministrativeMonitors>
+    <string>jenkins.diagnostics.SecurityIsOffMonitor</string>
+  </disabledAdministrativeMonitors>
+  <version>2.277.1</version>
   <numExecutors>2</numExecutors>
   <mode>NORMAL</mode>
   <useSecurity>true</useSecurity>
@@ -16,8 +17,8 @@
   <viewsTabBar class="hudson.views.DefaultViewsTabBar"/>
   <myViewsTabBar class="hudson.views.DefaultMyViewsTabBar"/>
   <clouds>
-    <com.veertu.plugin.anka.AnkaMgmtCloud plugin="anka-build@2.1.2">
-      <name>Anka Cloud</name>
+    <com.veertu.plugin.anka.AnkaMgmtCloud plugin="anka-build@2.5.0-SNAPSHOT">
+      <name>Anka Build Cloud</name>
       <templates>
         <com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
           <masterVmId>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</masterVmId>
@@ -55,9 +56,10 @@
             <saveImage>false</saveImage>
             <templateID>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</templateID>
             <tag></tag>
+            <dontAppendTimestamp>false</dontAppendTimestamp>
             <deleteLatest>false</deleteLatest>
           </saveImageParameters>
-          <cloudName>Anka Cloud</cloudName>
+          <cloudName>Anka Build Cloud</cloudName>
           <instanceCapacity>0</instanceCapacity>
           <idleMinutes>0</idleMinutes>
           <schedulingTimeout>1800</schedulingTimeout>
@@ -101,9 +103,10 @@
             <saveImage>false</saveImage>
             <templateID>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</templateID>
             <tag></tag>
+            <dontAppendTimestamp>false</dontAppendTimestamp>
             <deleteLatest>false</deleteLatest>
           </saveImageParameters>
-          <cloudName>Anka Cloud</cloudName>
+          <cloudName>Anka Build Cloud</cloudName>
           <instanceCapacity>0</instanceCapacity>
           <idleMinutes>0</idleMinutes>
           <schedulingTimeout>1800</schedulingTimeout>
@@ -147,9 +150,10 @@
             <saveImage>true</saveImage>
             <templateID>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</templateID>
             <tag></tag>
+            <dontAppendTimestamp>false</dontAppendTimestamp>
             <deleteLatest>false</deleteLatest>
           </saveImageParameters>
-          <cloudName>Anka Cloud</cloudName>
+          <cloudName>Anka Build Cloud</cloudName>
           <instanceCapacity>0</instanceCapacity>
           <idleMinutes>0</idleMinutes>
           <schedulingTimeout>1800</schedulingTimeout>
@@ -193,9 +197,10 @@
             <saveImage>true</saveImage>
             <templateID>c0847bc9-5d2d-4dbc-ba6a-240f7ff08032</templateID>
             <tag></tag>
+            <dontAppendTimestamp>false</dontAppendTimestamp>
             <deleteLatest>false</deleteLatest>
           </saveImageParameters>
-          <cloudName>Anka Cloud</cloudName>
+          <cloudName>Anka Build Cloud</cloudName>
           <instanceCapacity>0</instanceCapacity>
           <idleMinutes>0</idleMinutes>
           <schedulingTimeout>1800</schedulingTimeout>
@@ -209,6 +214,10 @@
       <skipTLSVerification>false</skipTLSVerification>
       <cloudInstanceCap>0</cloudInstanceCap>
       <vmPollTime>5000</vmPollTime>
+      <launchTimeout>2000</launchTimeout>
+      <maxLaunchRetries>5</maxLaunchRetries>
+      <launchRetryWaitTime>5</launchRetryWaitTime>
+      <sshLaunchDelaySeconds>15</sshLaunchDelaySeconds>
       <durabilityMode>durable</durabilityMode>
       <maxConnections>50</maxConnections>
       <connectionKeepAliveSeconds>120</connectionKeepAliveSeconds>

@@ -4,8 +4,9 @@ STORAGE_LOCATION=${STORAGE_LOCATION:-"/tmp"}
 URL_PROTOCOL=${URL_PROTOCOL:-"http://"}
 
 JENKINS_PLUGIN_VERSION="2.4.0"
-JENKINS_PIPELINE_PLUGIN_VERSION="1.7.2"
-GITHUB_PLUGIN_VERSION="1.32.0"
+JENKINS_PIPELINE_PLUGIN_VERSION="1.8.4"
+CREDENTIALS_PLUGIN_VERSION="2.3.15"
+GITHUB_PLUGIN_VERSION="1.33.1"
 GITLAB_ANKA_RUNNER_VERSION=${GITLAB_ANKA_RUNNER_VERSION:-"1.2.1"}
 GITLAB_RELEASE_TYPE=${GITLAB_RELEASE_TYPE:-"ce"}
 GITLAB_DOCKER_TAG_VERSION=${GITLAB_DOCKER_TAG_VERSION:-"13.9.1-$GITLAB_RELEASE_TYPE.0"}
@@ -37,7 +38,7 @@ CLOUD_DOCKER_FOLDER="$(echo $CLOUD_DOCKER_TAR | awk -F'.tar.gz' '{print $1}')"
 JENKINS_PORT=8092
 JENKINS_SERVICE_PORT="8080"
 JENKINS_DOCKER_CONTAINER_NAME="anka.jenkins"
-JENKINS_TAG_VERSION=${JENKINS_TAG_VERSION:-"2.263.4"}
+JENKINS_TAG_VERSION=${JENKINS_TAG_VERSION:-"lts"}
 JENKINS_DATA_DIR="$HOME/$JENKINS_DOCKER_CONTAINER_NAME-data"
 JENKINS_VM_TEMPLATE_UUID="${JENKINS_VM_TEMPLATE_UUID:-"c0847bc9-5d2d-4dbc-ba6a-240f7ff08032"}" # Used in https://github.com/veertuinc/jenkins-dynamic-label-example
 
@@ -96,7 +97,7 @@ jenkins_plugin_install() {
   TRIES=0
   while [[ "$(docker logs --tail 500 $JENKINS_DOCKER_CONTAINER_NAME 2>&1 | grep "INFO: Installation successful: ${PLUGIN_NAME}$")" != "INFO: Installation successful: $PLUGIN_NAME" ]]; do
     echo "Installation of $PLUGIN_NAME plugin still pending..."
-    sleep 5
+    sleep 20
     [[ $TRIES == 25 ]] && echo "Something is wrong with the Jenkins $PLUGIN_NAME installation..." && docker logs --tail 50 $JENKINS_DOCKER_CONTAINER_NAME && exit 1
     ((TRIES++))
   done
@@ -113,5 +114,4 @@ modify_uuid() {
   sudo mv "$(sudo anka config vm_lib_dir)/$CUR_UUID" "$(sudo anka config vm_lib_dir)/$DEST_UUID"
   sudo sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(sudo anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml"
   sudo mv "$(sudo anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml" "$(sudo anka config vm_lib_dir)/$DEST_UUID/$DEST_UUID.yaml"
-
 }

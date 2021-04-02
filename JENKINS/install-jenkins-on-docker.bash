@@ -28,34 +28,17 @@ services:
     volumes:
       - $JENKINS_DATA_DIR:/var/jenkins_home
     environment:
-      # - JENKINS_OPTS=" --httpPort=-1 --httpsPort=$SERVICE_PORT "
-      - JAVA_OPTS="-Djava.util.logging.config.file=/var/jenkins_home/log.properties"
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false -Djava.util.logging.config.file=/var/jenkins_home/log.properties"
 BLOCK
   docker-compose pull || true
   docker-compose up -d
-  echo "]] Waiting 60 seconds for Jenkins to start properly..."
-  sleep 60
-  # Disable the "Unlock Jenkins" (initialAdminPassword) 
-  sed -i '' 's/NEW/RUNNING/' $JENKINS_DATA_DIR/config.xml
-  [[ -z $(grep "<installStateName>RUNNING</installStateName>" $JENKINS_DATA_DIR/config.xml) ]] && echo "sed didn't work" && exit 1
-  sed -i '' 's/useSecurity>true/useSecurity>false/' $JENKINS_DATA_DIR/config.xml
-  echo 'false' > $JENKINS_DATA_DIR/jenkins.install.runSetupWizard
-  cp $JENKINS_DATA_DIR/jenkins.install.UpgradeWizard.state $JENKINS_DATA_DIR/jenkins.install.InstallUtil.lastExecVersion
-cat > $JENKINS_DATA_DIR/jenkins.model.JenkinsLocationConfiguration.xml <<BLOCK
-<?xml version='1.1' encoding='UTF-8'?>
-<jenkins.model.JenkinsLocationConfiguration>
-  <adminAddress>address not configured yet &lt;nobody@nowhere&gt;</adminAddress>
-  <jenkinsUrl>http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/</jenkinsUrl>
-</jenkins.model.JenkinsLocationConfiguration>
-BLOCK
-  docker-compose restart
-  # Plugins
-  echo "]] Installing Plugins (may take a while)..."
-  sleep 80 # Waits for "jenkins.slaves.restarter.JnlpSlaveRestarterInstaller install" to finish
-  jenkins_plugin_install "github@$GITHUB_PLUGIN_VERSION"
-  jenkins_plugin_install "anka-build@$JENKINS_PLUGIN_VERSION"
-  jenkins_plugin_install "pipeline-model-definition@$JENKINS_PIPELINE_PLUGIN_VERSION"
+  echo "]] Waiting for Jenkins to start properly..."
+  while [[ -z "$(ls $JENKINS_DATA_DIR/config.xml 2>/dev/null)" ]]; do
+    sleep 10
+    echo "waiting for config file to be created..."
+  done
   # Credential
+  jenkins_plugin_install "credentials@$CREDENTIALS_PLUGIN_VERSION"
   echo "]] Adding the needed credentials"
   curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/credentials/store/system/domain/_/createCredentials \
   --data-urlencode 'json={
@@ -77,6 +60,13 @@ BLOCK
   echo "]] Adding the configuration you'll need"
   cp -rf .config.xml $JENKINS_DATA_DIR/config.xml
   docker-compose start
+  # Plugins
+  echo "]] Installing Plugins (may take a while)..."
+  sleep 80 # Waits for "jenkins.slaves.restarter.JnlpSlaveRestarterInstaller install" to finish
+  jenkins_plugin_install "github@$GITHUB_PLUGIN_VERSION"
+  jenkins_plugin_install "anka-build@$JENKINS_PLUGIN_VERSION"
+  jenkins_plugin_install "pipeline-model-definition@$JENKINS_PIPELINE_PLUGIN_VERSION"
+  docker-compose restart
   #
   echo "================================================================================="
   echo "Jenkins UI: http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT

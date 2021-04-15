@@ -52,11 +52,7 @@ prepare-and-push() {
   echo "]] Preparing and pushing VM template $TEMPLATE and tag $TAG"
   if does_not_exist $TEMPLATE $TAG; then
     eval "$4"
-    if [[ "$3" == "stop" ]]; then
-      stop_and_push $TEMPLATE $TAG
-    else
-      suspend_and_push $TEMPLATE $TAG
-    fi
+    [[ "$3" == "stop" ]] && stop_and_push $TEMPLATE $TAG || suspend_and_push $TEMPLATE $TAG
   else
     pull $TEMPLATE $TAG
     echo "Already found in registry!"

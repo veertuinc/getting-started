@@ -6,7 +6,7 @@ cd "$SCRIPT_DIR"
 SERVICE_PORT="8111"
 # Cleanup
 echo "]] Cleaning up the previous TeamCity installation"
-docker-compose down &>/dev/null || true
+execute-docker-compose down &>/dev/null || true
 docker stop $TEAMCITY_DOCKER_CONTAINER_NAME &>/dev/null || true
 docker rm $TEAMCITY_DOCKER_CONTAINER_NAME &>/dev/null || true
 rm -rf $TEAMCITY_DOCKER_DATA_DIR
@@ -36,7 +36,7 @@ services:
       TEAMCITY_SERVER_MEM_OPTS: "-Xmx1240m"
       TEAMCITY_SERVER_OPTS: "-Dteamcity.kotlinConfigsDsl.pluginsCompilationXmx=512m"
 BLOCK
-  docker-compose up -d
+  execute-docker-compose up -d
   # docker logs --tail 100 $DOCKER_CONTAINER_NAME
   modify_hosts $TEAMCITY_DOCKER_CONTAINER_NAME
   echo "============================================================================"

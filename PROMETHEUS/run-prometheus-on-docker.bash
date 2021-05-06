@@ -4,7 +4,7 @@ SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 . ../shared.bash
 echo "]] Cleaning up the previous Prometheus installation"
-docker-compose down &>/dev/null || true
+execute-docker-compose down &>/dev/null || true
 docker stop $PROMETHEUS_DOCKER_CONTAINER_NAME &>/dev/null || true
 docker rm $PROMETHEUS_DOCKER_CONTAINER_NAME &>/dev/null || true
 [[ -d $PROMETHEUS_DOCKER_DATA_DIR ]] && sudo rm -rf $PROMETHEUS_DOCKER_DATA_DIR
@@ -28,7 +28,7 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
 BLOCK
-  docker-compose up -d
+  execute-docker-compose up -d
   # Check if it's still starting...
   while [[ ! "$(docker logs --tail 100 $PROMETHEUS_DOCKER_CONTAINER_NAME 2>&1)" =~ 'Server is ready to receive web requests' ]]; do 
     docker logs --tail 10 $PROMETHEUS_DOCKER_CONTAINER_NAME 2>&1

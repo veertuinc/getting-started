@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -exo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 . ../shared.bash
@@ -8,7 +8,7 @@ docker stop $GITLAB_RUNNER_SHARED_RUNNER_NAME || true
 docker rm $GITLAB_RUNNER_SHARED_RUNNER_NAME || true
 docker stop $GITLAB_RUNNER_PROJECT_RUNNER_NAME || true
 docker rm $GITLAB_RUNNER_PROJECT_RUNNER_NAME || true
-docker-compose down || true
+execute-docker-compose down || true
 docker stop $GITLAB_DOCKER_CONTAINER_NAME &>/dev/null || true
 docker rm $GITLAB_DOCKER_CONTAINER_NAME &>/dev/null || true
 [[ -d $GITLAB_DOCKER_DATA_DIR ]] && sudo rm -rf $GITLAB_DOCKER_DATA_DIR
@@ -43,7 +43,7 @@ services:
           gitlab_rails['signin_enabled'] = false
           postgresql['max_files_per_process'] = 25
 BLOCK
-  docker-compose up -d
+  execute-docker-compose up -d
   # Check if it's still starting...
   while [[ ! "$(docker logs --tail 100 $GITLAB_DOCKER_CONTAINER_NAME 2>&1)" =~ '==> /var/log/' ]]; do 
     echo "GitLab still starting (this may take a while)..."

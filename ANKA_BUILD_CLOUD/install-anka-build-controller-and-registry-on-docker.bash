@@ -14,7 +14,7 @@ if [[ "$(sudo anka-controller status)" =~ "is Running" ]]; then
 fi
 echo "]] Cleaning up the previous Anka Cloud installation"
 mkdir -p $CLOUD_DOCKER_FOLDER && cd $CLOUD_DOCKER_FOLDER
-docker-compose down &>/dev/null || true
+execute-docker-compose down &>/dev/null || true
 docker stop $CLOUD_CONTROLLER_ADDRESS &>/dev/null || true
 docker rm $CLOUD_CONTROLLER_ADDRESS &>/dev/null || true
 docker stop $CLOUD_REGISTRY_ADDRESS &>/dev/null || true
@@ -77,7 +77,7 @@ services:
       - "/Library/Application Support/Veertu/Anka/registry:/mnt/vol"
 BLOCK
   echo "]] Starting the Anka Build Cloud Controller & Registry"
-  docker-compose up -d
+  execute-docker-compose up -d
   # Set Hosts
   modify_hosts $CLOUD_CONTROLLER_ADDRESS &>/dev/null
   modify_hosts $CLOUD_REGISTRY_ADDRESS &>/dev/null

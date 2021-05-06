@@ -5,7 +5,7 @@ cd "$SCRIPT_DIR"
 . ../shared.bash
 SERVICE_PORT="8080"
 echo "]] Cleaning up the previous Jenkins installation"
-docker-compose down &>/dev/null || true
+execute-docker-compose down &>/dev/null || true
 docker stop $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
 docker rm $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
 rm -rf $JENKINS_DATA_DIR
@@ -30,8 +30,8 @@ services:
     environment:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false -Djava.util.logging.config.file=/var/jenkins_home/log.properties"
 BLOCK
-  docker-compose pull || true
-  docker-compose up -d
+  execute-docker-compose pull || true
+  execute-docker-compose up -d
   echo "]] Waiting for Jenkins to start properly..."
   while [[ -z "$(ls $JENKINS_DATA_DIR/config.xml 2>/dev/null)" ]]; do
     sleep 10
@@ -55,18 +55,18 @@ BLOCK
   # Clone the jobs examples
   echo "]] Adding example jobs"
   git clone https://github.com/veertuinc/jenkins-job-examples.git $JENKINS_DATA_DIR/jobs
-  docker-compose stop
+  execute-docker-compose stop
   # Add in the config.xml with the cloud
   echo "]] Adding the configuration you'll need"
   cp -rf .config.xml $JENKINS_DATA_DIR/config.xml
-  docker-compose start
+  execute-docker-compose start
   # Plugins
   echo "]] Installing Plugins (may take a while)..."
   sleep 80 # Waits for "jenkins.slaves.restarter.JnlpSlaveRestarterInstaller install" to finish
   jenkins_plugin_install "github@$GITHUB_PLUGIN_VERSION"
   jenkins_plugin_install "anka-build@$JENKINS_PLUGIN_VERSION"
   jenkins_plugin_install "pipeline-model-definition@$JENKINS_PIPELINE_PLUGIN_VERSION"
-  docker-compose restart
+  execute-docker-compose restart
   #
   echo "================================================================================="
   echo "Jenkins UI: http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT

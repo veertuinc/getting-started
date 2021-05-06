@@ -1,6 +1,6 @@
 # Anka Getting Started Resources
 
-### [Getting Started Documentation](https://ankadocs.veertu.com/docs/getting-started/)
+## [Getting Started Documentation](https://ankadocs.veertu.com/docs/getting-started/)
 
 This repo contains various scripts for setting up and testing Anka software on your local Apple machine.
 

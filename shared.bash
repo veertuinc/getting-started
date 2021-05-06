@@ -115,3 +115,15 @@ modify_uuid() {
   sudo sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(sudo anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml"
   sudo mv "$(sudo anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml" "$(sudo anka config vm_lib_dir)/$DEST_UUID/$DEST_UUID.yaml"
 }
+
+
+docker-compose() {
+  if [[ ! "$(docker compose --help)" =~ "docker compose [command]" ]]; then
+    docker compose "$@"
+  elif [[ ! -z "$(command -v docker-compose)" ]]; then
+    docker-compose "$@"
+  else 
+    echo "No docker compose/docker-compose found, please install it!"
+    exit 1
+  fi
+}

@@ -16,6 +16,9 @@ rm -rf docker-compose.yml
 if [[ $1 != "--uninstall" ]]; then
   modify_hosts $GITLAB_DOCKER_CONTAINER_NAME
   echo "]] Starting the GitLab Docker container"
+  mkdir -p $GITLAB_DOCKER_DATA_DIR/config
+  mkdir -p $GITLAB_DOCKER_DATA_DIR/logs
+  mkdir -p $GITLAB_DOCKER_DATA_DIR/data
 cat > docker-compose.yml <<BLOCK
 version: '3.7'
 services:

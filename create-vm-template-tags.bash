@@ -4,7 +4,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
 . ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with brew install jq." && exit 1
-SOURCE_TEMPLATE=${1-"11.2"}
+SOURCE_TEMPLATE=${1-"11.3"}
 [[ -z $SOURCE_TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1
 HELPERS="set -exo pipefail;"
 ANKA_RUN="sudo anka run -N -n"
@@ -100,23 +100,23 @@ if [[ $2 == '--gitlab' ]]; then
 fi
 
 if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
-  NEW_TEMPLATE="$SOURCE_TEMPLATE-openjdk-1.8.0_242"
+  NEW_TEMPLATE="$SOURCE_TEMPLATE-openjdk-1.8.0_292"
   NEW_TAG="v1"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && sudo anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE
   ## Install OpenJDK8
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "stop" "
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS cd /tmp && rm -f /tmp/OpenJDK* && \
-    curl -L -O https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg && \
-    [ \\\$(du -s /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg | awk '{print \\\$1}') -gt 190000 ] && \
-    sudo installer -pkg /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg -target / && \
-    [[ ! -z \\\$(java -version 2>&1 | grep 1.8.0_242) ]] && \
-    rm -f /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg\"
+    curl -L -O https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u292-b10/OpenJDK8U-jdk_x64_mac_hotspot_8u292b10.pkg && \
+    [ \\\$(du -s /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u292b10.pkg | awk '{print \\\$1}') -gt 190000 ] && \
+    sudo installer -pkg /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u292b10.pkg -target / && \
+    [[ ! -z \\\$(java -version 2>&1 | grep 1.8.0_292) ]] && \
+    rm -f /tmp/OpenJDK8U-jdk_x64_mac_hotspot_8u292b10.pkg\"
   "
 fi
 
 if [[ $2 == '--jenkins' ]]; then
   NEW_TAG="v1"
-  JENKINS_TEMPLATE_NAME="$SOURCE_TEMPLATE-openjdk-1.8.0_242-jenkins"
+  JENKINS_TEMPLATE_NAME="$SOURCE_TEMPLATE-openjdk-1.8.0_292-jenkins"
   does_not_exist $JENKINS_TEMPLATE_NAME $NEW_TAG && sudo anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE_NAME
   modify_uuid $JENKINS_TEMPLATE_NAME $JENKINS_VM_TEMPLATE_UUID
   ## Jenkins misc (Only needed if you're running Jenkins on the same host you run the VMs)
@@ -127,7 +127,7 @@ fi
 
 if [[ $2 == '--teamcity' ]]; then
   NEW_TAG="v1"
-  TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-openjdk-1.8.0_242-teamcity"
+  TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-openjdk-1.8.0_292-teamcity"
   does_not_exist $TEAMCITY_TEMPLATE $NEW_TAG && sudo anka clone $NEW_TEMPLATE $TEAMCITY_TEMPLATE
   prepare-and-push $TEAMCITY_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $TEAMCITY_TEMPLATE sudo bash -c \"$HELPERS echo '192.168.64.1 $TEAMCITY_DOCKER_CONTAINER_NAME' >> /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"

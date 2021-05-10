@@ -55,17 +55,20 @@ BLOCK
   # Clone the jobs examples
   echo "]] Adding example jobs"
   git clone https://github.com/veertuinc/jenkins-job-examples.git $JENKINS_DATA_DIR/jobs
-  execute-docker-compose stop
-  # Add in the config.xml with the cloud
-  echo "]] Adding the configuration you'll need"
-  cp -rf .config.xml $JENKINS_DATA_DIR/config.xml
-  execute-docker-compose start
   # Plugins
   echo "]] Installing Plugins (may take a while)..."
   sleep 80 # Waits for "jenkins.slaves.restarter.JnlpSlaveRestarterInstaller install" to finish
   jenkins_plugin_install "github@$GITHUB_PLUGIN_VERSION"
   jenkins_plugin_install "anka-build@$JENKINS_PLUGIN_VERSION"
   jenkins_plugin_install "pipeline-model-definition@$JENKINS_PIPELINE_PLUGIN_VERSION"
+  # Add in the config.xml with the cloud
+  echo "]] Adding the configuration you'll need"
+  echo "<?xml version='1.1' encoding='UTF-8'?>
+<jenkins.model.JenkinsLocationConfiguration>
+  <adminAddress>address not configured yet &lt;nobody@nowhere&gt;</adminAddress>
+  <jenkinsUrl>http://anka.jenkins:8092/</jenkinsUrl>
+</jenkins.model.JenkinsLocationConfiguration>" > $JENKINS_DATA_DIR/jenkins.model.JenkinsLocationConfiguration.xml
+  cp -rf .config.xml $JENKINS_DATA_DIR/config.xml
   execute-docker-compose restart
   #
   echo "================================================================================="

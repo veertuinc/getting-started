@@ -14,6 +14,7 @@ if [[ $1 == "--https" ]]; then
   URL_PROTOCOL="https://"
 fi
 if [[ $1 != "--uninstall" ]]; then
+  ANKA_CONTROLLER_ADDRESS=${ANKA_CONTROLLER_ADDRESS:-"${URL_PROTOCOL}172.17.0.1:$CLOUD_CONTROLLER_PORT"}
   GITLAB_EXAMPLE_PROJECT_ID=$(curl -s --request GET -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects" | jq -r ".[] | select(.name==\"$GITLAB_EXAMPLE_PROJECT_NAME\") | .id")
   # GitLab Runner
   ## Collect the Shared runner token
@@ -25,7 +26,7 @@ if [[ $1 != "--uninstall" ]]; then
   --ssh-user $ANKA_VM_USER \
   --ssh-password $ANKA_VM_PASSWORD \
   --name "localhost shared runner" \
-  --anka-controller-address "${URL_PROTOCOL}172.17.0.1:$CLOUD_CONTROLLER_PORT" \
+  --anka-controller-address $ANKA_CONTROLLER_ADDRESS \
   --anka-template-uuid $GITLAB_RUNNER_VM_TEMPLATE_UUID \
   --anka-tag $GITLAB_ANKA_VM_TEMPLATE_TAG \
   --executor anka \
@@ -41,7 +42,7 @@ if [[ $1 != "--uninstall" ]]; then
   --ssh-user $ANKA_VM_USER \
   --ssh-password $ANKA_VM_PASSWORD \
   --name "localhost project specific runner" \
-  --anka-controller-address "${URL_PROTOCOL}172.17.0.1:$CLOUD_CONTROLLER_PORT" \
+  --anka-controller-address $ANKA_CONTROLLER_ADDRESS \
   --anka-template-uuid $GITLAB_RUNNER_VM_TEMPLATE_UUID \
   --anka-tag $GITLAB_ANKA_VM_TEMPLATE_TAG \
   --executor anka \

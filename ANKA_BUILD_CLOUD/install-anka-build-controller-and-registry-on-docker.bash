@@ -88,7 +88,7 @@ BLOCK
     sleep 20
     cd $STORAGE_LOCATION
     sudo curl -O ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/pkg/AnkaAgent.pkg -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
-    sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT --host host.docker.internal || true
+    sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT --host 172.17.0.1 || true
   fi
   #
   echo "============================================================================="

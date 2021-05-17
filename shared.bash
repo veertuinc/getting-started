@@ -118,7 +118,7 @@ modify_uuid() {
 
 
 execute-docker-compose() {
-  if [[ "$(docker compose --help)" =~ "docker compose [command]"  ]]; then
+  if [[ "$(docker compose --help)" =~ "Usage:  docker compose [OPTIONS] COMMAND"  ]]; then
     docker compose "$@"
   elif [[ ! -z "$(command -v docker-compose)" ]]; then
     docker-compose "$@"

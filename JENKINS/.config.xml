@@ -209,7 +209,7 @@
           </labelSet>
         </com.veertu.plugin.anka.AnkaCloudSlaveTemplate>
       </templates>
-      <ankaMgmtUrl>http://anka.controller:8090</ankaMgmtUrl>
+      <ankaMgmtUrl>http://host.docker.internal:8090</ankaMgmtUrl>
       <credentialsId></credentialsId>
       <skipTLSVerification>false</skipTLSVerification>
       <cloudInstanceCap>0</cloudInstanceCap>

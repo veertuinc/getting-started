@@ -20,7 +20,6 @@ if [[ $1 != "--uninstall" ]]; then
     trap cleanup EXIT
     INSTALLER_LOCATION="$STORAGE_LOCATION/$ANKA_VIRTUALIZATION_PACKAGE"
   else
-    echo "${1:0:1}"
     [[ "${1:0:1}" != "/" ]] && echo "Ensure you're using the absolute path to your installer package" && exit 1
     INSTALLER_LOCATION="$1"
     echo "]] Installing $INSTALLER_LOCATION"

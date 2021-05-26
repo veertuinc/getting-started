@@ -894,13 +894,13 @@ def main():
             # if we don't have any of those matches, then we can't do a comparison
             else:
                 not_valid = "No supported model data"
-        if (
-            get_latest_version(build_info[0], product_info[product_id]["version"])
-            != product_info[product_id]["version"]
-        ):
-            not_valid = "Unsupported macOS version"
-        else:
-            valid_build_found = True
+        # if (
+        #     get_latest_version(build_info[0], product_info[product_id]["version"])
+        #     != product_info[product_id]["version"]
+        # ):
+        #     not_valid = "Unsupported macOS version"
+        # else:
+        valid_build_found = True
 
         validity_info = ""
         if args.warnings:

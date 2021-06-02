@@ -42,7 +42,6 @@ JENKINS_TAG_VERSION=${JENKINS_TAG_VERSION:-"lts"}
 JENKINS_DATA_DIR="$HOME/$JENKINS_DOCKER_CONTAINER_NAME-data"
 JENKINS_VM_TEMPLATE_UUID="${JENKINS_VM_TEMPLATE_UUID:-"c0847bc9-5d2d-4dbc-ba6a-240f7ff08032"}" # Used in https://github.com/veertuinc/jenkins-dynamic-label-example
 
-
 GITLAB_PORT="8093"
 GITLAB_DOCKER_CONTAINER_NAME="anka.gitlab"
 GITLAB_DOCKER_DATA_DIR="$HOME/$GITLAB_DOCKER_CONTAINER_NAME-data"
@@ -118,7 +117,8 @@ modify_uuid() {
 
 
 execute-docker-compose() {
-  if [[ "$(docker compose --help)" =~ "Usage:  docker compose [OPTIONS] COMMAND"  ]]; then
+  PATH="/usr/local/bin:$PATH" # Fix for CI/CD
+  if [[ ! -z "$(docker compose --help | grep "Usage:  docker compose \[OPTIONS\] COMMAND")" ]]; then
     docker compose "$@"
   elif [[ ! -z "$(command -v docker-compose)" ]]; then
     docker-compose "$@"

@@ -3,6 +3,131 @@
 STORAGE_LOCATION=${STORAGE_LOCATION:-"/tmp"}
 URL_PROTOCOL=${URL_PROTOCOL:-"http://"}
 
+if [[ "$(uname)" == "Darwin" ]]; then
+  if tty -s; then # Disable if the shell isn't interactive (avoids: tput: No value for $TERM and no -T specified)
+    export COLOR_NC=$(tput sgr0) # No Color
+    export COLOR_RED=$(tput setaf 1)
+    export COLOR_GREEN=$(tput setaf 2)
+    export COLOR_YELLOW=$(tput setaf 3)
+    export COLOR_BLUE=$(tput setaf 4)
+    export COLOR_MAGENTA=$(tput setaf 5)
+    export COLOR_CYAN=$(tput setaf 6)
+    export COLOR_WHITE=$(tput setaf 7)
+  fi
+fi
+
+AWS_CRED_FILE_LOCATION="${AWS_CRED_FILE_LOCATION:-"${HOME}/.aws/credentials"}"
+AWS_BUILD_CLOUD_AMI_NAME="${AWS_BUILD_CLOUD_AMI_NAME:-"amzn2-ami-hvm-2.0.20210427.0-x86_64-gp2"}"
+AWS_BUILD_CLOUD_MAC_AMI_NAME="${AWS_BUILD_CLOUD_MAC_AMI_NAME:-"amzn-ec2-macos-11.4-20210526-013926"}"
+AWS_BUILD_CLOUD_INSTANCE_TYPE="${AWS_BUILD_CLOUD_INSTANCE_TYPE:-"t2.small"}"
+AWS_SECURITY_GROUP_NAME="${AWS_SECURITY_GROUP_NAME:-"anka-build-cloud"}"
+
+error() {
+  echo "${COLOR_RED}ERROR: $* ${COLOR_NC}"
+  exit 50
+}
+
+warning() {
+  echo "${COLOR_YELLOW}WARNING: $* ${COLOR_NC}"
+}
+
+aws_execute() {
+  VERBOSE=true
+  CAPTURE_RETURN=false
+  if [ $# -ne 0 ]; then
+    unset opt OPTARG OPTIND
+    while getopts "sr" opt; do
+      case "${opt}" in
+        s )
+          VERBOSE=false
+        ;;
+        r )
+          CAPTURE_RETURN=true
+        ;;
+        : ) echo "Invalid Option: -${OPTARG} requires an argument." 1>&2;;
+        * ) echo "test" ;;
+      esac
+    done
+  fi
+  shift $((OPTIND-1))
+  [[ -z "${AWS_PROFILE}" ]] && error "Unable to find AWS_PROFILE environment variable... Must be set."
+  RETURNED="$(
+    eval "$VERBOSE && set -x; aws $*;" || ({ RC=$?; set +x; } 2>/dev/null; echo $RC; )
+  )"
+  [[ "$RETURNED" =~ ^-?[0-9]+$ ]] && exit $RETURNED
+  $CAPTURE_RETURN && echo "${RETURNED}" || true
+}
+
+aws_obtain_profile() {
+  if [[ ! -z "${AWS_PROFILE}" ]] && [ $(grep -c ^\\[${AWS_PROFILE}\\] $AWS_CRED_FILE_LOCATION) -lt 1 ]; then
+    echo "${COLOR_YELLOW}Profile \"${AWS_PROFILE}\" not found...${COLOR_NC}"
+    unset AWS_PROFILE
+  fi
+  if [[ -z "${AWS_PROFILE}" ]]; then
+    while true; do
+      read -p "Which AWS profile would you like to use? (type the full name from the ~/.aws/credentials file): " AWS_PROFILE
+      case "${AWS_PROFILE}" in
+        "" ) echo "${COLOR_RED}Please type the name of the profile to use...${COLOR_NC}";;
+        * ) 
+          if [ $(grep -c ^\[${AWS_PROFILE}\] $AWS_CRED_FILE_LOCATION) -lt 1 ]; then
+            echo "${COLOR_YELLOW}Profile \"${AWS_PROFILE}\" not found...${COLOR_NC}"
+          else
+            break
+          fi
+        ;;
+      esac
+      echo ""
+    done
+  fi
+  echo "] AWS Profile: ${COLOR_GREEN}${AWS_PROFILE}${COLOR_NC}";
+}
+
+aws_obtain_region() {
+  if [[ -z "${AWS_REGION}" ]]; then
+    while true; do
+      read -p "Which AWS region would you like to use?: " AWS_REGION
+      case "${AWS_REGION}" in
+        "" ) echo "${COLOR_YELLOW}Please type the name of the region to use...${COLOR_NC}";;
+        * ) break;;
+      esac
+      echo ""
+    done
+  fi
+  echo "] AWS Region: ${COLOR_GREEN}${AWS_REGION}${COLOR_NC}";
+}
+
+aws_obtain_key_pair() {
+  if [[ -z "${AWS_KEY_PAIR_NAME}" ]]; then
+    while true; do
+      read -p "Which AWS key pair would you like to use when creating the instance?: " AWS_KEY_PAIR_NAME
+      case "${AWS_KEY_PAIR_NAME}" in
+        "" ) echo "${COLOR_YELLOW}Please type the name of the key pair to use...${COLOR_NC}";;
+        * ) break;;
+      esac
+      echo ""
+    done
+  fi
+  AWS_KEY_PATH="${AWS_KEY_PATH:-"${HOME}/.ssh/${AWS_KEY_PAIR_NAME}.pem"}"
+  if [[ ! -e "${AWS_KEY_PATH}" ]]; then
+    error "Unable to find ${AWS_KEY_PATH} (You can change the location of the ssh key by setting the AWS_KEY_PATH env variable)"
+    exit 10
+  fi 
+  echo "] AWS Key Pair: ${COLOR_GREEN}${AWS_KEY_PAIR_NAME}${COLOR_NC}";
+}
+
+obtain_anka_license() {
+  if [[ -z "${ANKA_LICENSE}" ]]; then
+    while true; do
+      read -p "Input your Anka license (type \"skip\" to skip this): " ANKA_LICENSE
+      case "${ANKA_LICENSE}" in
+        "" ) echo "Want to type something?";;
+        "skip" ) echo "skipping license activate"; break;;
+        * ) break;;
+      esac
+    done
+  fi
+}
+
 JENKINS_PLUGIN_VERSION="2.5.0"
 JENKINS_PIPELINE_PLUGIN_VERSION="1.8.4"
 CREDENTIALS_PLUGIN_VERSION="2.4.1"
@@ -26,11 +151,11 @@ ANKA_BASE_VM_TEMPLATE_UUID="${ANKA_BASE_VM_TEMPLATE_UUID:-"c12ccfa5-8757-411e-95
 CLOUD_CONTROLLER_ADDRESS=${CLOUD_CONTROLLER_ADDRESS:-"anka.controller"}
 CLOUD_REGISTRY_ADDRESS=${CLOUD_REGISTRY_ADDRESS:-"anka.registry"}
 CLOUD_ETCD_ADDRESS=${CLOUD_ETCD_ADDRESS:-"anka.etcd"}
-CLOUD_CONTROLLER_PORT="8090"
+CLOUD_CONTROLLER_PORT=${CLOUD_CONTROLLER_PORT:-"8090"}
 CLOUD_CONTROLLER_DATA_DIR="/Library/Application Support/Veertu/Anka/anka-controller"
 CLOUD_CONTROLLER_LOG_DIR="/Library/Logs/Veertu/AnkaController"
 
-CLOUD_REGISTRY_PORT="8089" # 8089 is the default
+CLOUD_REGISTRY_PORT=${CLOUD_REGISTRY_PORT:-"8089"} # 8089 is the default
 CLOUD_REGISTRY_REPO_NAME=${CLOUD_REGISTRY_REPO_NAME:-"local-demo"}
 CLOUD_REGISTRY_BASE_PATH="/Library/Application Support/Veertu/Anka/registry"
 CLOUD_DOCKER_FOLDER="$(echo $CLOUD_DOCKER_TAR | awk -F'.tar.gz' '{print $1}')"

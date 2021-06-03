@@ -1,10 +1,10 @@
 #!/bin/bash
-set -exo pipefail
+set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 . ../shared.bash
 # Warn about node being joined
-if [[ "$(sudo ankacluster status)" =~ "running" ]]; then
+if [[ "$(sudo ankacluster status)" =~ "status: running" ]]; then
   echo "You have this machine (node) joined to the Cloud! Please disjoin before uninstalling or reinstalling with: sudo ankacluster disjoin"
   exit 1
 fi
@@ -13,14 +13,14 @@ if [[ "$(sudo anka-controller status)" =~ "is Running" ]]; then
   exit 1
 fi
 echo "]] Cleaning up the previous Anka Cloud installation"
-mkdir -p $CLOUD_DOCKER_FOLDER && cd $CLOUD_DOCKER_FOLDER
+mkdir -p "${CLOUD_DOCKER_FOLDER}" && cd "${CLOUD_DOCKER_FOLDER}"
 execute-docker-compose down &>/dev/null || true
-docker stop $CLOUD_CONTROLLER_ADDRESS &>/dev/null || true
-docker rm $CLOUD_CONTROLLER_ADDRESS &>/dev/null || true
-docker stop $CLOUD_REGISTRY_ADDRESS &>/dev/null || true
-docker rm $CLOUD_REGISTRY_ADDRESS &>/dev/null || true
-docker stop $CLOUD_ETCD_ADDRESS &>/dev/null || true
-docker rm $CLOUD_ETCD_ADDRESS &>/dev/null || true
+docker stop "${CLOUD_CONTROLLER_ADDRESS}" &>/dev/null || true
+docker rm "${CLOUD_CONTROLLER_ADDRESS}" &>/dev/null || true
+docker stop "${CLOUD_REGISTRY_ADDRESS}" &>/dev/null || true
+docker rm "${CLOUD_REGISTRY_ADDRESS}" &>/dev/null || true
+docker stop "${CLOUD_ETCD_ADDRESS}" &>/dev/null || true
+docker rm "${CLOUD_ETCD_ADDRESS}" &>/dev/null || true
 # Install
 if [[ $1 != "--uninstall" ]]; then
   [[ -d "/Library/Application Support/Veertu/Anka/registry" ]] && sudo chmod -R 777 "/Library/Application Support/Veertu/Anka/registry" # Ensure that docker and the native package can use the same templates
@@ -37,14 +37,46 @@ if [[ $1 != "--uninstall" ]]; then
   tar -xzvf $CLOUD_DOCKER_TAR
   # Configuration
   echo "]] Modifying the docker-compose.yml"
+CLOUD_ETCD_BUILD_BLOCK=$(cat <<'BLOCK'
+    build:
+      context: .
+      dockerfile: etcd.docker
+BLOCK
+)
+CLOUD_CONTROLLER_BUILD_BLOCK=$(cat <<'BLOCK'
+    build:
+       context: .
+       dockerfile: anka-controller.docker
+BLOCK
+)
+CLOUD_REGISTRY_BUILD_BLOCK=$(cat <<'BLOCK'
+    build:
+        context: .
+        dockerfile: anka-registry.docker
+BLOCK
+)
+if ${CLOUD_USE_DOCKERHUB:-false}; then
+CLOUD_ETCD_BUILD_BLOCK=$(cat <<BLOCK
+    image: veertu/anka-build-cloud-etcd:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f4)
+BLOCK
+)
+CLOUD_CONTROLLER_BUILD_BLOCK=$(cat <<BLOCK
+    image: veertu/anka-build-cloud-controller:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f4)
+BLOCK
+)
+CLOUD_REGISTRY_BUILD_BLOCK=$(cat <<BLOCK
+    image: veertu/anka-build-cloud-registry:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f4)
+BLOCK
+)
+mkdir -p "${HOME}/anka-docker-etcd-data"
+sudo mkdir -p "/Library/Application Support/Veertu/Anka/registry"
+fi
 cat << BLOCK | sudo tee docker-compose.yml > /dev/null
 version: '2'
 services:
   anka-etcd:
-    container_name: $CLOUD_ETCD_ADDRESS
-    build:
-      context: .
-      dockerfile: etcd.docker
+    container_name: anka.etcd
+${CLOUD_ETCD_BUILD_BLOCK}
     ports:
       - "2379:2379"
     volumes:
@@ -53,12 +85,10 @@ services:
     command: /usr/bin/etcd --data-dir /etcd-data --listen-client-urls http://0.0.0.0:2379  --advertise-client-urls http://0.0.0.0:2379  --listen-peer-urls http://0.0.0.0:2380 --initial-advertise-peer-urls http://0.0.0.0:2380  --initial-cluster my-etcd=http://0.0.0.0:2380 --initial-cluster-token my-etcd-token --initial-cluster-state new --auto-compaction-retention 1 --name my-etcd
 
   anka-controller:
-    container_name: $CLOUD_CONTROLLER_ADDRESS
-    build:
-       context: .
-       dockerfile: anka-controller.docker
+    container_name: anka.controller
+${CLOUD_CONTROLLER_BUILD_BLOCK}
     ports:
-       - "8090:80"
+       - "${CLOUD_CONTROLLER_PORT}:80"
     depends_on:
        - anka-etcd
        - anka-registry
@@ -66,10 +96,8 @@ services:
     entrypoint: ["/bin/bash", "-c", "anka-controller --enable-central-logging --anka-registry http://$CLOUD_REGISTRY_ADDRESS:8089 --etcd-endpoints $CLOUD_ETCD_ADDRESS:2379 --log_dir /var/log/anka-controller --local-anka-registry http://anka-registry:8085"]
 
   anka-registry:
-    container_name: $CLOUD_REGISTRY_ADDRESS
-    build:
-        context: .
-        dockerfile: anka-registry.docker
+    container_name: anka.registry
+${CLOUD_REGISTRY_BUILD_BLOCK}
     ports:
         - "8089:8089"
     restart: always
@@ -79,21 +107,21 @@ BLOCK
   echo "]] Starting the Anka Build Cloud Controller & Registry"
   execute-docker-compose up -d
   # Set Hosts
-  modify_hosts $CLOUD_CONTROLLER_ADDRESS &>/dev/null
-  modify_hosts $CLOUD_REGISTRY_ADDRESS &>/dev/null
-  modify_hosts $CLOUD_ETCD_ADDRESS &>/dev/null
+  [[ "${CLOUD_CONTROLLER_ADDRESS}" == "anka.controller" ]] && modify_hosts "${CLOUD_CONTROLLER_ADDRESS}" &>/dev/null
+  [[ "${CLOUD_REGISTRY_ADDRESS}" == "anka.registry" ]] && modify_hosts "${CLOUD_REGISTRY_ADDRESS}" &>/dev/null
+  modify_hosts "${CLOUD_ETCD_ADDRESS}" &>/dev/null
   # Ensure we have the right Anka Agent version installed (for rolling back versions)
   if [[ $(uname) == "Darwin" ]]; then
     echo "]] Joining this machine (Node) to the Cloud"
     sleep 20
     cd $STORAGE_LOCATION
-    sudo curl -O ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/pkg/AnkaAgent.pkg -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
-    sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT --host 172.17.0.1 || true
+    sudo curl -O "${URL_PROTOCOL}${CLOUD_CONTROLLER_ADDRESS}:${CLOUD_CONTROLLER_PORT}/pkg/AnkaAgent.pkg" -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
+    sudo ankacluster join "${URL_PROTOCOL}${CLOUD_CONTROLLER_ADDRESS}:${CLOUD_CONTROLLER_PORT}" --host 172.17.0.1 || true
   fi
   #
   echo "============================================================================="
-  echo "Controller UI:  $URL_PROTOCOL$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT"
-  echo "Registry:       $URL_PROTOCOL$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT"
+  echo "Controller UI:  ${URL_PROTOCOL}${CLOUD_CONTROLLER_ADDRESS}:${CLOUD_CONTROLLER_PORT}"
+  echo "Registry:       ${URL_PROTOCOL}${CLOUD_REGISTRY_ADDRESS}:${CLOUD_REGISTRY_PORT}"
   echo "Documentation:  https://ankadocs.veertu.com/docs/getting-started/linux/"
   if [[ ! -z $EXTRA_NOTE ]]; then
     echo "$EXTRA_NOTE

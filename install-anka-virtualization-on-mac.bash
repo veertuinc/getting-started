@@ -32,16 +32,7 @@ if [[ $1 != "--uninstall" ]]; then
   fi
   # Licensing
   echo "]] Activating license"
-  if [[ -z $ANKA_LICENSE ]]; then
-    while true; do
-      read -p "Input your Anka license (type \"skip\" to skip this): " ANKA_LICENSE
-      case $ANKA_LICENSE in
-        "" ) echo "Want to type something?";;
-        "skip" ) echo "skipping license activate"; break;;
-        * ) break;;
-      esac
-    done
-  fi
+  obtain_anka_license
   if [[ $ANKA_LICENSE != "skip" ]]; then 
     sudo anka license activate -f $ANKA_LICENSE
     sudo anka license accept-eula || true

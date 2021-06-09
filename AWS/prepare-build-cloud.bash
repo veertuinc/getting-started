@@ -52,6 +52,13 @@ ELASTIC_IP_ASSOC_ID="$(echo "${ELASTIC_IP_ASSOC}" | jq -r '.Addresses[0].Associa
 CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
 CONTROLLER_PRIV_IP="$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"
 
+# Used to prevent removal if anka node still exists and hasn't been disjoined
+DEDICATED_HOST="$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+DEDICATED_HOST_ID="$(echo "${DEDICATED_HOST}" | jq -r '.Hosts[0].HostId')"
+ANKA_INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=host-id,Values=${DEDICATED_HOST_ID}\" \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+ANKA_INSTANCE_ID="$(echo "${ANKA_INSTANCE}" | jq -r '.Reservations[0].Instances[0].InstanceId')"
+[[ "${ANKA_INSTANCE_ID}" != null ]] && echo "Cloud has joined nodes... Please run prepare-anka-node.bash --delete first!" && exit 1
+
 # Cleanup
 if [[ "$1" == "--delete" ]]; then
   cleanup

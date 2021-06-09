@@ -44,7 +44,11 @@ if [[ "$1" != "--no-anka-create" ]]; then
   modify_uuid $TEMPLATE $ANKA_BASE_VM_TEMPLATE_UUID
   # Add Registry to CLI (if the registry was installed locally)
   if [[ ! -z $(grep anka.registry /etc/hosts) && -z $(sudo anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME) ]]; then
-    sudo anka registry add $CLOUD_REGISTRY_REPO_NAME ${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT
+    FULL_URL="${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS"
+    if AWS_USER_DATA="$(curl -s --connect-timeout 3 http://169.254.169.214/latest/user-data)"; then
+      FULL_URL="$(echo "${AWS_USER_DATA}" | grep ANKA_CONTROLLER_ADDRESS | cut -d\" -f2)"
+    fi
+    sudo anka registry add $CLOUD_REGISTRY_REPO_NAME ${FULL_URL}:$CLOUD_REGISTRY_PORT
     sudo anka registry list-repos
   fi
   $SCRIPT_DIR/create-vm-template-tags.bash $TEMPLATE

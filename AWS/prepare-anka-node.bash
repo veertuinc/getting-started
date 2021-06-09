@@ -161,5 +161,9 @@ done
 
 echo "${COLOR_CYAN}==============================================${COLOR_NC}"
 
+warning "= IMPORTANT ========================================"
+warning "You need to perform manual steps to finalize the preparation of the macOS instance."
+warning "Please perform all steps starting at #3 listed in https://github.com/veertuinc/aws-ec2-mac-amis#prepare-an-ami"
+warning "===================================================="
 echo "You can now access your Anka Node with:"
 echo "${COLOR_GREEN}   ssh -i \"${AWS_KEY_PATH}\" \"ec2-user@${INSTANCE_IP}\"${COLOR_NC}"

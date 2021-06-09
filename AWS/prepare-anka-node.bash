@@ -135,7 +135,7 @@ if [[ "${INSTANCE_IP}" != null ]]; then
     echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
     obtain_anka_license
     ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
-      cd /Users/ec2-user && rm -rf aws-ec2-mac-amis && git clone https://github.com/veertuinc/aws-ec2-mac-amis.git && cd aws-ec2-mac-amis && GETTING_STARTED_CLONE_BRANCH=\"-b aws\" ANKA_LICENSE=\"${ANKA_LICENSE}\" ./\$(sw_vers | grep ProductVersion | cut -d: -f2 | xargs)/prepare.bash; \
+      cd /Users/ec2-user && rm -rf aws-ec2-mac-amis && git clone https://github.com/veertuinc/aws-ec2-mac-amis.git && cd aws-ec2-mac-amis && ANKA_LICENSE=\"${ANKA_LICENSE}\" ./\$(sw_vers | grep ProductVersion | cut -d: -f2 | xargs)/prepare.bash; \
     "
     aws_execute -r "ec2 reboot-instances --instance-ids \"${INSTANCE_ID}\""
     echo " ${COLOR_YELLOW}- Instance rebooted (it will join to the controller on boot)${COLOR_NC}"

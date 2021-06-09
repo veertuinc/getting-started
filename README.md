@@ -122,6 +122,22 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 ---
 
+## AWS [(`./AWS`)](./AWS)
+
+### [`prepare-build-cloud.bash`](./AWS/prepare-build-cloud.bash)
+
+- Running this script will create everything necessary inside of AWS to run an Anka Build Cloud. This includes a security group, elastic IP, etc.
+- **Required before running `prepare-anka-node.bash`**
+- If the first argument is `--delete`, it will only remove the instance and other items needed for the build cloud.
+
+### [`prepare-anka-node.bash`](./AWS/prepare-anka-node.bash)
+
+- Running this script will create everything necessary inside of AWS to run a mac1.metal instance.
+- If the first argument is `--delete`, it will disjoin the node from the controller, remove the anka license, and terminate the instance. **You need to release the dedicated host manually.**
+
+
+---
+
 # CI Plugins and Integrations
 
 - [Jenkins](#jenkins-jenkins)

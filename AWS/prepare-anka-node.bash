@@ -128,14 +128,14 @@ fi
 if [[ "${INSTANCE_IP}" != null ]]; then
   while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "hostname &>/dev/null" &>/dev/null; do
     echo "Instance still starting..."
-    sleep 20
+    sleep 60
   done
   ## SSH in, docker install, and install Build Cloud
   if ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "PATH=\"/usr/local/bin:\$PATH\" anka version &>/dev/null"; then
     echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
     obtain_anka_license
     ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
-      cd /Users/ec2-user && rm -rf aws-ec2-mac-amis && git clone https://github.com/veertuinc/aws-ec2-mac-amis.git && cd aws-ec2-mac-amis && ANKA_LICENSE=\"${ANKA_LICENSE}\" ./\$(sw_vers | grep ProductVersion | cut -d: -f2 | xargs)/prepare.bash; \
+      cd /Users/ec2-user && rm -rf aws-ec2-mac-amis && git clone https://github.com/veertuinc/aws-ec2-mac-amis.git && cd aws-ec2-mac-amis && ANKA_JOIN_ARGS=\"--host ${INSTANCE_IP} --name node1-${AWS_REGION}\" ANKA_LICENSE=\"${ANKA_LICENSE}\" ./\$(sw_vers | grep ProductVersion | cut -d: -f2 | xargs)/prepare.bash; \
     "
     aws_execute -r "ec2 reboot-instances --instance-ids \"${INSTANCE_ID}\""
     echo " ${COLOR_YELLOW}- Instance rebooted (it will join to the controller on boot)${COLOR_NC}"

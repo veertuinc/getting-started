@@ -130,14 +130,14 @@ if [[ "${INSTANCE_IP}" != null ]]; then
     echo "Instance still starting..."
     sleep 60
   done
-  ## SSH in, docker install, and install Build Cloud
+  #### SSH in, docker install, and install Build Cloud
   if ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "PATH=\"/usr/local/bin:\$PATH\" anka version &>/dev/null"; then
     echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
     obtain_anka_license
     ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
       cd /Users/ec2-user && rm -rf aws-ec2-mac-amis && git clone https://github.com/veertuinc/aws-ec2-mac-amis.git && cd aws-ec2-mac-amis && ANKA_JOIN_ARGS=\"--host ${INSTANCE_IP} --name node1-${AWS_REGION}\" ANKA_LICENSE=\"${ANKA_LICENSE}\" ./\$(sw_vers | grep ProductVersion | cut -d: -f2 | xargs)/prepare.bash; \
     "
-    while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "grep \"Finished APFS operation\" /var/log/resize-disk.log &>/dev/null" &>/dev/null; do
+    while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "grep \"Finished APFS operation\" /var/log/resize-disk.log &>/dev/null" &>/dev/null; do
       echo "Waiting for APFS resize to finish..."
       sleep 10
     done
@@ -159,7 +159,6 @@ while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PA
   sleep 10
 done
 
-echo "${COLOR_CYAN}==============================================${COLOR_NC}"
 
 warning "= IMPORTANT ========================================"
 warning "You need to perform manual steps to finalize the preparation of the macOS instance."

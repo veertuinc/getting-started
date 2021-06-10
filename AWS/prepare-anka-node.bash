@@ -167,3 +167,6 @@ warning "Please perform all steps starting at #3 listed in https://github.com/ve
 warning "===================================================="
 echo "You can now access your Anka Node with:"
 echo "${COLOR_GREEN}   ssh -i \"${AWS_KEY_PATH}\" \"ec2-user@${INSTANCE_IP}\"${COLOR_NC}"
+
+echo ""
+echo "You will find a getting-started directory under the user's home folder which contains a script to help you generate your first Anka VM Template and Tags."

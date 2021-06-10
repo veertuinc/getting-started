@@ -133,7 +133,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 ### [`prepare-anka-node.bash`](./AWS/prepare-anka-node.bash)
 
-- Running this script will create everything necessary inside of AWS to run a mac1.metal instance.
+- Running this script will create everything necessary inside of AWS to run a mac1.metal instance and then install Anka inside. You'll be prompted for the Anka license to use if the ANKA_LICENSE env variable is not set.
 - Relies on scripts from https://github.com/veertuinc/aws-ec2-mac-amis
 - If the first argument is `--delete`, it will disjoin the node from the controller, remove the anka license, and terminate the instance. **You need to release the dedicated host manually.**
 

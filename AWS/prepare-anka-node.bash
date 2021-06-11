@@ -163,6 +163,7 @@ done
 warning "= IMPORTANT ========================================"
 warning "You need to perform manual steps to finalize the preparation of the macOS instance."
 warning "Please perform all steps starting at #3 listed in https://github.com/veertuinc/aws-ec2-mac-amis#prepare-an-ami"
+warning "Then, VNC in and ensure that the following steps are also performed: https://ankadocs.veertu.com/docs/anka-build-cloud/prepare-nodes/ (These are critical for Anka and the Apple Hypervisor to function)"
 warning "===================================================="
 echo "You can now access your Anka Node with:"
 echo "${COLOR_GREEN}   ssh -i \"${AWS_KEY_PATH}\" \"ec2-user@${INSTANCE_IP}\"${COLOR_NC}"

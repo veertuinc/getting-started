@@ -44,7 +44,7 @@ if [[ "$1" != "--no-anka-create" ]]; then
   modify_uuid $TEMPLATE $ANKA_BASE_VM_TEMPLATE_UUID
   # Add Registry to CLI (if the registry was installed locally)
   FULL_URL="${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS"
-  if AWS_USER_DATA="$(curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data)"; then
+  if AWS_USER_DATA="$(curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data 2>/dev/null)"; then
     FULL_URL="$(echo "${AWS_USER_DATA}" | grep ANKA_CONTROLLER_ADDRESS | cut -d\" -f2)"
   fi
   if [ "$(sudo anka registry list-repos | grep -c $CLOUD_REGISTRY_REPO_NAME)" -gt 0 ]; then

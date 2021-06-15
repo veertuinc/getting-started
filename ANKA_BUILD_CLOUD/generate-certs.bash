@@ -21,8 +21,8 @@ sudo security add-trusted-cert -d -k /Library/Keychains/System.keychain anka-ca-
 echo "[Creating $CONTROLLER_CN Cert]"
 export CONTROLLER_SERVER_IP=${CONTROLLER_SERVER_IP:-"127.0.0.1"}
 openssl genrsa -out anka-controller-key.pem 4096
-openssl req -new -nodes -sha256 -key anka-controller-key.pem -out anka-controller-csr.pem -subj "/O=$ORGANIZATION/OU=$ORG_UNIT/CN=$CONTROLLER_CN" -reqexts SAN -extensions SAN -config <(cat /etc/ssl/openssl.cnf <(printf "[SAN]\nextendedKeyUsage = serverAuth\nsubjectAltName=IP:$CONTROLLER_SERVER_IP,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:172.17.0.1"))
-openssl x509 -req -days 365 -sha256 -in anka-controller-csr.pem -CA anka-ca-crt.pem -CAkey anka-ca-key.pem -CAcreateserial -out anka-controller-crt.pem -extfile <(echo subjectAltName = IP:$CONTROLLER_SERVER_IP,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:172.17.0.1)
+openssl req -new -nodes -sha256 -key anka-controller-key.pem -out anka-controller-csr.pem -subj "/O=$ORGANIZATION/OU=$ORG_UNIT/CN=$CONTROLLER_CN" -reqexts SAN -extensions SAN -config <(cat /etc/ssl/openssl.cnf <(printf "[SAN]\nextendedKeyUsage = serverAuth\nsubjectAltName=IP:$CONTROLLER_SERVER_IP,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:$DOCKER_HOST_ADDRESS"))
+openssl x509 -req -days 365 -sha256 -in anka-controller-csr.pem -CA anka-ca-crt.pem -CAkey anka-ca-key.pem -CAcreateserial -out anka-controller-crt.pem -extfile <(echo subjectAltName = IP:$CONTROLLER_SERVER_IP,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:$DOCKER_HOST_ADDRESS)
 echo "[The following should be sha256WithRSAEncryption]"
 openssl x509 -text -noout -in anka-controller-crt.pem | grep Signature
 echo "[Generating Node Certificate]"

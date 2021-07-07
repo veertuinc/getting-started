@@ -23,6 +23,8 @@ docker stop "${CLOUD_ETCD_ADDRESS}" &>/dev/null || true
 docker rm "${CLOUD_ETCD_ADDRESS}" &>/dev/null || true
 # Install
 if [[ $1 != "--uninstall" ]]; then
+  mkdir -p "${HOME}/anka-docker-etcd-data"
+  sudo mkdir -p "/Library/Application Support/Veertu/Anka/registry"
   [[ -d "/Library/Application Support/Veertu/Anka/registry" ]] && sudo chmod -R 777 "/Library/Application Support/Veertu/Anka/registry" # Ensure that docker and the native package can use the same templates
   # Download
   if [[ -z $1 ]]; then
@@ -68,8 +70,6 @@ CLOUD_REGISTRY_BUILD_BLOCK=$(cat <<BLOCK
     image: veertu/anka-build-cloud-registry:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f4)
 BLOCK
 )
-mkdir -p "${HOME}/anka-docker-etcd-data"
-sudo mkdir -p "/Library/Application Support/Veertu/Anka/registry"
 fi
 cat << BLOCK | sudo tee docker-compose.yml > /dev/null
 version: '2'

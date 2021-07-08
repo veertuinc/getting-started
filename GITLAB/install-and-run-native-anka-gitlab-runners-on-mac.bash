@@ -17,8 +17,8 @@ if [[ $1 != "--uninstall" ]]; then
   pushd $GITLAB_RUNNER_LOCATION &>/dev/null
   modify_hosts $GITLAB_DOCKER_CONTAINER_NAME
   echo "]] Downloading and unpacking tar..."
-  curl -s -L -o anka-gitlab-runner-v${GITLAB_ANKA_RUNNER_VERSION}-darwin-amd64.tar.gz https://github.com/veertuinc/gitlab-runner/releases/download/v${GITLAB_ANKA_RUNNER_VERSION}/anka-gitlab-runner-v${GITLAB_ANKA_RUNNER_VERSION}-darwin-amd64.tar.gz
-  tar -xzvf anka-gitlab-runner-v${GITLAB_ANKA_RUNNER_VERSION}-darwin-amd64.tar.gz &>/dev/null
+  curl -s -L -o anka-gitlab-runner-v${GITLAB_ANKA_RUNNER_VERSION}-darwin-amd64.zip https://github.com/veertuinc/gitlab-runner/releases/download/v${GITLAB_ANKA_RUNNER_VERSION}/anka-gitlab-runner-v${GITLAB_ANKA_RUNNER_VERSION}-darwin-amd64.zip
+  unzip anka-gitlab-runner-v${GITLAB_ANKA_RUNNER_VERSION}-darwin-amd64.zip 1>/dev/null
   cp -rfp $GITLAB_RUNNER_LOCATION/anka-gitlab-runner-darwin-* $GITLAB_RUNNER_DESTINATION/anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION}
   chmod +x $GITLAB_RUNNER_DESTINATION/anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION}
   popd &>/dev/null

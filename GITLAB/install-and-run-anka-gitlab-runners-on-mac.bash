@@ -18,7 +18,7 @@ if [[ $1 != "--uninstall" ]]; then
   modify_hosts $GITLAB_DOCKER_CONTAINER_NAME
   echo "]] Downloading and unpacking tar..."
   curl -s -L -o anka-gitlab-runner-v${GITLAB_ANKA_RUNNER_VERSION}-darwin-amd64.zip https://github.com/veertuinc/gitlab-runner/releases/download/v${GITLAB_ANKA_RUNNER_VERSION}/anka-gitlab-runner-v${GITLAB_ANKA_RUNNER_VERSION}-darwin-amd64.zip
-  unzip anka-gitlab-runner-v${GITLAB_ANKA_RUNNER_VERSION}-darwin-amd64.zip 1>/dev/null
+  unzip -o anka-gitlab-runner-v${GITLAB_ANKA_RUNNER_VERSION}-darwin-amd64.zip 1>/dev/null
   cp -rfp $GITLAB_RUNNER_LOCATION/anka-gitlab-runner-darwin-* $GITLAB_RUNNER_DESTINATION/anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION}
   chmod +x $GITLAB_RUNNER_DESTINATION/anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION}
   popd &>/dev/null
@@ -53,8 +53,10 @@ if [[ $1 != "--uninstall" ]]; then
   --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
   --tag-list "localhost-specific,localhost,iOS"
 
-  sudo anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION} install --user $USER --config $HOME/.gitlab-runner/anka-config.toml
-  sudo anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION} start
+  anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION} install
+  anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION} start
   echo "]] Verifying runners"
   anka-gitlab-runner-${GITLAB_ANKA_RUNNER_VERSION} verify
+  echo 
+  echo "WARNING: You may have to disjoin and rejoin your node (sudo ankacluster disjoin & join) and ensure --host is set to the machine IP"
 fi

@@ -189,7 +189,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 - Running this script will setup two gitlab runner containers that are registered as a shared and project specific runner with your gitlab instance.
 - If the first argument is `--uninstall`, it will only remove the existing containers
 
-### [`install-and-run-native-anka-gitlab-runners-on-mac.bash`](./GITLAB/install-and-run-native-anka-gitlab-runners-on-mac.bash)
+### [`install-and-run-anka-gitlab-runners-on-mac.bash`](./GITLAB/install-and-run-anka-gitlab-runners-on-mac.bash)
 
 - Running this script will setup two gitlab runners that are registered as a shared and project specific runner with your gitlab instance.
 - If the first argument is `--uninstall`, it will only remove the existing containers

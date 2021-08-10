@@ -355,6 +355,7 @@ def install_product(dist_path, target_vol):
             print("*** other than the current boot volume.               ***")
             print("***       Please file feedback with Apple!            ***")
             print("*********************************************************")
+            print("On slow disks this can take a really long time...")
             subprocess.check_call(
                 ["/usr/bin/ditto", path, os.path.join(target_vol, "Applications")]
             )

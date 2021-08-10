@@ -4,6 +4,7 @@ AWS_PAGER=
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
 . ../shared.bash
+. ./.shared.bash
 [[ -z $(command -v jq) ]] && error "JQ is required. You can install it with brew install jq."
 warning "This script is tested with AWS CLI v2.2.9. If your version differs (mostly a concern for older versions), there is no guarantee it will function as expected!${COLOR_NC}" && sleep 2
 cleanup() {
@@ -50,7 +51,7 @@ INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Reservations[0].Instances[0].Instanc
 ELASTIC_IP_ASSOC="$(aws_execute -r -s "ec2 describe-addresses --filters \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
 ELASTIC_IP_ASSOC_ID="$(echo "${ELASTIC_IP_ASSOC}" | jq -r '.Addresses[0].AssociationId')"
 CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
-CONTROLLER_PRIV_IP="$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"
+ANKA_CONTROLLER_IP="$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"
 
 # Used to prevent removal if anka node still exists and hasn't been disjoined
 DEDICATED_HOST="$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
@@ -78,13 +79,11 @@ else
 fi
 
 ## Add IP to security group
-HOST_IP="$(curl -s http://whatismyip.akamai.com/)"
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${HOST_IP}/32 &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 80 --cidr ${HOST_IP}/32 &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8089 --cidr ${HOST_IP}/32 &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 80 --source-group $SECURITY_GROUP_ID &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8089 --source-group $SECURITY_GROUP_ID &>/dev/null || true"
-echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (22, 80, 8087)"
+echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (80, 8087)"
 
 # Create Elastic IP
 if [[ "${ELASTIC_IP_ID}" == null ]]; then
@@ -115,7 +114,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --block-device-mappings \"{\\\"DeviceName\\\": \\\"/dev/xvda\\\",\\\"VirtualName\\\": \\\"anka-build-cloud\\\",\\\"Ebs\\\": { \\\"VolumeType\\\": \\\"io2\\\", \\\"Iops\\\": 20000, \\\"VolumeSize\\\": 100 }}\" \
     --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="Anka Build Cloud Controller and Registry"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\"")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
-  CONTROLLER_PRIV_IP="$(echo "${INSTANCE}" | jq -r '.Instances[0].PrivateIpAddress')"
+  ANKA_CONTROLLER_IP="$(echo "${INSTANCE}" | jq -r '.Instances[0].PrivateIpAddress')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do
     echo "Instance still starting... Waiting to associate the Elastic IP..."
     sleep 10
@@ -157,13 +156,13 @@ if ! ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_
   done
 fi
 
-if [[ -n "${CONTROLLER_PRIV_IP}" && "${CONTROLLER_PRIV_IP}" != null ]]; then
+if [[ -n "${ANKA_CONTROLLER_IP}" && "${ANKA_CONTROLLER_IP}" != null ]]; then
   echo "${COLOR_CYAN}]] Installing with Docker [[${COLOR_NC}"
   if ! ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" "nc -z localhost 80 &>/dev/null"; then
     ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" " \
       git clone https://github.com/veertuinc/getting-started.git; \
       cd getting-started; \
-      CLOUD_USE_DOCKERHUB=true CLOUD_CONTROLLER_ADDRESS="${ELASTIC_IP_IP}" CLOUD_REGISTRY_ADDRESS="${CONTROLLER_PRIV_IP}" CLOUD_CONTROLLER_PORT=80 ./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash;
+      CLOUD_USE_DOCKERHUB=true CLOUD_CONTROLLER_ADDRESS="${ELASTIC_IP_IP}" CLOUD_REGISTRY_ADDRESS="${ANKA_CONTROLLER_IP}" CLOUD_CONTROLLER_PORT=80 ./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash;
     "
   fi
 else

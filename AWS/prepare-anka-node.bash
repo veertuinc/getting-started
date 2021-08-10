@@ -4,6 +4,7 @@ AWS_PAGER=
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
 . ../shared.bash
+. ./.shared.bash
 [[ -z $(command -v jq) ]] && error "JQ is required. You can install it with brew install jq."
 warning "This script is tested with AWS CLI v2.2.9. If your version differs (mostly a concern for older versions), there is no guarantee it will function as expected!${COLOR_NC}" && sleep 2
 cleanup() {
@@ -44,11 +45,11 @@ echo "${COLOR_CYAN}========================================${COLOR_NC}"
 DEDICATED_HOST="$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
 DEDICATED_HOST_ID="$(echo "${DEDICATED_HOST}" | jq -r '.Hosts[0].HostId')"
 SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
-SECURITY_GROUP_ID="$(echo "${SECURITY_GROUP}" | jq -r '.SecurityGroups[0].GroupId')"
-[[ "${SECURITY_GROUP_ID}" == null ]] && error "Unable to find Security Group... Please run the prepare-build-cloud.bash script first..."
+SECURITY_GROUP_ID="${SECURITY_GROUP_ID:-"$(echo "${SECURITY_GROUP}" | jq -r '.SecurityGroups[0].GroupId')"}"
+[[ "${SECURITY_GROUP_ID}" == null ]] && error "Unable to find Security Group... Please run the prepare-build-cloud.bash script first OR set SECURITY_GROUP_ID before execution..."
 CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
-CONTROLLER_PRIV_IP="$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"
-[[ "${CONTROLLER_PRIV_IP}" == null ]] && error "Unable to find Private IP for Controller... Please run the prepare-build-cloud.bash script first..."
+ANKA_CONTROLLER_IP="${ANKA_CONTROLLER_IP:-"$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"}"
+[[ "${ANKA_CONTROLLER_IP}" == null ]] && error "Unable to find Private IP for Controller... Please run the prepare-build-cloud.bash script first OR set ANKA_CONTROLLER_IP before execution..."
 INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=host-id,Values=${DEDICATED_HOST_ID}\" \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
 INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Reservations[0].Instances[0].InstanceId')"
 [[ "${INSTANCE_ID}" != null ]] && INSTANCE_IP="$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${INSTANCE_ID}\" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text")"
@@ -59,6 +60,11 @@ if [[ "$1" == "--delete" ]]; then
   exit
 fi
 
+# Add IP to security group
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${HOST_IP}/32 &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 5900 --cidr ${HOST_IP}/32 &>/dev/null || true"
+echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (22, 5900)"
+
 # Create dedicated for macOS metal instances
 if [[ "${DEDICATED_HOST_ID}" == null ]]; then
   AVAILABILITY_ZONES="$(aws_execute -r "ec2 describe-availability-zones --all-availability-zones" | jq -r '.AvailabilityZones')"
@@ -67,7 +73,7 @@ if [[ "${DEDICATED_HOST_ID}" == null ]]; then
     --quantity 1 \
     --availability-zone \"${AVAILABILITY_ZONE}\" \
     --instance-type \"mac1.metal\" \
-    --tag-specifications \"ResourceType=dedicated-host,Tags=[{Key=Name,Value="Anka Build Cloud"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\""); do
+    --tag-specifications \"ResourceType=dedicated-host,Tags=[{Key=Name,Value="Anka Node"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\""); do
     read -p "Which ${AWS_REGION} AZ would you like to try instead?: " AVAILABILITY_ZONE
     case "${AVAILABILITY_ZONE}" in
       "" ) echo "${COLOR_RED}Please type the name of the AZ to use...${COLOR_NC}";;
@@ -107,7 +113,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --count 1 \
     --associate-public-ip-address \
     --ebs-optimized \
-    --user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${CONTROLLER_PRIV_IP}\\\"\" \
+    --user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_IP}\\\"\" \
     --block-device-mappings '[{ \"DeviceName\": \"/dev/sda1\", \"Ebs\": { \"VolumeSize\": 400, \"VolumeType\": \"gp3\" }}]' \
     --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="Anka Build Cloud Controller and Registry"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\"")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
@@ -135,7 +141,8 @@ if [[ "${INSTANCE_IP}" != null ]]; then
     echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
     obtain_anka_license
     ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
-      cd /Users/ec2-user && rm -rf aws-ec2-mac-amis && git clone https://github.com/veertuinc/aws-ec2-mac-amis.git && cd aws-ec2-mac-amis && ANKA_JOIN_ARGS=\"--host ${INSTANCE_IP} --name node1-${AWS_REGION}\" ANKA_LICENSE=\"${ANKA_LICENSE}\" ./\$(sw_vers | grep ProductVersion | cut -d: -f2 | xargs)/prepare.bash; \
+      cd /Users/ec2-user && rm -rf aws-ec2-mac-amis && git clone https://github.com/veertuinc/aws-ec2-mac-amis.git && \
+      cd aws-ec2-mac-amis && ANKA_JOIN_ARGS=\"--host ${INSTANCE_IP} --name node1-${AWS_REGION}\" ANKA_LICENSE=\"${ANKA_LICENSE}\" ./\$(sw_vers | grep ProductVersion | cut -d: -f2 | xargs)/prepare.bash; \
     "
     while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "grep \"Finished APFS operation\" /var/log/resize-disk.log &>/dev/null" &>/dev/null; do
       echo "Waiting for APFS resize to finish..."

@@ -124,7 +124,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 ## AWS [(`./AWS`)](./AWS)
 
-
+> [Documentation](https://ankadocs.veertu.com/docs/getting-started/aws-ec2-mac/)
 ### [`prepare-build-cloud.bash`](./AWS/prepare-build-cloud.bash)
 
 - Running this script will create everything necessary inside of AWS to run an Anka Build Cloud. This includes a security group, elastic IP, etc.
@@ -132,6 +132,8 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 - If the first argument is `--delete`, it will only remove the instance and other items needed for the build cloud.
 
 ### [`prepare-anka-node.bash`](./AWS/prepare-anka-node.bash)
+
+> Requires you first run `prepare-build-cloud.bash`. Otherwise, you need to set several necessary environment variables before execution. These ENVs can be found in the script under the comment `# Collect all existing ids and instances`.
 
 - Running this script will create everything necessary inside of AWS to run a mac1.metal instance and then install Anka inside. You'll be prompted for the Anka license to use if the ANKA_LICENSE env variable is not set.
 - Relies on scripts from https://github.com/veertuinc/aws-ec2-mac-amis

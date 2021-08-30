@@ -16,12 +16,6 @@ if [[ "$(uname)" == "Darwin" ]]; then
   fi
 fi
 
-AWS_CRED_FILE_LOCATION="${AWS_CRED_FILE_LOCATION:-"${HOME}/.aws/credentials"}"
-AWS_BUILD_CLOUD_AMI_NAME="${AWS_BUILD_CLOUD_AMI_NAME:-"amzn2-ami-hvm-2.0.20210427.0-x86_64-gp2"}"
-AWS_BUILD_CLOUD_MAC_AMI_NAME="${AWS_BUILD_CLOUD_MAC_AMI_NAME:-"amzn-ec2-macos-11.4-20210526-013926"}"
-AWS_BUILD_CLOUD_INSTANCE_TYPE="${AWS_BUILD_CLOUD_INSTANCE_TYPE:-"t2.small"}"
-AWS_SECURITY_GROUP_NAME="${AWS_SECURITY_GROUP_NAME:-"anka-build-cloud"}"
-
 error() {
   echo "${COLOR_RED}ERROR: $* ${COLOR_NC}"
   exit 50

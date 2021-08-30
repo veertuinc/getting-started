@@ -62,7 +62,7 @@ fi
 
 # Add IP to security group
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${HOST_IP}/32 &>/dev/null || true"
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 5900 --cidr ${HOST_IP}/32 &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 5900-5920 --cidr ${HOST_IP}/32 &>/dev/null || true"
 echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (22, 5900)"
 
 # Create dedicated for macOS metal instances

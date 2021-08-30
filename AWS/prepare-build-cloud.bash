@@ -81,9 +81,10 @@ fi
 ## Add IP to security group
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 80 --cidr ${HOST_IP}/32 &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8089 --cidr ${HOST_IP}/32 &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${HOST_IP}/32 &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 80 --source-group $SECURITY_GROUP_ID &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8089 --source-group $SECURITY_GROUP_ID &>/dev/null || true"
-echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (80, 8087)"
+echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (80, 8087, 22)"
 
 # Create Elastic IP
 if [[ "${ELASTIC_IP_ID}" == null ]]; then
@@ -138,6 +139,10 @@ fi
 
 echo "${COLOR_CYAN}]] Preparing Instance [[${COLOR_NC}"
 ## SSH in, docker install, and install Build Cloud
+  while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" "hostname &>/dev/null" &>/dev/null; do
+    echo "Instance ssh still starting..."
+    sleep 10
+  done
 if ! ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" "docker-compose --help &>/dev/null"; then
   ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" " \
     sudo amazon-linux-extras install -y docker; \

@@ -83,6 +83,7 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"/bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.coreduetd.osx.plist\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist\"
+  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo defaults write /Library/Preferences/com.apple.SoftwareUpdate AutomaticDownload -boolean FALSE\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"brew install jq\"
 "
 

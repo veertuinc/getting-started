@@ -147,6 +147,8 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 - [Jenkins](#jenkins-jenkins)
 - [GitLab](#gitlab-gitlab)
 - [TeamCity](#teamcity-teamcity)
+- [Github Actions](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/github-actions/)
+- [Buildkite](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/buildkite/)
 
 ---
 

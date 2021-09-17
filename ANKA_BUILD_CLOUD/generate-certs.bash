@@ -3,10 +3,10 @@ set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 . ../shared.bash
-ORGANIZATION="Veertu Inc"
-ORG_UNIT="Developer Relations"
-CA_CN="Anka Root CA"
-CONTROLLER_CN="Anka Controller"
+ORGANIZATION=${ORGANIZATION:-"Veertu Inc"}
+ORG_UNIT=${ORG_UNIT:-"Developer Relations"}
+CA_CN=${CA_CN:-"Anka Root CA"}
+CONTROLLER_CN=${CONTROLLER_CN:-"Anka Controller"}
 mkdir -p $CERT_DIRECTORY
 cd $CERT_DIRECTORY
 # Cleanup

@@ -11,7 +11,7 @@ cleanup() {
 
   [[ -n "${INSTANCE_IP}" && "${INSTANCE_IP}" != null ]] && ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
     export PATH=\"/usr/local/bin:\$PATH\"; \
-    echo y | sudo anka license remove || true;\
+    echo y | sudo anka license remove 2>/dev/null || true;\
     sudo ankacluster disjoin || true; \
   " && warning "Save the fulfillment ID above and send it to support@veertu.com to release the cores"
 
@@ -100,7 +100,6 @@ if [[ "${INSTANCE_ID}" == null ]]; then
   ## Get latest AMI ID (regardless of region)
   echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"
   AMI_ID="$(aws_execute -r -s "ec2 describe-images \
-    --owners \"amazon\" \
     --filters \"Name=name,Values=${AWS_BUILD_CLOUD_MAC_AMI_NAME}\" \"Name=state,Values=available\" \
     --query \"sort_by(Images, &CreationDate)[-1].[ImageId]\" \
     --output \"text\"")"
@@ -115,7 +114,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --ebs-optimized \
     --user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_IP}\\\"\" \
     --block-device-mappings '[{ \"DeviceName\": \"/dev/sda1\", \"Ebs\": { \"VolumeSize\": 400, \"VolumeType\": \"gp3\" }}]' \
-    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="Anka Build Cloud Controller and Registry"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\"")
+    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="Anka Build Node"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\"")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do
     echo "Instance still starting..."
@@ -131,47 +130,55 @@ else
 fi
 
 ### Use AMI repo to install everything we need into the metal instance
+# Disabled now that our AMI exists
+# if [[ "${INSTANCE_IP}" != null ]]; then
+#   while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "hostname &>/dev/null" &>/dev/null; do
+#     echo "Instance still starting..."
+#     sleep 60
+#   done
+#   #### SSH in, docker install, and install Build Cloud
+#   if ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "PATH=\"/usr/local/bin:\$PATH\" anka version &>/dev/null"; then
+#     echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
+#     obtain_anka_license
+#     ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
+#       cd /Users/ec2-user && rm -rf aws-ec2-mac-amis && git clone https://github.com/veertuinc/aws-ec2-mac-amis.git && \
+#       cd aws-ec2-mac-amis && ANKA_JOIN_ARGS=\"--host ${INSTANCE_IP} --name node1-${AWS_REGION}\" ANKA_LICENSE=\"${ANKA_LICENSE}\" ./\$(sw_vers | grep ProductVersion | cut -d: -f2 | xargs)/prepare.bash; \
+#     "
+#     while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "grep \"Finished APFS operation\" /var/log/resize-disk.log &>/dev/null" &>/dev/null; do
+#       echo "Waiting for APFS resize to finish..."
+#       sleep 10
+#     done
+#     sleep 2
+#     aws_execute -r "ec2 reboot-instances --instance-ids \"${INSTANCE_ID}\""
+#     echo " ${COLOR_YELLOW}- Instance rebooted (it will join to the controller on boot)${COLOR_NC}"
+#     sleep 40
+#     while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].SystemStatus.Status')" != 'ok' ]]; do
+#       echo "Instance still starting..."
+#       sleep 10
+#     done
+#   else
+#     echo " - Anka already installed in instance"
+#   fi
+# fi
+
+#### SSH in and prepare the machine
 if [[ "${INSTANCE_IP}" != null ]]; then
   while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "hostname &>/dev/null" &>/dev/null; do
     echo "Instance still starting..."
     sleep 60
   done
-  #### SSH in, docker install, and install Build Cloud
-  if ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "PATH=\"/usr/local/bin:\$PATH\" anka version &>/dev/null"; then
-    echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
-    obtain_anka_license
-    ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
-      cd /Users/ec2-user && rm -rf aws-ec2-mac-amis && git clone https://github.com/veertuinc/aws-ec2-mac-amis.git && \
-      cd aws-ec2-mac-amis && ANKA_JOIN_ARGS=\"--host ${INSTANCE_IP} --name node1-${AWS_REGION}\" ANKA_LICENSE=\"${ANKA_LICENSE}\" ./\$(sw_vers | grep ProductVersion | cut -d: -f2 | xargs)/prepare.bash; \
-    "
-    while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "grep \"Finished APFS operation\" /var/log/resize-disk.log &>/dev/null" &>/dev/null; do
-      echo "Waiting for APFS resize to finish..."
-      sleep 10
-    done
-    sleep 2
-    aws_execute -r "ec2 reboot-instances --instance-ids \"${INSTANCE_ID}\""
-    echo " ${COLOR_YELLOW}- Instance rebooted (it will join to the controller on boot)${COLOR_NC}"
-    sleep 40
-    while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].SystemStatus.Status')" != 'ok' ]]; do
-      echo "Instance still starting..."
-      sleep 10
-    done
-  else
-    echo " - Anka already installed in instance"
-  fi
+  echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
+  obtain_anka_license
+  ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
+    sudo launchctl unload -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
+    sudo /usr/local/bin/anka license activate -f ${ANKA_LICENSE} && \
+    sudo /usr/libexec/PlistBuddy -c 'Delete :ProgramArguments:2' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist || true && \
+    sudo /usr/libexec/PlistBuddy -c 'Add :ProgramArguments:2 string "--host ${INSTANCE_IP} --name node1-${AWS_REGION}"' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
+    sudo launchctl load -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
+    sleep 30 && tail -50 /var/log/cloud-connect.log \
+  "
 fi
 
-while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "hostname &>/dev/null" &>/dev/null; do
-  echo "Instance still booting..."
-  sleep 10
-done
-
-
-warning "= IMPORTANT ========================================"
-warning "You need to perform manual steps to finalize the preparation of the macOS instance."
-warning "Please perform all steps starting at #3 listed in https://github.com/veertuinc/aws-ec2-mac-amis#prepare-an-ami"
-warning "Then, VNC in and ensure that the following steps are also performed: https://ankadocs.veertu.com/docs/anka-build-cloud/prepare-nodes/ (These are critical for Anka and the Apple Hypervisor to function)"
-warning "===================================================="
 echo "You can now access your Anka Node with:"
 echo "${COLOR_GREEN}   ssh -i \"${AWS_KEY_PATH}\" \"ec2-user@${INSTANCE_IP}\"${COLOR_NC}"
 

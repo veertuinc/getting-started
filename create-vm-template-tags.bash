@@ -1,5 +1,5 @@
 #!/bin/bash
-set -exo pipefail
+set -eo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
 . ./shared.bash
@@ -83,13 +83,6 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"/bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.coreduetd.osx.plist\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticallyInstallMacOSUpdates -bool false\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticCheckEnabled -bool false\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist AutomaticDownload -bool false\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist CriticalUpdateInstall -bool false\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"defaults write /Library/Preferences/com.apple.SoftwareUpdate.plist ConfigDataInstall -bool false\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdate -bool false\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"defaults write /Library/Preferences/com.apple.commerce.plist AutoUpdateRestartRequired -bool false\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"brew install jq\"
 "
 

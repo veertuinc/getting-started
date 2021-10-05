@@ -124,6 +124,8 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 ## AWS [(`./AWS`)](./AWS)
 
+**These scripts require a locally configured AWS account, ssh key setup in the region, and proper permissions added to your user in IAM. You'll need the ability to create/modify/delete security groups, create/modify/describe/delete instances, create/modify/describe/delete dedicated machines, create/assign/describe/delete elastic IPs, and describe availability zones.**
+
 > [Documentation](https://ankadocs.veertu.com/docs/getting-started/aws-ec2-mac/)
 ### [`prepare-build-cloud.bash`](./AWS/prepare-build-cloud.bash)
 

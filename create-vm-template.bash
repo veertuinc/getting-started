@@ -21,6 +21,7 @@ if [[ "$1" == "--no-anka-create" ]] || [[ -z $1 ]]; then # interactive installer
   sudo ./download-macos-installer.py --raw --workdir $TEMP_DIR/
   INSTALL_IMAGE=$(basename $TEMP_DIR/Install_*.sparseimage)
   TEMPLATE="$(echo $INSTALL_IMAGE | sed -n 's/.*macOS_\([0-9][0-9]\..*\)-.*/\1/p')"
+  [[ "${#TEMPLATE}" -eq 4 ]] && TEMPLATE="${TEMPLATE}.0" # bug fix for 2.5.3 and 11.6 named templates
   echo "]] Mounting $INSTALL_IMAGE to $MOUNT_DIR ..."
   sudo hdiutil attach $INSTALL_IMAGE -mountpoint $MOUNT_DIR
   INSTALL_APP=$(basename $MOUNT_DIR/Applications/Install*.app)

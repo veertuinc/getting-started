@@ -31,9 +31,11 @@ echo "${COLOR_CYAN}========================================${COLOR_NC}"
 [[ "$(uname)" != "Darwin" ]] && echo "${COLOR_YELLOW}WARNING: We cannot guarantee this script with function on modern non-Darwin/MacOS shells (bash or zsh)${COLOR_NC}" && sleep 2
 # Ensure aws cli is installed
 [[ -z "$(command -v aws)" ]] && error "aws command not found; https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html${COLOR_NC}"
-[[ ! -e "${AWS_CRED_FILE_LOCATION}" ]] && error "No credentials file found in ${AWS_CRED_FILE_LOCATION}..."
-# Ensure --profile is set for cli
-aws_obtain_profile
+if $AWS_USE_PROFILE; then
+  [[ ! -e "${AWS_CRED_FILE_LOCATION}" ]] && error "No credentials file found in ${AWS_CRED_FILE_LOCATION}..."
+  # Ensure --profile is set for cli
+  aws_obtain_profile
+fi
 # Ensure region is set for cli
 aws_obtain_region
 # Ensure the key pair for instance creation is set
@@ -42,15 +44,15 @@ echo "] AWS User: ${COLOR_GREEN}$(aws_execute -s -r "iam get-user | jq -r '.User
 echo "${COLOR_CYAN}========================================${COLOR_NC}"
 
 # Collect all existing ids and instances
-DEDICATED_HOST="$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+DEDICATED_HOST="$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"")"
 DEDICATED_HOST_ID="$(echo "${DEDICATED_HOST}" | jq -r '.Hosts[0].HostId')"
-SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
 SECURITY_GROUP_ID="${SECURITY_GROUP_ID:-"$(echo "${SECURITY_GROUP}" | jq -r '.SecurityGroups[0].GroupId')"}"
 [[ "${SECURITY_GROUP_ID}" == null ]] && error "Unable to find Security Group... Please run the prepare-build-cloud.bash script first OR set SECURITY_GROUP_ID before execution..."
-CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
 ANKA_CONTROLLER_IP="${ANKA_CONTROLLER_IP:-"$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"}"
 [[ "${ANKA_CONTROLLER_IP}" == null ]] && error "Unable to find Private IP for Controller... Please run the prepare-build-cloud.bash script first OR set ANKA_CONTROLLER_IP before execution..."
-INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=host-id,Values=${DEDICATED_HOST_ID}\" \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=host-id,Values=${DEDICATED_HOST_ID}\" \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
 INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Reservations[0].Instances[0].InstanceId')"
 [[ "${INSTANCE_ID}" != null ]] && INSTANCE_IP="$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${INSTANCE_ID}\" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text")"
 
@@ -61,8 +63,8 @@ if [[ "$1" == "--delete" ]]; then
 fi
 
 # Add IP to security group
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${HOST_IP}/32 &>/dev/null || true"
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 5900-5920 --cidr ${HOST_IP}/32 &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 5900-5920 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
 echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (22, 5900)"
 
 # Create dedicated for macOS metal instances
@@ -73,7 +75,7 @@ if [[ "${DEDICATED_HOST_ID}" == null ]]; then
     --quantity 1 \
     --availability-zone \"${AVAILABILITY_ZONE}\" \
     --instance-type \"mac1.metal\" \
-    --tag-specifications \"ResourceType=dedicated-host,Tags=[{Key=Name,Value="Anka Node"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\""); do
+    --tag-specifications \"ResourceType=dedicated-host,Tags=[{Key=Name,Value="${AWS_NONUNIQUE_LABEL} Anka Node"},{Key=purpose,Value=${AWS_NONUNIQUE_LABEL}}]\""); do
     read -p "Which ${AWS_REGION} AZ would you like to try instead?: " AVAILABILITY_ZONE
     case "${AVAILABILITY_ZONE}" in
       "" ) echo "${COLOR_RED}Please type the name of the AZ to use...${COLOR_NC}";;
@@ -89,7 +91,7 @@ fi
 
 # Create EC2 mac1.metal instance for Anka Node
 if [[ "${INSTANCE_ID}" == null ]]; then
-  while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"" | jq -r '.Hosts[0].State')" != 'available' ]]; do
+  while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"" | jq -r '.Hosts[0].State')" != 'available' ]]; do
     echo "Dedicated Host still not available (this can take a while)..."
     sleep 60
   done
@@ -114,7 +116,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --ebs-optimized \
     --user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_IP}\\\"\" \
     --block-device-mappings '[{ \"DeviceName\": \"/dev/sda1\", \"Ebs\": { \"VolumeSize\": 400, \"VolumeType\": \"gp3\" }}]' \
-    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="Anka Build Node"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\"")
+    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="$AWS_UNIQUE_LABEL Anka Build Node"},{Key=purpose,Value=${AWS_UNIQUE_LABEL}}]\"")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do
     echo "Instance still starting..."

@@ -20,7 +20,7 @@ cleanup() {
 
   [[ "${SECURITY_GROUP_ID}" != null ]] && aws_execute "ec2 delete-security-group \
     --group-id \"${SECURITY_GROUP_ID}\" \
-    --group-name \"${AWS_SECURITY_GROUP_NAME}\""
+    --group-name \"${AWS_UNIQUE_LABEL}\""
 }
 
 echo "${COLOR_CYAN}==============================================${COLOR_NC}"
@@ -30,9 +30,11 @@ echo "${COLOR_CYAN}==============================================${COLOR_NC}"
 [[ "$(uname)" != "Darwin" ]] && echo "${COLOR_YELLOW}WARNING: We cannot guarantee this script with function on modern non-Darwin/MacOS shells (bash or zsh)${COLOR_NC}" && sleep 2
 # Ensure aws cli is installed
 [[ -z "$(command -v aws)" ]] && error "aws command not found; https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html${COLOR_NC}"
-[[ ! -e "${AWS_CRED_FILE_LOCATION}" ]] && error "No credentials file found in ${AWS_CRED_FILE_LOCATION}..."
-# Ensure --profile is set for cli
-aws_obtain_profile
+if $AWS_USE_PROFILE; then
+  [[ ! -e "${AWS_CRED_FILE_LOCATION}" ]] && error "No credentials file found in ${AWS_CRED_FILE_LOCATION}..."
+  # Ensure --profile is set for cli
+  aws_obtain_profile
+fi
 # Ensure region is set for cli
 aws_obtain_region
 # Ensure the key pair for instance creation is set
@@ -41,22 +43,22 @@ echo "] AWS User: ${COLOR_GREEN}$(aws_execute -s -r "iam get-user | jq -r '.User
 echo "${COLOR_CYAN}==============================================${COLOR_NC}"
 
 # Collect all existing ids and instances
-SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
 SECURITY_GROUP_ID="$(echo "${SECURITY_GROUP}" | jq -r '.SecurityGroups[0].GroupId')"
-ELASTIC_IP="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+ELASTIC_IP="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
 ELASTIC_IP_ID="$(echo "${ELASTIC_IP}" | jq -r '.Addresses[0].AllocationId')"
 ELASTIC_IP_IP="$(echo "${ELASTIC_IP}" | jq -r '.Addresses[0].PublicIp')"
-INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
 INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Reservations[0].Instances[0].InstanceId')"
-ELASTIC_IP_ASSOC="$(aws_execute -r -s "ec2 describe-addresses --filters \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+ELASTIC_IP_ASSOC="$(aws_execute -r -s "ec2 describe-addresses --filters \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
 ELASTIC_IP_ASSOC_ID="$(echo "${ELASTIC_IP_ASSOC}" | jq -r '.Addresses[0].AssociationId')"
-CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
 ANKA_CONTROLLER_IP="$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"
 
 # Used to prevent removal if anka node still exists and hasn't been disjoined
-DEDICATED_HOST="$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+DEDICATED_HOST="$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"")"
 DEDICATED_HOST_ID="$(echo "${DEDICATED_HOST}" | jq -r '.Hosts[0].HostId')"
-ANKA_INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=host-id,Values=${DEDICATED_HOST_ID}\" \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_SECURITY_GROUP_NAME}\"")"
+ANKA_INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=host-id,Values=${DEDICATED_HOST_ID}\" \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
 ANKA_INSTANCE_ID="$(echo "${ANKA_INSTANCE}" | jq -r '.Reservations[0].Instances[0].InstanceId')"
 [[ "${ANKA_INSTANCE_ID}" != null ]] && echo "Cloud has joined nodes... Please run prepare-anka-node.bash --delete first!" && exit 1
 
@@ -69,19 +71,19 @@ fi
 # Create security group
 if [[ "${SECURITY_GROUP_ID}" == null ]]; then
   SECURITY_GROUP=$(aws_execute -r "ec2 create-security-group \
-    --description \"Anka Build Cloud\" \
-    --group-name \"anka-build-cloud\" \
-    --tag-specifications \"ResourceType=security-group,Tags=[{Key=Name,Value="Anka Build Cloud"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\"")
+    --description \"$AWS_UNIQUE_LABEL\" \
+    --group-name \"$AWS_UNIQUE_LABEL\" \
+    --tag-specifications \"ResourceType=security-group,Tags=[{Key=Name,Value="$AWS_UNIQUE_LABEL"},{Key=purpose,Value=${AWS_UNIQUE_LABEL}}]\"")
   SECURITY_GROUP_ID="$(echo "${SECURITY_GROUP}" | jq -r '.GroupId')"
   echo " - Created Security Group: ${COLOR_GREEN}${SECURITY_GROUP_ID}${COLOR_NC}"
 else
-  echo " - Using existing Security Group: ${COLOR_GREEN}${SECURITY_GROUP_ID} | ${AWS_SECURITY_GROUP_NAME}${COLOR_NC}"
+  echo " - Using existing Security Group: ${COLOR_GREEN}${SECURITY_GROUP_ID} | ${AWS_UNIQUE_LABEL}${COLOR_NC}"
 fi
 
 ## Add IP to security group
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 80 --cidr ${HOST_IP}/32 &>/dev/null || true"
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8089 --cidr ${HOST_IP}/32 &>/dev/null || true"
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${HOST_IP}/32 &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 80 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8089 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 80 --source-group $SECURITY_GROUP_ID &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8089 --source-group $SECURITY_GROUP_ID &>/dev/null || true"
 echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (80, 8087, 22)"
@@ -90,7 +92,7 @@ echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (80, 8087, 22)"
 if [[ "${ELASTIC_IP_ID}" == null ]]; then
   ELASTIC_IP=$(aws_execute -r "ec2 allocate-address \
     --domain \"vpc\" \
-    --tag-specifications \"ResourceType=elastic-ip,Tags=[{Key=Name,Value="Anka Build Cloud"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\"")
+    --tag-specifications \"ResourceType=elastic-ip,Tags=[{Key=Name,Value="$AWS_UNIQUE_LABEL"},{Key=purpose,Value=${AWS_UNIQUE_LABEL}}]\"")
   ELASTIC_IP_ID="$(echo "${ELASTIC_IP}" | jq -r '.AllocationId')"
   ELASTIC_IP_IP="$(echo "${ELASTIC_IP}" | jq -r '.PublicIp')"
   echo " - Created Elastic IP: ${COLOR_GREEN}${ELASTIC_IP_ID} | ${ELASTIC_IP_IP}${COLOR_NC}"
@@ -113,7 +115,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --key-name \"${AWS_KEY_PAIR_NAME}\" \
     --count 1 \
     --block-device-mappings \"{\\\"DeviceName\\\": \\\"/dev/xvda\\\",\\\"VirtualName\\\": \\\"anka-build-cloud\\\",\\\"Ebs\\\": { \\\"VolumeType\\\": \\\"io2\\\", \\\"Iops\\\": 20000, \\\"VolumeSize\\\": 100 }}\" \
-    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="Anka Build Cloud Controller and Registry"},{Key=purpose,Value=${AWS_SECURITY_GROUP_NAME}}]\"")
+    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="$AWS_UNIQUE_LABEL Anka Build Cloud Controller and Registry"},{Key=purpose,Value=${AWS_UNIQUE_LABEL}}]\"")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
   ANKA_CONTROLLER_IP="$(echo "${INSTANCE}" | jq -r '.Instances[0].PrivateIpAddress')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do

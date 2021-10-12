@@ -27,7 +27,7 @@ aws_execute() {
     done
   fi
   shift $((OPTIND-1))
-  [[ -z "${AWS_PROFILE}" ]] && error "Unable to find AWS_PROFILE environment variable... Must be set."
+  $AWS_USE_PROFILE && [[ -z "${AWS_PROFILE}" ]] && error "Unable to find AWS_PROFILE environment variable... Must be set."
   RETURNED="$(
     eval "$VERBOSE && set -x; aws $*;" || ({ RC=$?; set +x; } 2>/dev/null; echo $RC; )
   )"

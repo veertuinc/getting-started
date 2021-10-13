@@ -84,6 +84,7 @@ fi
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port ${CLOUD_CONTROLLER_PORT} --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port ${CLOUD_REGISTRY_PORT} --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --source-group $SECURITY_GROUP_ID &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port ${CLOUD_CONTROLLER_PORT} --source-group $SECURITY_GROUP_ID &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port ${CLOUD_REGISTRY_PORT} --source-group $SECURITY_GROUP_ID &>/dev/null || true"
 echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (${CLOUD_CONTROLLER_PORT}, ${CLOUD_REGISTRY_PORT}, 22)"

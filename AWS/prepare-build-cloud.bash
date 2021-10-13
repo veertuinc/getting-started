@@ -81,12 +81,12 @@ else
 fi
 
 ## Add IP to security group
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 80 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8089 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port ${CLOUD_CONTROLLER_PORT} --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port ${CLOUD_REGISTRY_PORT} --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 80 --source-group $SECURITY_GROUP_ID &>/dev/null || true"
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8089 --source-group $SECURITY_GROUP_ID &>/dev/null || true"
-echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (80, 8087, 22)"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port ${CLOUD_CONTROLLER_PORT} --source-group $SECURITY_GROUP_ID &>/dev/null || true"
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port ${CLOUD_REGISTRY_PORT} --source-group $SECURITY_GROUP_ID &>/dev/null || true"
+echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (${CLOUD_CONTROLLER_PORT}, ${CLOUD_REGISTRY_PORT}, 22)"
 
 # Create Elastic IP
 if [[ "${ELASTIC_IP_ID}" == null ]]; then
@@ -165,11 +165,11 @@ fi
 
 if [[ -n "${ANKA_CONTROLLER_IP}" && "${ANKA_CONTROLLER_IP}" != null ]]; then
   echo "${COLOR_CYAN}]] Installing with Docker [[${COLOR_NC}"
-  if ! ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" "nc -z localhost 80 &>/dev/null"; then
+  if ! ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" "nc -z localhost ${ANKA_CONTROLLER_PORT} &>/dev/null"; then
     ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" " \
       git clone https://github.com/veertuinc/getting-started.git; \
       cd getting-started; \
-      CLOUD_USE_DOCKERHUB=true CLOUD_CONTROLLER_ADDRESS="${ELASTIC_IP_IP}" CLOUD_REGISTRY_ADDRESS="${ANKA_CONTROLLER_IP}" CLOUD_CONTROLLER_PORT=80 ./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash;
+      CLOUD_USE_DOCKERHUB=true CLOUD_CONTROLLER_ADDRESS="${ELASTIC_IP_IP}" CLOUD_REGISTRY_ADDRESS="${ANKA_CONTROLLER_IP}" CLOUD_CONTROLLER_PORT="${CLOUD_CONTROLLER_PORT}" CLOUD_REGISTRY_PORT="${CLOUD_REGISTRY_PORT}" ./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash;
     "
   fi
 else

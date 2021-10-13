@@ -131,7 +131,7 @@ jenkins_plugin_install() {
   jenkins_obtain_crumb
   curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"${PLUGIN_NAME}@${PLUGIN_VERSION}\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins
   TRIES=0
-  while [[ "$(docker logs --tail 500 $JENKINS_DOCKER_CONTAINER_NAME 2>&1 | grep "INFO: Installation successful: ${PLUGIN_NAME}$")" != "INFO: Installation successful: $PLUGIN_NAME" ]]; do
+  while [[ "$(docker logs --tail 500 $JENKINS_DOCKER_CONTAINER_NAME 2>&1 | grep "INFO: Installation successful: ${PLUGIN_NAME}$" | head -1)" != "INFO: Installation successful: $PLUGIN_NAME" ]]; do
     echo "Installation of $PLUGIN_NAME plugin still pending..."
     sleep 10
     [[ $TRIES == 50 ]] && echo "Something is wrong with the Jenkins $PLUGIN_NAME installation..." && docker logs --tail 500 $JENKINS_DOCKER_CONTAINER_NAME && exit 1

@@ -40,6 +40,7 @@ BLOCK
   # Credential
   sleep 10
   jenkins_obtain_crumb
+  # Must do a failing curl to avoid WARNING: No such plugin credentials to install
   curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"credentials@2.5\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins
   jenkins_plugin_install "credentials@$CREDENTIALS_PLUGIN_VERSION"
   echo "]] Adding the needed credentials"

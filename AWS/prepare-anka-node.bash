@@ -173,6 +173,7 @@ if [[ "${INSTANCE_IP}" != null ]]; then
   obtain_anka_license
   ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
     sudo launchctl unload -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
+    sudo pkill timed && date && \
     sudo /usr/local/bin/anka license activate -f ${ANKA_LICENSE} && \
     sudo /usr/libexec/PlistBuddy -c 'Delete :ProgramArguments:2' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist || true && \
     sudo /usr/libexec/PlistBuddy -c 'Add :ProgramArguments:2 string "--host ${INSTANCE_IP} --name node1-${AWS_REGION}"' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \

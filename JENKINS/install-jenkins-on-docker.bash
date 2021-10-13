@@ -30,6 +30,12 @@ services:
     environment:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false -Djava.util.logging.config.file=/var/jenkins_home/log.properties"
 BLOCK
+if [[ "$(uname)" == "Linux" ]]; then
+cat >> docker-compose.yml <<BLOCK
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+BLOCK
+fi
   execute-docker-compose pull || true
   execute-docker-compose up -d
   echo "]] Waiting for Jenkins to start properly..."

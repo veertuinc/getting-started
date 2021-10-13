@@ -129,7 +129,7 @@ jenkins_plugin_install() {
   PLUGIN_NAME=$(echo $1 | cut -d@ -f1)
   PLUGIN_VERSION=$(echo $1 | cut -d@ -f2)
   jenkins_obtain_crumb
-  sleep 10 # WARNING: No such plugin credentials to install
+  sleep 15 # WARNING: No such plugin credentials to install
   curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"${PLUGIN_NAME}@${PLUGIN_VERSION}\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins
   TRIES=0
   while [[ "$(docker logs --tail 500 $JENKINS_DOCKER_CONTAINER_NAME 2>&1 | grep "INFO: Installation successful: ${PLUGIN_NAME}$")" != "INFO: Installation successful: $PLUGIN_NAME" ]]; do

@@ -53,7 +53,7 @@ INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Reservations[0].Instances[0].Instanc
 ELASTIC_IP_ASSOC="$(aws_execute -r -s "ec2 describe-addresses --filters \"Name=tag:purpose,Values=${AWS_BUILD_CLOUD_UNIQUE_LABEL}\"")"
 ELASTIC_IP_ASSOC_ID="$(echo "${ELASTIC_IP_ASSOC}" | jq -r '.Addresses[0].AssociationId')"
 CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_BUILD_CLOUD_UNIQUE_LABEL}\"")"
-ANKA_CONTROLLER_IP="$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"
+ANKA_CONTROLLER_PRIVATE_IP="$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"
 
 # Used to prevent removal if anka node still exists and hasn't been disjoined
 DEDICATED_HOST="$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"")"
@@ -117,7 +117,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --block-device-mappings \"{\\\"DeviceName\\\": \\\"/dev/xvda\\\",\\\"VirtualName\\\": \\\"anka-build-cloud\\\",\\\"Ebs\\\": { \\\"VolumeType\\\": \\\"io2\\\", \\\"Iops\\\": 20000, \\\"VolumeSize\\\": 100 }}\" \
     --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="$AWS_BUILD_CLOUD_UNIQUE_LABEL Anka Build Cloud Controller and Registry"},{Key=purpose,Value=${AWS_BUILD_CLOUD_UNIQUE_LABEL}}]\"")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
-  ANKA_CONTROLLER_IP="$(echo "${INSTANCE}" | jq -r '.Instances[0].PrivateIpAddress')"
+  ANKA_CONTROLLER_PRIVATE_IP="$(echo "${INSTANCE}" | jq -r '.Instances[0].PrivateIpAddress')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do
     echo "Instance still starting... Waiting to associate the Elastic IP..."
     sleep 10
@@ -163,13 +163,13 @@ if ! ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_
   done
 fi
 
-if [[ -n "${ANKA_CONTROLLER_IP}" && "${ANKA_CONTROLLER_IP}" != null ]]; then
+if [[ -n "${ANKA_CONTROLLER_PRIVATE_IP}" && "${ANKA_CONTROLLER_PRIVATE_IP}" != null ]]; then
   echo "${COLOR_CYAN}]] Installing with Docker [[${COLOR_NC}"
   if ! ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" "nc -z localhost ${ANKA_CONTROLLER_PORT} &>/dev/null"; then
     ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" " \
       git clone https://github.com/veertuinc/getting-started.git; \
       cd getting-started; \
-      CLOUD_USE_DOCKERHUB=true CLOUD_CONTROLLER_ADDRESS="${ELASTIC_IP_IP}" CLOUD_REGISTRY_ADDRESS="${ANKA_CONTROLLER_IP}" CLOUD_CONTROLLER_PORT="${CLOUD_CONTROLLER_PORT}" CLOUD_REGISTRY_PORT="${CLOUD_REGISTRY_PORT}" ./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash;
+      CLOUD_USE_DOCKERHUB=true CLOUD_CONTROLLER_ADDRESS="${ELASTIC_IP_IP}" CLOUD_REGISTRY_ADDRESS="${ANKA_CONTROLLER_PRIVATE_IP}" CLOUD_CONTROLLER_PORT="${CLOUD_CONTROLLER_PORT}" CLOUD_REGISTRY_PORT="${CLOUD_REGISTRY_PORT}" ./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash;
     "
   fi
 else

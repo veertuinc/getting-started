@@ -41,6 +41,7 @@ BLOCK
   sleep 10
   jenkins_obtain_crumb
   curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"credentials@2.5\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins
+  jenkins_plugin_install "credentials@$CREDENTIALS_PLUGIN_VERSION"
   echo "]] Adding the needed credentials"
   curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/credentials/store/system/domain/_/createCredentials \
   --data-urlencode 'json={

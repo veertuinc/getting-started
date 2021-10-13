@@ -20,7 +20,7 @@ cleanup() {
 
   [[ "${SECURITY_GROUP_ID}" != null ]] && aws_execute "ec2 delete-security-group \
     --group-id \"${SECURITY_GROUP_ID}\" \
-    --group-name \"${AWS_UNIQUE_LABEL}\""
+    --group-name \"${AWS_NONUNIQUE_LABEL}\""
 }
 
 echo "${COLOR_CYAN}==============================================${COLOR_NC}"
@@ -43,7 +43,7 @@ echo "] AWS User: ${COLOR_GREEN}$(aws_execute -s -r "iam get-user | jq -r '.User
 echo "${COLOR_CYAN}==============================================${COLOR_NC}"
 
 # Collect all existing ids and instances
-SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
+SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"")"
 SECURITY_GROUP_ID="$(echo "${SECURITY_GROUP}" | jq -r '.SecurityGroups[0].GroupId')"
 ELASTIC_IP="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
 ELASTIC_IP_ID="$(echo "${ELASTIC_IP}" | jq -r '.Addresses[0].AllocationId')"
@@ -71,9 +71,9 @@ fi
 # Create security group
 if [[ "${SECURITY_GROUP_ID}" == null ]]; then
   SECURITY_GROUP=$(aws_execute -r "ec2 create-security-group \
-    --description \"$AWS_UNIQUE_LABEL\" \
-    --group-name \"$AWS_UNIQUE_LABEL\" \
-    --tag-specifications \"ResourceType=security-group,Tags=[{Key=Name,Value="$AWS_UNIQUE_LABEL"},{Key=purpose,Value=${AWS_UNIQUE_LABEL}}]\"")
+    --description \"$AWS_NONUNIQUE_LABEL\" \
+    --group-name \"$AWS_NONUNIQUE_LABEL\" \
+    --tag-specifications \"ResourceType=security-group,Tags=[{Key=Name,Value="$AWS_NONUNIQUE_LABEL"},{Key=purpose,Value=${AWS_NONUNIQUE_LABEL}}]\"")
   SECURITY_GROUP_ID="$(echo "${SECURITY_GROUP}" | jq -r '.GroupId')"
   echo " - Created Security Group: ${COLOR_GREEN}${SECURITY_GROUP_ID}${COLOR_NC}"
 else

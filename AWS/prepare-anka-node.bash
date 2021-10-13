@@ -114,7 +114,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --count 1 \
     --associate-public-ip-address \
     --ebs-optimized \
-    --user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_IP}\\\"\" \
+    --user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_IP}:${ANKA_CONTROLLER_PORT}\\\"\" \
     --block-device-mappings '[{ \"DeviceName\": \"/dev/sda1\", \"Ebs\": { \"VolumeSize\": 400, \"VolumeType\": \"gp3\" }}]' \
     --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="$AWS_UNIQUE_LABEL Anka Build Node"},{Key=purpose,Value=${AWS_UNIQUE_LABEL}}]\"")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"

@@ -49,10 +49,10 @@ DEDICATED_HOST_ID="$(echo "${DEDICATED_HOST}" | jq -r '.Hosts[0].HostId')"
 SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"")"
 SECURITY_GROUP_ID="${SECURITY_GROUP_ID:-"$(echo "${SECURITY_GROUP}" | jq -r '.SecurityGroups[0].GroupId')"}"
 [[ "${SECURITY_GROUP_ID}" == null ]] && error "Unable to find Security Group... Please run the prepare-build-cloud.bash script first OR set SECURITY_GROUP_ID before execution..."
-CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
+CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_ANKA_NODE_UNIQUE_LABEL}\"")"
 ANKA_CONTROLLER_IP="${ANKA_CONTROLLER_IP:-"$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"}"
 [[ "${ANKA_CONTROLLER_IP}" == null ]] && error "Unable to find Private IP for Controller... Please run the prepare-build-cloud.bash script first OR set ANKA_CONTROLLER_IP before execution..."
-INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=host-id,Values=${DEDICATED_HOST_ID}\" \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_UNIQUE_LABEL}\"")"
+INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=host-id,Values=${DEDICATED_HOST_ID}\" \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_ANKA_NODE_UNIQUE_LABEL}\"")"
 INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Reservations[0].Instances[0].InstanceId')"
 [[ "${INSTANCE_ID}" != null ]] && INSTANCE_IP="$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${INSTANCE_ID}\" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text")"
 
@@ -116,7 +116,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --ebs-optimized \
     --user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_IP}:${CLOUD_CONTROLLER_PORT}\\\"\" \
     --block-device-mappings '[{ \"DeviceName\": \"/dev/sda1\", \"Ebs\": { \"VolumeSize\": 400, \"VolumeType\": \"gp3\" }}]' \
-    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="$AWS_UNIQUE_LABEL Anka Build Node"},{Key=purpose,Value=${AWS_UNIQUE_LABEL}}]\"")
+    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} Anka Build Node"},{Key=purpose,Value=${AWS_ANKA_NODE_UNIQUE_LABEL}}]\"")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do
     echo "Instance still starting..."

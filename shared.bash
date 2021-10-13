@@ -135,7 +135,7 @@ jenkins_plugin_install() {
     echo "Installation of $PLUGIN_NAME plugin still pending..."
     sleep 20
     [[ $TRIES == 25 ]] && echo "Something is wrong with the Jenkins $PLUGIN_NAME installation..." && docker logs --tail 50 $JENKINS_DOCKER_CONTAINER_NAME && exit 1
-    ((TRIES++))
+    TRIES=$(($TRIES + 1))
   done
   true
 }

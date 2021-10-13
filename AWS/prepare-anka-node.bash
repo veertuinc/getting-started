@@ -172,7 +172,8 @@ if [[ "${INSTANCE_IP}" != null ]]; then
   echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
   obtain_anka_license
   ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
-    sudo launchctl unload -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
+    sudo launchctl unload -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist; \
+    sleep 10 && sudo /usr/local/bin/ankacluster disjoin; \
     sudo pkill timed && date && \
     sudo /usr/local/bin/anka license activate -f ${ANKA_LICENSE} && \
     sudo /usr/libexec/PlistBuddy -c 'Delete :ProgramArguments:2' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist || true && \

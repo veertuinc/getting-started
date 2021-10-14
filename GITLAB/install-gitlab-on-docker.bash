@@ -44,6 +44,12 @@ services:
           gitlab_rails['signin_enabled'] = false
           postgresql['max_files_per_process'] = 25
 BLOCK
+if [[ "$(uname)" == "Linux" ]]; then
+cat >> docker-compose.yml <<BLOCK
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+BLOCK
+fi
   execute-docker-compose up -d
   # Check if it's still starting...
   while [[ ! "$(docker logs --tail 100 $GITLAB_DOCKER_CONTAINER_NAME 2>&1)" =~ '==> /var/log/' ]]; do 

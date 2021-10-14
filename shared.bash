@@ -53,7 +53,7 @@ PROMETHEUS_BINARY_VERSION=${PROMETHEUS_BINARY_VERSION:-"2.2.2"}
 
 CLOUDFRONT_URL="https://downloads.veertu.com/anka"
 
-[[ "$(uname)" == "Darwin" ]] && DOCKER_HOST_ADDRESS=${DOCKER_HOST_ADDRESS:-"host.docker.internal"} || DOCKER_HOST_ADDRESS=${DOCKER_HOST_ADDRESS:-"172.17.0.1"}
+DOCKER_HOST_ADDRESS=${DOCKER_HOST_ADDRESS:-"host.docker.internal"}
 
 ANKA_VIRTUALIZATION_DOWNLOAD_URL="$CLOUDFRONT_URL/$ANKA_VIRTUALIZATION_PACKAGE"
 ANKA_VM_USER=${ANKA_VM_USER:-"anka"}
@@ -87,8 +87,8 @@ GITLAB_ROOT_PASSWORD="rootpassword"
 GITLAB_ACCESS_TOKEN="token-string-here123"
 GITLAB_EXAMPLE_PROJECT_NAME="gitlab-examples"
 GITLAB_ANKA_VM_TEMPLATE_TAG="v1"
-GITLAB_RUNNER_PROJECT_RUNNER_NAME="anka-gitlab-runner-project-specific"
-GITLAB_RUNNER_SHARED_RUNNER_NAME="anka-gitlab-runner-shared"
+GITLAB_RUNNER_PROJECT_RUNNER_NAME="${GITLAB_RUNNER_PROJECT_RUNNER_NAME:-"anka-gitlab-runner-project-specific"}"
+GITLAB_RUNNER_SHARED_RUNNER_NAME="${GITLAB_RUNNER_SHARED_RUNNER_NAME:-"anka-gitlab-runner-shared"}"
 GITLAB_RUNNER_LOCATION="/tmp/anka-gitlab-runner"
 GITLAB_RUNNER_DESTINATION="/usr/local/bin/"
 GITLAB_RUNNER_VM_TEMPLATE_UUID="${GITLAB_RUNNER_VM_TEMPLATE_UUID:-"5d1b40b9-7e68-4807-a290-c59c66e926b4"}" # This is used in CI/CD; change screwdriver runner-setup script if you change the name of the var

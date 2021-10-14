@@ -36,6 +36,12 @@ services:
       TEAMCITY_SERVER_MEM_OPTS: "-Xmx1240m"
       TEAMCITY_SERVER_OPTS: "-Dteamcity.kotlinConfigsDsl.pluginsCompilationXmx=512m"
 BLOCK
+if [[ "$(uname)" == "Linux" ]]; then
+cat >> docker-compose.yml <<BLOCK
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+BLOCK
+fi
   execute-docker-compose up -d
   # docker logs --tail 100 $DOCKER_CONTAINER_NAME
   modify_hosts $TEAMCITY_DOCKER_CONTAINER_NAME

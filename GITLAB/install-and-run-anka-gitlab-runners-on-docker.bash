@@ -19,7 +19,7 @@ if [[ $1 != "--uninstall" ]]; then
   # GitLab Runner
   [[ "$(uname)" == "Linux" ]] && EXTRAS="${EXTRAS} --add-host=\"host.docker.internal:host-gateway\""
   ## Collect the Shared runner token
-  SHARED_REGISTRATION_TOKEN="$(docker exec -i $GITLAB_DOCKER_CONTAINER_NAME bash -c "gitlab-rails runner -e production \"puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token\"")"
+  SHARED_REGISTRATION_TOKEN="${SHARED_REGISTRATION_TOKEN:-"$(docker exec -i $GITLAB_DOCKER_CONTAINER_NAME bash -c "gitlab-rails runner -e production \"puts Gitlab::CurrentSettings.current_application_settings.runners_registration_token\"")"}"
   echo "]] Starting a shared Anka GitLab Runner (Docker container: $GITLAB_RUNNER_SHARED_RUNNER_NAME) and connecting it to your GitLab"
   docker run --name $GITLAB_RUNNER_SHARED_RUNNER_NAME $VOLUMES -ti -d veertu/anka-gitlab-runner-amd64:v$GITLAB_ANKA_RUNNER_VERSION \
   --url "http://${DOCKER_HOST_ADDRESS}:$GITLAB_PORT" \
@@ -35,7 +35,7 @@ if [[ $1 != "--uninstall" ]]; then
   --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
   --tag-list "localhost-shared,localhost,iOS"
   ## Collect the project runner token
-  PROJECT_REGISTRATION_TOKEN=$(docker exec -i $GITLAB_DOCKER_CONTAINER_NAME bash -c "gitlab-rails runner -e production \"puts Project.find_by_id($GITLAB_EXAMPLE_PROJECT_ID).runners_token\"")
+  PROJECT_REGISTRATION_TOKEN=${PROJECT_REGISTRATION_TOKEN:-"$(docker exec -i $GITLAB_DOCKER_CONTAINER_NAME bash -c "gitlab-rails runner -e production \"puts Project.find_by_id($GITLAB_EXAMPLE_PROJECT_ID).runners_token\"")"}
   echo "]] Starting a project specific Anka GitLab Runner (Docker container: $GITLAB_RUNNER_PROJECT_RUNNER_NAME) and connecting it to your GitLab"
   docker run --name $GITLAB_RUNNER_PROJECT_RUNNER_NAME $VOLUMES -ti -d veertu/anka-gitlab-runner-amd64:v$GITLAB_ANKA_RUNNER_VERSION \
   --url "http://${DOCKER_HOST_ADDRESS}:$GITLAB_PORT" \

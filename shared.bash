@@ -69,7 +69,8 @@ CLOUD_CONTROLLER_LOG_DIR="/Library/Logs/Veertu/AnkaController"
 
 CLOUD_REGISTRY_PORT=${CLOUD_REGISTRY_PORT:-"8089"} # 8089 is the default
 CLOUD_REGISTRY_REPO_NAME=${CLOUD_REGISTRY_REPO_NAME:-"local-demo"}
-CLOUD_REGISTRY_BASE_PATH="/Library/Application Support/Veertu/Anka/registry"
+CLOUD_REGISTRY_STORAGE_LOCATION=${CLOUD_REGISTRY_STORAGE_LOCATION:-"/Library/Application Support/Veertu/Anka/registry"}
+[[ "$(uname)" == "Linux" ]] && CLOUD_REGISTRY_STORAGE_LOCATION="${HOME}/anka-docker-registry-data"
 CLOUD_DOCKER_FOLDER="$(echo $CLOUD_DOCKER_TAR | awk -F'.tar.gz' '{print $1}')"
 
 JENKINS_PORT="${JENKINS_PORT:-"8092"}"

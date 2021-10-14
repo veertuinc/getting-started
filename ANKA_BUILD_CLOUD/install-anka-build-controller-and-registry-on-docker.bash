@@ -24,8 +24,8 @@ docker rm "${CLOUD_ETCD_ADDRESS}" &>/dev/null || true
 # Install
 if [[ $1 != "--uninstall" ]]; then
   mkdir -p "${HOME}/anka-docker-etcd-data"
-  sudo mkdir -p "/Library/Application Support/Veertu/Anka/registry"
-  [[ -d "/Library/Application Support/Veertu/Anka/registry" ]] && sudo chmod -R 777 "/Library/Application Support/Veertu/Anka/registry" # Ensure that docker and the native package can use the same templates
+  [[ "$(uname)" == "Linux" ]] && mkdir -p "${CLOUD_REGISTRY_STORAGE_LOCATION}" || sudo mkdir -p "${CLOUD_REGISTRY_STORAGE_LOCATION}"
+  [[ -d "${CLOUD_REGISTRY_STORAGE_LOCATION}" ]] && sudo chmod -R 777 "${CLOUD_REGISTRY_STORAGE_LOCATION}" # Ensure that docker and the native package can use the same templates
   # Download
   if [[ -z $1 ]]; then
     echo "]] Downloading $CLOUD_DOCKER_TAR"
@@ -102,7 +102,7 @@ ${CLOUD_REGISTRY_BUILD_BLOCK}
         - "8089:8089"
     restart: always
     volumes:
-      - "/Library/Application Support/Veertu/Anka/registry:/mnt/vol"
+      - "${CLOUD_REGISTRY_STORAGE_LOCATION}:/mnt/vol"
 BLOCK
   echo "]] Starting the Anka Build Cloud Controller & Registry"
   execute-docker-compose up -d

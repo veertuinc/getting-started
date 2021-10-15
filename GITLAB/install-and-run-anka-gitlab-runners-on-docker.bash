@@ -14,6 +14,7 @@ if [[ $1 == "--https" ]]; then
   URL_PROTOCOL="https://"
 fi
 if [[ $1 != "--uninstall" ]]; then
+  VM_CLONE_URL="${VM_CLONE_URL:-"${GITLAB_DOCKER_CONTAINER_NAME}"}"
   ANKA_CONTROLLER_ADDRESS=${ANKA_CONTROLLER_ADDRESS:-"${URL_PROTOCOL}${DOCKER_HOST_ADDRESS}:$CLOUD_CONTROLLER_PORT"}
   GITLAB_EXAMPLE_PROJECT_ID=$(curl -s --request GET -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects" | jq -r ".[] | select(.name==\"$GITLAB_EXAMPLE_PROJECT_NAME\") | .id")
   # GitLab Runner
@@ -33,7 +34,7 @@ if [[ $1 != "--uninstall" ]]; then
   --anka-tag $GITLAB_ANKA_VM_TEMPLATE_TAG \
   --executor anka \
   $EXTRAS \
-  --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
+  --clone-url "http://${VM_CLONE_URL}:${GITLAB_PORT}" \
   --tag-list "localhost-shared,localhost,iOS"
   ## Collect the project runner token
   PROJECT_REGISTRATION_TOKEN=${PROJECT_REGISTRATION_TOKEN:-"$(docker exec -i $GITLAB_DOCKER_CONTAINER_NAME bash -c "gitlab-rails runner -e production \"puts Project.find_by_id($GITLAB_EXAMPLE_PROJECT_ID).runners_token\"")"}
@@ -49,6 +50,6 @@ if [[ $1 != "--uninstall" ]]; then
   --anka-tag $GITLAB_ANKA_VM_TEMPLATE_TAG \
   --executor anka \
   $EXTRAS \
-  --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
+  --clone-url "http://${VM_CLONE_URL}:${GITLAB_PORT}" \
   --tag-list "localhost-specific,localhost,iOS"
 fi

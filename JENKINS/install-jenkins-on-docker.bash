@@ -83,5 +83,5 @@ fi
   #
   echo "================================================================================="
   echo "Jenkins UI: http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT
-Documentation: https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/jenkins"
+Documentation: https://docs.veertu.com/anka/intel/ci-plugins-and-integrations/jenkins"
 fi

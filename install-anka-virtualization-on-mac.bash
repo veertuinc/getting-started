@@ -49,5 +49,5 @@ if [[ $1 != "--uninstall" ]]; then
     exit 1
   fi
   echo "================================================================"
-  echo "Documentation: https://ankadocs.veertu.com/docs/anka-virtualization/"
+  echo "Documentation: https://docs.veertu.com/anka/intel/anka-virtualization/"
 fi

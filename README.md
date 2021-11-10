@@ -1,6 +1,6 @@
 # Anka Getting Started Resources
 
-## [Getting Started Documentation](https://ankadocs.veertu.com/docs/getting-started/)
+## [Getting Started Documentation](https://docs.veertu.com/anka/intel/getting-started/)
 
 This repo contains various scripts for setting up and testing Anka software on your local Apple machine.
 
@@ -27,11 +27,11 @@ This repo contains various scripts for setting up and testing Anka software on y
 Before integrating Anka with your CI, you need to install and configure the **Anka Virtualization CLI** and **Build Cloud Controller & Registry**.
 
 1. Obtain your trial license from https://veertu.com/getting-started-anka-trials/
-1. Install the **[Anka Virtualization CLI package, then activate your license](https://ankadocs.veertu.com/docs/getting-started/installing-the-anka-virtualization-package/)** with `./install-anka-virtualization-on-mac.bash`.
+1. Install the **[Anka Virtualization CLI package, then activate your license](https://docs.veertu.com/anka/intel/getting-started/installing-the-anka-virtualization-package/)** with `./install-anka-virtualization-on-mac.bash`.
 2. Install the **Anka Build Cloud Controller & Registry** with `./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-mac.bash`.
-3. Now generate your [Template and Tags](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#anka-build-license--cloud-understanding-vm-templates-tags-and-disk-usage) with `./create-vm-template.bash`.
+3. Now generate your [Template and Tags](https://docs.veertu.com/anka/intel/getting-started/creating-your-first-vm/#anka-build-license--cloud-understanding-vm-templates-tags-and-disk-usage) with `./create-vm-template.bash`.
 
-At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://ankadocs.veertu.com/docs/anka-build-cloud/working-with-controller-and-api/#instances-view)
+At this point, you can try [starting a VM instance from the Anka Build Cloud UI.](https://docs.veertu.com/anka/intel/anka-build-cloud/working-with-controller-and-api/#instances-view)
 
 URLs and ports you can expect:
 
@@ -51,7 +51,7 @@ URLs and ports you can expect:
 
 ### [`create-vm-template.bash`](./create-vm-template.bash)
 
-> [Understanding VM templates, Tags, and Disk Usage](https://ankadocs.veertu.com/docs/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage)
+> [Understanding VM templates, Tags, and Disk Usage](https://docs.veertu.com/anka/intel/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage)
 
 - Running this script will guide you through downloading Apple's macOS installer and then use it to create your first VM Template.
 - Without any arguments, the script will guide you through downloading a specific version of the macOS installer .app. 
@@ -126,7 +126,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 **These scripts require a locally configured AWS account, ssh key setup in the region, and proper permissions added to your user in IAM. You'll need the ability to create/modify/delete security groups, create/modify/describe/delete instances, create/modify/describe/delete dedicated machines, create/assign/describe/delete elastic IPs, and describe availability zones.**
 
-> [Documentation](https://ankadocs.veertu.com/docs/getting-started/aws-ec2-mac/)
+> [Documentation](https://docs.veertu.com/anka/intel/getting-started/aws-ec2-mac/)
 ### [`prepare-build-cloud.bash`](./AWS/prepare-build-cloud.bash)
 
 - Running this script will create everything necessary inside of AWS to run an Anka Build Cloud. This includes a security group, elastic IP, etc.
@@ -149,8 +149,8 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 - [Jenkins](#jenkins-jenkins)
 - [GitLab](#gitlab-gitlab)
 - [TeamCity](#teamcity-teamcity)
-- [Github Actions](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/github-actions/)
-- [Buildkite](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/buildkite/)
+- [Github Actions](https://docs.veertu.com/anka/intel/ci-plugins-and-integrations/github-actions/)
+- [Buildkite](https://docs.veertu.com/anka/intel/ci-plugins-and-integrations/buildkite/)
 
 ---
 
@@ -158,17 +158,17 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 ---
 
-## [Jenkins](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/jenkins/) [(`./JENKINS`)](./JENKINS)
+## [Jenkins](https://docs.veertu.com/anka/intel/ci-plugins-and-integrations/jenkins/) [(`./JENKINS`)](./JENKINS)
 
 ### [`install-jenkins-on-docker.bash`](./JENKINS/install-jenkins-on-docker.bash)
 
 > **Be sure to generate the required VM Tag using `./create-vm-template-tags.bash 10.15.5 --jenkins`**
 
-- Running this script will start a Jenkins container and configure it to run on http://anka.jenkins:8092. It will install all of the necessary plugins and example Jobs that use [Static and Dynamic Labels](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/jenkins/#install-and-configure-the-anka-plugin-in-jenkins).
+- Running this script will start a Jenkins container and configure it to run on http://anka.jenkins:8092. It will install all of the necessary plugins and example Jobs that use [Static and Dynamic Labels](https://docs.veertu.com/anka/intel/ci-plugins-and-integrations/jenkins/#install-and-configure-the-anka-plugin-in-jenkins).
 
 ---
 
-## [TeamCity](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/teamcity/) [(`./TEAMCITY`)](./TEAMCITY)
+## [TeamCity](https://docs.veertu.com/anka/intel/ci-plugins-and-integrations/teamcity/) [(`./TEAMCITY`)](./TEAMCITY)
 
 ### [`install-teamcity-server-on-docker.bash`](./TEAMCITY/install-teamcity-server-on-docker.bash)
 
@@ -179,7 +179,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 ---
 
-## [GitLab](https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/gitlab/) [(`./GITLAB`)](./GITLAB)
+## [GitLab](https://docs.veertu.com/anka/intel/ci-plugins-and-integrations/gitlab/) [(`./GITLAB`)](./GITLAB)
 
 > **Be sure to generate the required VM Tag using `./create-vm-template-tags.bash 10.15.5 --gitlab`**
 

@@ -48,7 +48,7 @@ BLOCK
   if [[ $1 == "--certificate-authentication" ]]; then # Certificate Auth
     URL_PROTOCOL="https://"
     EXTRA_NOTE="Certificates have been generated and are stored under $HOME
-    Documentation about certificate authentication can be found at https://ankadocs.veertu.com/docs/anka-build-cloud/advanced-security-features/certificate-authentication/"
+    Documentation about certificate authentication can be found at https://docs.veertu.com/anka/intel/anka-build-cloud/advanced-security-features/certificate-authentication/"
     echo "]] Generating Certificates"
     $SCRIPT_DIR/generate-certs.bash # Generate all of the certs you'll need
 cat << BLOCK | sudo tee -a /usr/local/bin/anka-controllerd > /dev/null
@@ -101,7 +101,7 @@ BLOCK
   echo "============================================================================="
   echo "Controller UI:  $URL_PROTOCOL$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT"
   echo "Registry:       $URL_PROTOCOL$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT"
-  echo "Documentation:  https://ankadocs.veertu.com/docs/anka-build-cloud/"
+  echo "Documentation:  https://docs.veertu.com/anka/intel/anka-build-cloud/"
   if [[ ! -z $EXTRA_NOTE ]]; then
     echo "$EXTRA_NOTE
     "

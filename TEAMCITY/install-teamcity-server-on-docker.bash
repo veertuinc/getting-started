@@ -48,5 +48,5 @@ fi
   echo "============================================================================"
   echo "Teamcity UI: ${URL_PROTOCOL}$TEAMCITY_DOCKER_CONTAINER_NAME:$TEAMCITY_PORT
 Logins: admin / admin
-Documentation: https://ankadocs.veertu.com/docs/ci-plugins-and-integrations/teamcity"
+Documentation: https://docs.veertu.com/anka/intel/ci-plugins-and-integrations/teamcity"
 fi

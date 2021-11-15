@@ -3,3 +3,5 @@ docker-compose.yml
 *.yaml
 ANKA_BUILD_CLOUD/anka-controller-reg*
 .dccache
+content
+softwareupdate.plist

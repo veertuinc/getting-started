@@ -167,6 +167,7 @@ if [[ -n "${ANKA_CONTROLLER_PRIVATE_IP}" && "${ANKA_CONTROLLER_PRIVATE_IP}" != n
   echo "${COLOR_CYAN}]] Installing with Docker [[${COLOR_NC}"
   if ! ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" "nc -z localhost ${ANKA_CONTROLLER_PORT} &>/dev/null"; then
     ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" " \
+      rm -rf getting-started && \
       git clone https://github.com/veertuinc/getting-started.git; \
       cd getting-started; \
       CLOUD_USE_DOCKERHUB=true CLOUD_CONTROLLER_ADDRESS="${ELASTIC_IP_IP}" CLOUD_REGISTRY_ADDRESS="${ANKA_CONTROLLER_PRIVATE_IP}" CLOUD_CONTROLLER_PORT="${CLOUD_CONTROLLER_PORT}" CLOUD_REGISTRY_PORT="${CLOUD_REGISTRY_PORT}" ./ANKA_BUILD_CLOUD/install-anka-build-controller-and-registry-on-docker.bash;

@@ -37,16 +37,16 @@ if [[ $1 != "--uninstall" ]]; then
     sudo anka license activate -f $ANKA_LICENSE
     sudo anka license accept-eula || true
     sudo anka license validate
-  fi
-  ANKA_STATUS=$(sudo anka version)
-  if [[ $ANKA_STATUS =~ "Anka " ]]; then
-    echo $ANKA_STATUS
-  else
-    echo $ANKA_STATUS
-    echo "Something is wrong... Checking logs..."
-    echo "tail -20 /Library/Logs/Anka/*"
-    tail -20 /Library/Logs/Anka/*
-    exit 1
+    ANKA_STATUS=$(sudo anka version)
+    if [[ $ANKA_STATUS =~ "Anka " ]]; then
+      echo $ANKA_STATUS
+    else
+      echo $ANKA_STATUS
+      echo "Something is wrong... Checking logs..."
+      echo "tail -20 /Library/Logs/Anka/*"
+      tail -20 /Library/Logs/Anka/*
+      exit 1
+    fi
   fi
   echo "================================================================"
   echo "Documentation: https://docs.veertu.com/anka/intel/anka-virtualization/"

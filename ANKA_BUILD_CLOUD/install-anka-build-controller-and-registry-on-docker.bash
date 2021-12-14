@@ -41,7 +41,7 @@ if [[ $1 != "--uninstall" ]]; then
   echo "]] Modifying the docker-compose.yml"
 CLOUD_ETCD_BUILD_BLOCK=$(cat <<'BLOCK'
     build:
-      context: registry
+      context: etcd
 BLOCK
 )
 CLOUD_CONTROLLER_BUILD_BLOCK=$(cat <<'BLOCK'

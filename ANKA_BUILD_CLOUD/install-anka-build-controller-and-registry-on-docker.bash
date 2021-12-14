@@ -107,8 +107,8 @@ ${CLOUD_ETCD_BUILD_BLOCK}
 BLOCK
 if [[ "$(uname)" == "Linux" ]]; then
 cat >> docker-compose.yml <<BLOCK
-  extra_hosts:
-    - "host.docker.internal:host-gateway"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 BLOCK
 fi
   echo "]] Starting the Anka Build Cloud Controller & Registry"

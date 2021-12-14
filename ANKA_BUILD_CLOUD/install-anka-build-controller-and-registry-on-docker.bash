@@ -41,20 +41,17 @@ if [[ $1 != "--uninstall" ]]; then
   echo "]] Modifying the docker-compose.yml"
 CLOUD_ETCD_BUILD_BLOCK=$(cat <<'BLOCK'
     build:
-      context: .
-      dockerfile: etcd.docker
+      context: registry
 BLOCK
 )
 CLOUD_CONTROLLER_BUILD_BLOCK=$(cat <<'BLOCK'
     build:
-       context: .
-       dockerfile: anka-controller.docker
+       context: controller
 BLOCK
 )
 CLOUD_REGISTRY_BUILD_BLOCK=$(cat <<'BLOCK'
     build:
-        context: .
-        dockerfile: anka-registry.docker
+      context: registry
 BLOCK
 )
 if ${CLOUD_USE_DOCKERHUB:-false}; then
@@ -74,35 +71,39 @@ fi
 cat << BLOCK | sudo tee docker-compose.yml > /dev/null
 version: '2'
 services:
-  anka-etcd:
-    container_name: anka.etcd
-${CLOUD_ETCD_BUILD_BLOCK}
-    ports:
-      - "2379:2379"
-    volumes:
-      - ${HOME}/anka-docker-etcd-data:/etcd-data
-    restart: always
-    command: /usr/bin/etcd --data-dir /etcd-data --listen-client-urls http://0.0.0.0:2379  --advertise-client-urls http://0.0.0.0:2379  --listen-peer-urls http://0.0.0.0:2380 --initial-advertise-peer-urls http://0.0.0.0:2380  --initial-cluster my-etcd=http://0.0.0.0:2380 --initial-cluster-token my-etcd-token --initial-cluster-state new --auto-compaction-retention 1 --name my-etcd
-  
-  anka-registry:
-    container_name: anka.registry
-${CLOUD_REGISTRY_BUILD_BLOCK}
-    ports:
-        - "8089:8089"
-    restart: always
-    volumes:
-      - "${CLOUD_REGISTRY_STORAGE_LOCATION}:/mnt/vol"
-  
   anka-controller:
     container_name: anka.controller
 ${CLOUD_CONTROLLER_BUILD_BLOCK}
     ports:
        - "${CLOUD_CONTROLLER_PORT}:80"
     depends_on:
-       - anka-etcd
+       - etcd
        - anka-registry
+    environment:
+      ANKA_ANKA_REGISTRY: "http://$CLOUD_REGISTRY_ADDRESS:8089"
+      ANKA_ETCD_ENDPOINTS: "$CLOUD_ETCD_ADDRESS:2379"
     restart: always
-    entrypoint: ["/bin/bash", "-c", "anka-controller --enable-central-logging --anka-registry http://$CLOUD_REGISTRY_ADDRESS:8089 --etcd-endpoints $CLOUD_ETCD_ADDRESS:2379 --log_dir /var/log/anka-controller --local-anka-registry http://anka-registry:8085"]
+
+  anka-registry:
+    container_name: anka.registry
+${CLOUD_REGISTRY_BUILD_BLOCK}
+    env_file:
+      - registry/registry.env
+    ports:
+      - "8089:8089"
+    restart: always
+    volumes:
+      - "${CLOUD_REGISTRY_STORAGE_LOCATION}:/mnt/vol"
+
+  etcd:
+    container_name: anka.etcd
+${CLOUD_ETCD_BUILD_BLOCK}
+    volumes:
+      - ${HOME}/anka-docker-etcd-data:/etcd-data
+    env_file:
+      - etcd/etcd.env
+    restart: always
+
 BLOCK
 if [[ "$(uname)" == "Linux" ]]; then
 cat >> docker-compose.yml <<BLOCK

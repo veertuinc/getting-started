@@ -48,7 +48,7 @@ if [[ "$1" != "--no-anka-create" ]]; then
   if AWS_USER_DATA="$(curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data 2>/dev/null)"; then
     FULL_URL="$(echo "${AWS_USER_DATA}" | grep ANKA_CONTROLLER_ADDRESS | cut -d\" -f2)"
   fi
-  if [ "$(sudo anka registry list-repos | grep -c $CLOUD_REGISTRY_REPO_NAME)" -eq 0 ]; then
+  if [[ -z "$(sudo anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME || true)" ]]; then
     sudo anka registry add $CLOUD_REGISTRY_REPO_NAME ${FULL_URL}:$CLOUD_REGISTRY_PORT
     sudo anka registry list-repos
   fi

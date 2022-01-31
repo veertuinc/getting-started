@@ -62,6 +62,8 @@ if [[ "$1" == "--delete" ]]; then
   exit
 fi
 
+obtain_anka_license
+
 # Add IP to security group
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 5900-5920 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
@@ -106,6 +108,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --filters \"Name=name,Values=${AWS_BUILD_CLOUD_MAC_AMI_NAME}\" \"Name=state,Values=available\" \
     --query \"sort_by(Images, &CreationDate)[-1].[ImageId]\" \
     --output \"text\"")"
+  # We don't use ANKA_JOIN_ARGS here so we can set the instance IP
   INSTANCE=$(aws_execute -r "ec2 run-instances \
     --image-id \"${AMI_ID}\" \
     --instance-type=\"mac1.metal\" \
@@ -115,7 +118,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --count 1 \
     --associate-public-ip-address \
     --ebs-optimized \
-    --user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_PRIVATE_IP}:${CLOUD_CONTROLLER_PORT}\\\"\" \
+    --user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_PRIVATE_IP}:${CLOUD_CONTROLLER_PORT}\\\" export ANKA_LICENSE=\\\"${ANKA_LICENSE}\\\"\" \
     --block-device-mappings '[{ \"DeviceName\": \"/dev/sda1\", \"Ebs\": { \"VolumeSize\": 500, \"VolumeType\": \"gp3\" }}]' \
     --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} Anka Build Node"},{Key=purpose,Value=${AWS_ANKA_NODE_UNIQUE_LABEL}}]\"")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
@@ -164,21 +167,18 @@ fi
 #   fi
 # fi
 
-#### SSH in and prepare the machine
+#### SSH in and prepare the machine so it has the public IP
 if [[ "${INSTANCE_IP}" != null ]]; then
   while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "hostname &>/dev/null" &>/dev/null; do
     echo "Instance still starting..."
     sleep 60
   done
   echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
-  obtain_anka_license
   ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
     sudo launchctl unload -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist; \
-    sleep 10 && sudo /usr/local/bin/ankacluster disjoin; \
     sudo pkill timed && date && \
-    sudo /usr/local/bin/anka license activate -f ${ANKA_LICENSE} && \
     sudo /usr/libexec/PlistBuddy -c 'Delete :ProgramArguments:2' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist || true && \
-    sudo /usr/libexec/PlistBuddy -c 'Add :ProgramArguments:2 string "--host ${INSTANCE_IP} --name node1-${AWS_REGION}"' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
+    sudo /usr/libexec/PlistBuddy -c 'Add :ProgramArguments:2 string "--host ${INSTANCE_IP} --reserve-space 20GB --node-id ${INSTANCE_ID}"' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
     sudo launchctl load -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
     sleep 30 && tail -50 /var/log/cloud-connect.log \
   "

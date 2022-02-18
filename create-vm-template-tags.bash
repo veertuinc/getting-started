@@ -90,7 +90,7 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
     sudo mdutil -a -i off; \
     sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist; \
     sudo rm -rf /.Spotlight-V100/*\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"brew install jq\"
+  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"PATH=\\\"\\\$PATH:/opt/homebrew/bin\\\" brew install jq\"
 "
 
 if [[ $2 == '--gitlab' ]]; then

@@ -186,6 +186,9 @@ fi
 
 echo "You can now access your Anka Node with:"
 echo "${COLOR_GREEN}   ssh -i \"${AWS_KEY_PATH}\" \"ec2-user@${INSTANCE_IP}\"${COLOR_NC}"
-
+echo ""
+echo "IMPORTANT: Our AMIs attempt to do the majority of preparation for you, however, there are several steps you need to perform once the instance is started:"
+echo "Set password with sudo /usr/bin/dscl . -passwd /Users/ec2-user {NEWPASSWORDHERE}"
+echo "You now need to VNC in and log into the ec2-user (requirement for Anka to start the hypervisor): open vnc://ec2-user:{GENERATEDPASSWORD}@{INSTANCEPUBLICIP}"
 echo ""
 echo "You will find a getting-started directory under the user's home folder which contains a script to help you generate your first Anka VM Template and Tags."

@@ -104,6 +104,9 @@ if [[ $2 == '--gitlab' ]]; then
   prepare-and-push $NEW_TEMPLATE "v1-with-file" "suspend" "
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS touch /Users/anka/Desktop/test.file\"
   "
+  prepare-and-push $NEW_TEMPLATE "v1-no-ssh" "stop" "
+    $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS sudo rm -f /Library/LaunchDaemons/com.veertu.anka.addons.ssh.plist; sudo launchctl unload -w /System/Library/LaunchDaemons/ssh.plist; launchctl unload -w /System/Library/LaunchDaemons/ssh.plist\"
+  "
 fi
 
 if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then

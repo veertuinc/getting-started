@@ -27,7 +27,7 @@ suspend_and_push() {
   TAG=$2
   echo "]] Suspending VM $TEMPLATE and pushing with tag: $TAG..."
   sudo anka suspend $TEMPLATE || true
-  $ANKA_REGISTRY push $TEMPLATE $TAG || true
+  $ANKA_REGISTRY push $TEMPLATE $TAG -f || true
 }
 
 stop_and_push() {
@@ -35,7 +35,7 @@ stop_and_push() {
   TAG=$2
   echo "]] Stopping VM $TEMPLATE and pushing with tag: $TAG..."
   sudo anka stop $TEMPLATE || true
-  $ANKA_REGISTRY push $TEMPLATE $TAG || true
+  $ANKA_REGISTRY push $TEMPLATE $TAG -f || true
 }
 
 does_not_exist() {

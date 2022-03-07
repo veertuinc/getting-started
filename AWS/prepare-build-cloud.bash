@@ -114,7 +114,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --security-group-ids \"${SECURITY_GROUP_ID}\" \
     --key-name \"${AWS_KEY_PAIR_NAME}\" \
     --count 1 \
-    --block-device-mappings \"{\\\"DeviceName\\\": \\\"/dev/xvda\\\",\\\"VirtualName\\\": \\\"anka-build-cloud\\\",\\\"Ebs\\\": { \\\"VolumeType\\\": \\\"io2\\\", \\\"Iops\\\": 20000, \\\"VolumeSize\\\": 100 }}\" \
+    --block-device-mappings \"{\\\"DeviceName\\\": \\\"/dev/xvda\\\",\\\"VirtualName\\\": \\\"anka-build-cloud\\\",\\\"Ebs\\\": { \\\"VolumeType\\\": \\\"gp3\\\", \\\"Iops\\\": 6000, \\\"VolumeSize\\\": 500 }}\" \
     --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="$AWS_BUILD_CLOUD_UNIQUE_LABEL Anka Build Cloud Controller and Registry"},{Key=purpose,Value=${AWS_BUILD_CLOUD_UNIQUE_LABEL}}]\"")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
   ANKA_CONTROLLER_PRIVATE_IP="$(echo "${INSTANCE}" | jq -r '.Instances[0].PrivateIpAddress')"

@@ -173,24 +173,21 @@ if [[ "${INSTANCE_IP}" != null ]]; then
     echo "Instance still starting..."
     sleep 60
   done
-  if ${PREP:-true}; then
-    echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
-    ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
-      sudo launchctl unload -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist; \
-      sudo pkill timed && date && \
-      sudo /usr/libexec/PlistBuddy -c 'Delete :ProgramArguments:2' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist || true && \
-      sudo /usr/libexec/PlistBuddy -c 'Add :ProgramArguments:2 string "--host ${INSTANCE_IP} --reserve-space 20GB --node-id ${INSTANCE_ID}"' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
-      sudo launchctl load -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
-      sleep 30 && tail -50 /var/log/cloud-connect.log \
-    "
-  fi
+  # Not needed since 12.2.1 AMI
+  # if ${PREP:-true}; then
+  #   echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
+  #   ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
+  #     sudo launchctl unload -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist; \
+  #     sudo pkill timed && date && \
+  #     sudo /usr/libexec/PlistBuddy -c 'Delete :ProgramArguments:2' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist || true && \
+  #     sudo /usr/libexec/PlistBuddy -c 'Add :ProgramArguments:2 string "--host ${INSTANCE_IP} --reserve-space 20GB --node-id ${INSTANCE_ID}"' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
+  #     sudo launchctl load -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
+  #     sleep 30 && tail -50 /var/log/cloud-connect.log \
+  #   "
+  # fi
 fi
 
 echo "You can now access your Anka Node with:"
 echo "${COLOR_GREEN}   ssh -i \"${AWS_KEY_PATH}\" \"ec2-user@${INSTANCE_IP}\"${COLOR_NC}"
 echo ""
-echo "IMPORTANT: Our AMIs attempt to do the majority of preparation for you, however, there are several steps you need to perform once the instance is started:"
-echo "Set password with sudo /usr/bin/dscl . -passwd /Users/ec2-user {NEWPASSWORDHERE} zbun0ok="
-echo "You now need to VNC in and log into the ec2-user (requirement for Anka to start the hypervisor): open vnc://ec2-user:{GENERATEDPASSWORD}@{INSTANCEPUBLICIP}"
-echo ""
-echo "You will find a getting-started directory under the user's home folder which contains a script to help you generate your first Anka VM Template and Tags."
+echo "IMPORTANT: Our AMIs attempt to do the majority of preparation for you, however, there are several steps you need to perform once the instance is started. Please see our documentation: https://docs.veertu.com/anka/intel/getting-started/aws-ec2-mac/#manual-preparation"

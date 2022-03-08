@@ -18,6 +18,11 @@ cleanup() {
   [[ "${INSTANCE_ID}" != null ]] && aws_execute "ec2 terminate-instances \
   --instance-ids \"${INSTANCE_ID}\""
 
+  while [[ "$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${INSTANCE_ID}\"" | jq -r '.Reservations[0].Instances[0].State.Name')" != 'terminated' ]]; do
+    echo "Instance terminating..."
+    sleep 50
+  done
+
   warning "Dedicated Hosts are unable to be programmatically released in a Pending state.
          Due to the amount of time required to transition macOS hosts from Pending to Available, you'll need to release the dedicated host manually in the AWS console."
   # [[ "${DEDICATED_HOST_ID}" != null ]] && aws_execute "ec2 release-hosts --host-ids \"${DEDICATED_HOST_ID}\""

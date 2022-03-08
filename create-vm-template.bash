@@ -1,41 +1,21 @@
 #!/bin/bash
 set -eo pipefail
 [[ "$(arch)" == "arm64" ]] && echo "Anka 3.0 (ARM) is currently not supported" && exit 1
+MACOS_VERSION=${MACOS_VERSION:-"${1}"}
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 . ./shared.bash
-# cleanup() {
-#   sudo anka delete --yes $TEMPLATE_NAME || true
-# }
-# trap cleanup ERR INT
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
-TEMP_DIR="/tmp/anka-mac-resources"
-MOUNT_DIR="$TEMP_DIR/mount"
-sudo chmod -R 777 $TEMP_DIR || true
-mkdir -p $MOUNT_DIR
-rm -f $TEMP_DIR/Install_*.sparseimage
-cd $TEMP_DIR
-if [[ "$1" == "--no-anka-create" ]] || [[ -z $1 ]]; then # interactive installer
-  # Download the macOS installer script and prepare the install.app
-  echo "]] Downloading Mac Installer .app (requires root) ..."
-  cp $SCRIPT_DIR/.misc/download-macos-installer.py $TEMP_DIR/
-  sudo ./download-macos-installer.py --raw --workdir $TEMP_DIR/
-  INSTALL_IMAGE=$(basename $TEMP_DIR/Install_*.sparseimage)
-  TEMPLATE_NAME=${TEMPLATE_NAME:-"$(echo $INSTALL_IMAGE | sed -n 's/.*macOS_\([0-9][0-9]\..*\)-.*/\1/p')"}
-  [[ "${#TEMPLATE_NAME}" -eq 4 ]] && TEMPLATE_NAME="${TEMPLATE_NAME}.0" # bug fix for 2.5.3 and 11.6 named templates
-  echo "]] Mounting $INSTALL_IMAGE to $MOUNT_DIR ..."
-  sudo hdiutil attach $INSTALL_IMAGE -mountpoint $MOUNT_DIR
-  INSTALL_APP=$(basename $MOUNT_DIR/Applications/Install*.app)
-  INSTALLER_LOCATION="/Applications/$INSTALL_APP"
-  sudo cp -rf "$MOUNT_DIR/Applications/$INSTALL_APP" /Applications/
-  sudo hdiutil detach $MOUNT_DIR -force
-else
-  [[ "${1:0:1}" != "/" ]] && echo "Ensure you're using the absolute path to your install .app" && exit 1
-  TEMPLATE_NAME=${TEMPLATE_NAME:-"$(echo $1 | sed -n 's/.*macOS \(.*\).app/\1/p' | sed 's/ /-/g')"}
-  [[ -z $TEMPLATE_NAME ]] && echo "Did you specify the path to an macOS installer .app?" && exit 1
-  INSTALLER_LOCATION="$1"
+if [[ "$1" == "--no-anka-create" ]] || [[ -z $1 ]]; then
+  if [[ -z "${MACOS_VERSION}" ]]; then
+    MACOS_VERSION="$(mist list "macOS Monterey" --kind "installer" --latest -o json -q | jq -r '.[].version')"
+    sudo ./.bin/mist download "macOS Monterey" --kind "installer" --application --application-name "${MACOS_VERSION}.app" --output-directory "/Applications"
+  else
+    [[ ! -d "/Applications/${MACOS_VERSION}.app" ]] && sudo ./.bin/mist download "${MACOS_VERSION}" --kind "installer" --application --application-name "${MACOS_VERSION}.app" --output-directory "/Applications" || echo "Installer already exists"
+  fi
+  TEMPLATE_NAME="${MACOS_VERSION}"
+  INSTALLER_LOCATION="/Applications/${MACOS_VERSION}.app"
 fi
-echo "]] Installer placed at $INSTALLER_LOCATION"
 if [[ "$1" != "--no-anka-create" ]]; then
   cd $HOME
   # Cleanup already existing Template

@@ -9,7 +9,7 @@ cd $SCRIPT_DIR
 if [[ "$1" == "--no-anka-create" ]] || [[ -z $1 ]]; then
   if [[ -z "${MACOS_VERSION}" ]]; then
     MACOS_VERSION="$(mist list "macOS Monterey" --kind "installer" --latest -o json -q | jq -r '.[].version')"
-    sudo ./.bin/mist download "macOS Monterey" --kind "installer" --application --application-name "${MACOS_VERSION}.app" --output-directory "/Applications"
+    [[ ! -d "/Applications/${MACOS_VERSION}.app" ]] && sudo ./.bin/mist download "macOS Monterey" --kind "installer" --application --application-name "${MACOS_VERSION}.app" --output-directory "/Applications"
   else
     [[ ! -d "/Applications/${MACOS_VERSION}.app" ]] && sudo ./.bin/mist download "${MACOS_VERSION}" --kind "installer" --application --application-name "${MACOS_VERSION}.app" --output-directory "/Applications" || echo "Installer already exists"
   fi

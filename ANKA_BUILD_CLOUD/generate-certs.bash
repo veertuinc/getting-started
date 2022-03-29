@@ -2,7 +2,7 @@
 set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
-. ../shared.bash
+[[ -f ./shared.bash ]] && . ./shared.bash || . ../shared.bash
 ORGANIZATION=${ORGANIZATION:-"Veertu Inc"}
 ORG_UNIT=${ORG_UNIT:-"Developer Relations"}
 CA_CN=${CA_CN:-"Anka Root CA"}

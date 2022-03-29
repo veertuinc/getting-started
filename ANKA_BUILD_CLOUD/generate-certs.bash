@@ -2,6 +2,7 @@
 set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
+ADD_TO_KEYCHAIN=${ADD_TO_KEYCHAIN:-true}
 [[ -f ./shared.bash ]] && . ./shared.bash || . ../shared.bash
 ORGANIZATION=${ORGANIZATION:-"Veertu Inc"}
 ORG_UNIT=${ORG_UNIT:-"Developer Relations"}
@@ -10,14 +11,14 @@ CONTROLLER_CN=${CONTROLLER_CN:-"Anka Controller"}
 mkdir -p $CERT_DIRECTORY
 cd $CERT_DIRECTORY
 # Cleanup
-sudo security delete-certificate -c "$CA_CN" /Library/Keychains/System.keychain || true
+$ADD_TO_KEYCHAIN && ( sudo security delete-certificate -c "$CA_CN" /Library/Keychains/System.keychain || true )
 rm -f anka-controller-*.pem
 rm -f anka-*.pem
 rm -f anka-node-*.pem
 echo "[Creating $CA_CN Root CA]"
 openssl req -new -nodes -x509 -sha256 -days 365 -keyout anka-ca-key.pem -out anka-ca-crt.pem -subj "/O=$ORGANIZATION/OU=$ORG_UNIT/CN=$CA_CN"
 echo "[Adding $CA_CN Root CA to System Keychain]"
-sudo security add-trusted-cert -d -k /Library/Keychains/System.keychain anka-ca-crt.pem # Add the Root CA to the System keychain so the Root CA is trusted
+$ADD_TO_KEYCHAIN && sudo security add-trusted-cert -d -k /Library/Keychains/System.keychain anka-ca-crt.pem # Add the Root CA to the System keychain so the Root CA is trusted
 echo "[Creating $CONTROLLER_CN Cert]"
 export CONTROLLER_SERVER_IP=${CONTROLLER_SERVER_IP:-"127.0.0.1"}
 openssl genrsa -out anka-controller-key.pem 4096

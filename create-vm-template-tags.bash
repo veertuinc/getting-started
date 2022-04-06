@@ -96,8 +96,7 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
 if [[ $2 == '--gitlab' ]]; then
   NEW_TEMPLATE="$SOURCE_TEMPLATE-gitlab"
   NEW_TAG="v1"
-  does_not_exist $NEW_TEMPLATE $NEW_TAG && sudo anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE
-  modify_uuid $NEW_TEMPLATE $GITLAB_RUNNER_VM_TEMPLATE_UUID
+  does_not_exist $NEW_TEMPLATE $NEW_TAG && sudo anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE && modify_uuid $NEW_TEMPLATE $GITLAB_RUNNER_VM_TEMPLATE_UUID
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $NEW_TEMPLATE sudo bash -c \"$HELPERS echo '192.168.64.1 anka.gitlab' >> /etc/hosts && [[ ! -z \\\$(grep anka.gitlab /etc/hosts) ]]\"
   "
@@ -127,8 +126,7 @@ fi
 if [[ $2 == '--jenkins' ]]; then
   NEW_TAG="v1"
   JENKINS_TEMPLATE_NAME="$SOURCE_TEMPLATE-openjdk-11.0.14.1-jenkins"
-  does_not_exist $JENKINS_TEMPLATE_NAME $NEW_TAG && sudo anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE_NAME
-  modify_uuid $JENKINS_TEMPLATE_NAME $JENKINS_VM_TEMPLATE_UUID
+  does_not_exist $JENKINS_TEMPLATE_NAME $NEW_TAG && sudo anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE_NAME && modify_uuid $JENKINS_TEMPLATE_NAME $JENKINS_VM_TEMPLATE_UUID
   ## Jenkins misc (Only needed if you're running Jenkins on the same host you run the VMs)
   prepare-and-push $JENKINS_TEMPLATE_NAME $NEW_TAG "suspend" "
     $ANKA_RUN $JENKINS_TEMPLATE_NAME sudo bash -c \"$HELPERS echo '192.168.64.1 anka.jenkins' >> /etc/hosts && [[ ! -z \\\$(grep anka.jenkins /etc/hosts) ]]\"

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -exo pipefail
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin
-cd /tmp
+WORKDIR="/tmp"
+cd "${WORKDIR}"
 [[ -n "$(command -v jq)" ]] || brew install jq
 [[ -n "$(command -v mist)" ]] || brew install mist
 # curl --fail --silent -L -O https://raw.githubusercontent.com/veertuinc/getting-started/master/.bin/mist && sudo chmod +x mist
@@ -26,9 +27,10 @@ while true; do
 done
 # Download the installer
 if [[ ! -d "${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION}${EXTENSION}" ]]; then
-  echo "Downloading macOS ${MACOS_VERSION} using mist. This will not output anything until it's finished and can sometimes take quite a while. You can tail mist-download.log to check the progress."
-  sudo mist download "${MACOS_VERSION}" --kind "${MIST_KIND}" --application --application-name "${PREFIX_FOR_INSTALLERS}%VERSION%${EXTENSION}" --output-directory "${INSTALL_MACOS_DIR}" &> mist-download.log # jenkins log becomes unreasonably large if we show all of the output while downloading
-  tail -50 mist-download.log
+  LOG_LOC="${WORKDIR}/mist-download.log"
+  echo "Downloading macOS ${MACOS_VERSION} using mist. This will not output anything until it's finished and can sometimes take quite a while. You can tail ${LOG_LOC} to check the progress."
+  sudo mist download "${MACOS_VERSION}" --kind "${MIST_KIND}" --application --application-name "${PREFIX_FOR_INSTALLERS}%VERSION%${EXTENSION}" --output-directory "${INSTALL_MACOS_DIR}" > "${LOG_LOC}" # jenkins log becomes unreasonably large if we show all of the output while downloading
+  sudo tail -50 "${LOG_LOC}"
 else
   echo "Mac os installer exists -- nothing to do"
 fi

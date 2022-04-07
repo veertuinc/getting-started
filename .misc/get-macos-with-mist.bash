@@ -2,7 +2,9 @@
 set -exo pipefail
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin
 cd /tmp
+[[ -n "$(command -v jq)" ]] || brew install jq
 [[ -n "$(command -v mist)" ]] || brew install mist
+# curl --fail --silent -L -O https://raw.githubusercontent.com/veertuinc/getting-started/master/.bin/mist && sudo chmod +x mist
 [[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Monterey"}
 MIST_KIND=${MIST_KIND:-"installer"}
 [[ "$(arch)" == "arm64" ]] && MIST_KIND="firmware"

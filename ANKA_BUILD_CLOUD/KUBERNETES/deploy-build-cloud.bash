@@ -131,7 +131,7 @@ spec:
               value: "http://localhost:8089"
             - name: ANKA_ETCD_ENDPOINTS
               value: "http://etcd-client:2379"
-          image: veertu/anka-build-cloud-controller:v1.11.0
+          image: veertu/anka-build-cloud-controller:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -139,7 +139,7 @@ spec:
               protocol: TCP
           command: ["/bin/bash", "-c", "anka-controller"]
         - name: registry
-          image: veertu/anka-build-cloud-registry:v1.11.0
+          image: veertu/anka-build-cloud-registry:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8089

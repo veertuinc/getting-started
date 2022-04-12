@@ -15,7 +15,7 @@ if [[ "$1" != "--no-anka-create" ]]; then
   sudo anka delete --yes $TEMPLATE_NAME &>/dev/null || true
   # Create Base Template
   echo "]] Creating $TEMPLATE_NAME using $INSTALLER_LOCATION ..."
-  sudo ANKA_CREATE_SUSPEND=0 anka create --disk-size 100G --app "$INSTALLER_LOCATION" $TEMPLATE_NAME
+  time sudo ANKA_CREATE_SUSPEND=0 anka create --disk-size 100G --app "$INSTALLER_LOCATION" $TEMPLATE_NAME
   modify_uuid $TEMPLATE_NAME $ANKA_BASE_VM_TEMPLATE_UUID
   # Add Registry to CLI (if the registry was installed locally)
   FULL_URL="${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS"

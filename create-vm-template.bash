@@ -27,5 +27,5 @@ if [[ "$1" != "--no-anka-create" ]]; then
     sudo anka registry add $CLOUD_REGISTRY_REPO_NAME ${FULL_URL}:$CLOUD_REGISTRY_PORT
     sudo anka registry list-repos
   fi
-  $SCRIPT_DIR/create-vm-template-tags.bash $TEMPLATE_NAME
+  $SCRIPT_DIR/create-vm-template-tags.bash $TEMPLATE_NAME ${TAG_FLAGS}
 fi

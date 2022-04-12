@@ -26,7 +26,7 @@ while true; do
   fi
 done
 # Download the installer
-if [[ ! -d "${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION}${EXTENSION}" ]]; then
+if [[ ! -d "${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MIST_VERSION}${EXTENSION}" ]]; then
   if [[ -z "${MIST_VERSION}" ]]; then
     echo "No version found in apple's mirrors through mist..."
     exit 2

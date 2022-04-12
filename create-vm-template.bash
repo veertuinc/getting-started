@@ -6,11 +6,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 . ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
-if [[ "$1" == "--no-anka-create" ]] || [[ -z $1 ]]; then
-  . ./.misc/get-macos-with-mist.bash
-  TEMPLATE_NAME="${MACOS_VERSION}"
-  INSTALLER_LOCATION="${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION}${EXTENSION}"
-fi
+. ./.misc/get-macos-with-mist.bash
+TEMPLATE_NAME="${MACOS_VERSION}"
+INSTALLER_LOCATION="${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION}${EXTENSION}"
 if [[ "$1" != "--no-anka-create" ]]; then
   cd $HOME
   # Cleanup already existing Template

@@ -76,7 +76,7 @@ fi
   echo "<?xml version='1.1' encoding='UTF-8'?>
 <jenkins.model.JenkinsLocationConfiguration>
   <adminAddress>address not configured yet &lt;nobody@nowhere&gt;</adminAddress>
-  <jenkinsUrl>http://anka.jenkins:8092/</jenkinsUrl>
+  <jenkinsUrl>http://anka.jenkins:${JENKINS_PORT}/</jenkinsUrl>
 </jenkins.model.JenkinsLocationConfiguration>" > $JENKINS_DATA_DIR/jenkins.model.JenkinsLocationConfiguration.xml
   cp -rf .config.xml $JENKINS_DATA_DIR/config.xml
   execute-docker-compose restart

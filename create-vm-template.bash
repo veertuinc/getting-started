@@ -15,9 +15,16 @@ if [[ "$1" != "--no-anka-create" ]]; then
   sudo anka delete --yes $TEMPLATE_NAME &>/dev/null || true
   # Create Base Template
   echo "]] Creating $TEMPLATE_NAME using $INSTALLER_LOCATION ..."
-
   # Retry after an hour and a half just in case macos fails to install for some reason
-  retry 2 time sudo ANKA_CREATE_SUSPEND=0 anka create --disk-size 100G --app "$INSTALLER_LOCATION" $TEMPLATE_NAME
+  RETRIES=2
+  NEXT_WAIT_TIME=0
+  until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 5400 bash -c "time sudo ANKA_CREATE_SUSPEND=0 anka create --disk-size 100G --app \"$INSTALLER_LOCATION\" $TEMPLATE_NAME"; do
+    sleep $(( $(( NEXT_WAIT_TIME++ )) + 20))
+    pgrep -f 'anka create' | sudo xargs kill -9 || true
+    pgrep -f 'diskimages-helper' | sudo xargs kill -9 || true
+    sudo umount /Volumes/Install* || true
+  done
+  [ $NEXT_WAIT_TIME -lt ${RETRIES} ] || exit 5
 
   modify_uuid $TEMPLATE_NAME $ANKA_BASE_VM_TEMPLATE_UUID
   # Add Registry to CLI (if the registry was installed locally)

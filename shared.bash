@@ -177,26 +177,26 @@ execute-docker-compose() {
 }
 
 
-retry() {
-  local -r -i max_attempts="$1"; shift
-  local -i attempt_num=1
-  while true ; do
-    "$@" &
-    sleep 5400 # should never take more than an hour and a half
-    if ((attempt_num==max_attempts)); then
-      if kill -0 $! 2>/dev/null; then
-        # Job took too long
-        kill $!
-        echo "Attempt $attempt_num failed! Trying again in $attempt_num seconds..."
-        sleep $((attempt_num++))
-      else
-        # Reap exit status
-        wait $!
-        break
-      fi
-    else
-      echo "Attempt $attempt_num failed and there are no more attempts left!"
-      exit 1
-    fi
-  done
-}
+# retry() {
+#   local -r -i max_attempts="$1"; shift
+#   local -i attempt_num=1
+#   while true ; do
+#     "$@" &
+#     sleep 5400 # should never take more than an hour and a half
+#     if ((attempt_num==max_attempts)); then
+#       if kill -0 $! 2>/dev/null; then
+#         # Job took too long
+#         kill $!
+#         echo "Attempt $attempt_num failed! Trying again in $attempt_num seconds..."
+#         sleep $((attempt_num++))
+#       else
+#         # Reap exit status
+#         wait $!
+#         break
+#       fi
+#     else
+#       echo "Attempt $attempt_num failed and there are no more attempts left!"
+#       exit 1
+#     fi
+#   done
+# }

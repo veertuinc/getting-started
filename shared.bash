@@ -175,3 +175,6 @@ execute-docker-compose() {
     exit 1
   fi
 }
+
+
+function timeout() { perl -e 'alarm shift; exec @ARGV' "$@"; }

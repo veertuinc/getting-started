@@ -23,6 +23,7 @@ if [[ "$1" != "--no-anka-create" ]]; then
     pgrep -f 'anka create' | sudo xargs kill -9 || true
     pgrep -f 'diskimages-helper' | sudo xargs kill -9 || true
     sudo umount /Volumes/Install* || true
+    sudo anka delete --yes "$TEMPLATE_NAME" || true
   done
   [ $NEXT_WAIT_TIME -lt ${RETRIES} ] || exit 5
 

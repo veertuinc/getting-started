@@ -79,6 +79,7 @@ fi
   <adminAddress>address not configured yet &lt;nobody@nowhere&gt;</adminAddress>
   <jenkinsUrl>http://anka.jenkins:${JENKINS_PORT}/</jenkinsUrl>
 </jenkins.model.JenkinsLocationConfiguration>" > $JENKINS_DATA_DIR/jenkins.model.JenkinsLocationConfiguration.xml
+  sleep 40 # cp: cannot stat ‘.config.xml’: No such file or directory
   cp -rf .config.xml $JENKINS_DATA_DIR/config.xml
   execute-docker-compose restart
   #

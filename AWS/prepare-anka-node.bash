@@ -72,9 +72,9 @@ obtain_anka_license
 # Add IP to security group
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 22 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
 aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 5900-5920 --cidr ${AWS_AUTHORIZE_CIDR} &>/dev/null || true"
-aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8099-10010 --source-group $SECURITY_GROUP_ID &>/dev/null || true" # added 8099 for support with Jenkins in AMI creation pipeline
+aws_execute -s "ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol tcp --port 8099-50000 --source-group $SECURITY_GROUP_ID &>/dev/null || true" # added 8099 for support with Jenkins in AMI creation pipeline / 50000 for JNLP and Jenkins
 
-echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID} (22, 5900-5920, 10000-10010)"
+echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID}"
 
 # Create dedicated for macOS metal instances
 if [[ "${DEDICATED_HOST_ID}" == null ]]; then

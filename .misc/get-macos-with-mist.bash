@@ -17,7 +17,7 @@ PREFIX_FOR_INSTALLERS="macos-"
 # Clean up older installers to keep the disk usage low
 ALLOWED_USAGE_GB=33
 while true; do
-  if [ $(du -gc ${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}* | grep total$ | awk '{ print $1 }') -gt ${ALLOWED_USAGE_GB} ]; then
+  if [ $(du -gc ${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}* 2>/dev/null | grep total$ | awk '{ print $1 }') -gt ${ALLOWED_USAGE_GB} ]; then
     echo "Usage of installers under ${INSTALL_MACOS_DIR} has exceeded ${ALLOWED_USAGE_GB}GB. We will now delete an installer to make room..."
     INSTALLER_TO_CLEANUP="$(ls -tl ${INSTALL_MACOS_DIR} | grep ${PREFIX_FOR_INSTALLERS} | sort -k6M -k7n | awk '{ print $9 }' | head -1)"
     sudo rm -rf "${INSTALL_MACOS_DIR}/${INSTALLER_TO_CLEANUP}"

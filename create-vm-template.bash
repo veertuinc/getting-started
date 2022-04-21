@@ -1,5 +1,6 @@
 #!/bin/bash
 set -eo pipefail
+echo "]] Starting Anka VM Creation"
 [[ "$(arch)" == "arm64" ]] && echo "Anka 3.0 (ARM) is currently not supported" && exit 1
 MACOS_VERSION=${MACOS_VERSION:-"${1}"}
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"

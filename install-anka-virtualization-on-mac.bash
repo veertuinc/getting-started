@@ -32,9 +32,9 @@ if [[ $1 != "--uninstall" ]]; then
   fi
   # Licensing
   echo "]] Activating license"
-  obtain_anka_license
   sudo anka license accept-eula || true
   if [[ $ANKA_LICENSE != "skip" ]]; then 
+    obtain_anka_license
     sudo anka license activate -f $ANKA_LICENSE
     sudo anka license validate
   fi

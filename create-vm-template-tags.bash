@@ -83,7 +83,7 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"/bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.coreduetd.osx.plist\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"launchctl unload -w /System/Library/LaunchAgents/com.apple.wifi.WiFiAgent.plist || true\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sleep 40; pkill Feedback\ Assistant\"
+  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sleep 40; pkill \\\"Feedback Assistant\\\"\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo defaults write ~/.Spotlight-V100/VolumeConfiguration.plist Exclusions -array \\\"/Volumes\\\"; \
     sudo defaults write ~/.Spotlight-V100/VolumeConfiguration.plist Exclusions -array \\\"/Network\\\"; \
     sudo killall mds; \

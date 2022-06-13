@@ -15,7 +15,7 @@ if [[ "$1" != "--no-anka-create" ]]; then
   # Cleanup already existing Template
   sudo anka delete --yes $TEMPLATE_NAME &>/dev/null || true
   # Create Base Template
-  echo "]] Creating $TEMPLATE_NAME using $INSTALLER_LOCATION ..."
+  echo "]] Creating $TEMPLATE_NAME using $INSTALLER_LOCATION (please be patient, it can take a while) ..."
   # Retry after an hour and a half just in case macos fails to install for some reason
   RETRIES=2
   NEXT_WAIT_TIME=0
@@ -27,7 +27,6 @@ if [[ "$1" != "--no-anka-create" ]]; then
     sudo anka delete --yes "$TEMPLATE_NAME" || true
   done
   [ $NEXT_WAIT_TIME -lt ${RETRIES} ] || exit 5
-
   modify_uuid $TEMPLATE_NAME $ANKA_BASE_VM_TEMPLATE_UUID
   # Add Registry to CLI (if the registry was installed locally)
   FULL_URL="${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS"

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -exo pipefail
 echo "]] Starting Anka VM Creation"
 [[ "$(arch)" == "arm64" ]] && echo "Anka 3.0 (ARM) is currently not supported" && exit 1
 MACOS_VERSION=${MACOS_VERSION:-"${1}"}

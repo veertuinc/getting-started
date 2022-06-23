@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -exo pipefail
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin
 WORKDIR="/tmp"
 cd "${WORKDIR}"
 [[ -n "$(command -v jq)" ]] || brew install jq
 [[ -n "$(command -v mist)" ]] || brew install mist
 [[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Monterey"}
-[[ -n "${1}" && $(echo ${MACOS_VERSION} | tr -dc . | awk '{ print length }') != 2 ]] && echo "Versions must have three sections (example: 12.2.1)" && exit 2
 MIST_KIND=${MIST_KIND:-"installer"}
 [[ "$(arch)" == "arm64" ]] && MIST_KIND="firmware"
-MIST_VERSION="$(mist list "${MACOS_VERSION}" --kind "${MIST_KIND}" --latest -o json -q | jq -r '.[].version')"
+MIST_VERSION="$(mist list ${MIST_KIND} "${MACOS_VERSION}" --include-betas --compatible --latest -o json -q | jq -r '.[].version')"
 INSTALL_MACOS_DIR="/Applications"
 EXTENSION=".app"
 PREFIX_FOR_INSTALLERS="macos-"
@@ -33,7 +32,7 @@ if [[ ! -d "${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MIST_VERSION}${EXTENS
   else
     LOG_LOC="${WORKDIR}/mist-download.log"
     echo "Downloading macOS ${MACOS_VERSION} using mist. This will not output anything until it's finished and can sometimes take quite a while. You can tail ${LOG_LOC} to check the progress."
-    sudo mist download "${MACOS_VERSION}" --kind "${MIST_KIND}" --application --application-name "${PREFIX_FOR_INSTALLERS}%VERSION%${EXTENSION}" --output-directory "${INSTALL_MACOS_DIR}" > "${LOG_LOC}" # jenkins log becomes unreasonably large if we show all of the output while downloading
+    sudo mist download "${MIST_KIND}" "${MACOS_VERSION}" application --include-betas --application-name "${PREFIX_FOR_INSTALLERS}%VERSION%${EXTENSION}" --output-directory "${INSTALL_MACOS_DIR}" > "${LOG_LOC}" # jenkins log becomes unreasonably large if we show all of the output while downloading
     sudo tail -50 "${LOG_LOC}"
     sudo chmod 644 ${INSTALL_MACOS_DIR}/*.ipsw 2>/dev/null || true
   fi

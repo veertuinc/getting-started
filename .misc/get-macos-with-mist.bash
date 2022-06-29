@@ -49,7 +49,7 @@ if [[ ! -d "${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${FOUND_MIST_MACOS_VERS
   else
     LOG_LOC="${WORKDIR}/mist-download.log"
     echo "Downloading macOS ${MACOS_VERSION} using mist. This will not output anything until it's finished and can sometimes take quite a while. You can tail ${LOG_LOC} to check the progress."
-    sudo mist download ${MIST_OPTIONS} ${MIST_APPLICATION} --application-name "${PREFIX_FOR_INSTALLERS}%VERSION%${EXTENSION}" --output-directory "${INSTALL_MACOS_DIR}" > "${LOG_LOC}" # jenkins log becomes unreasonably large if we show all of the output while downloading
+    sudo mist download ${MIST_OPTIONS} ${MIST_APPLICATION} --application-name "${PREFIX_FOR_INSTALLERS}%VERSION%${EXTENSION}" --compatible --output-directory "${INSTALL_MACOS_DIR}" > "${LOG_LOC}" # jenkins log becomes unreasonably large if we show all of the output while downloading
     sudo tail -50 "${LOG_LOC}"
     sudo chmod 644 ${INSTALL_MACOS_DIR}/*.ipsw 2>/dev/null || true
   fi

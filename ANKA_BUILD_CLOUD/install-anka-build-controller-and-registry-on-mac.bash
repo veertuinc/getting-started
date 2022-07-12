@@ -95,8 +95,13 @@ BLOCK
   echo "]] Joining this machine (Node) to the Cloud"
   sleep 20
   # Ensure we have the right Anka Agent version installed (for rolling back versions)
-  curl -O ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/pkg/AnkaAgent.pkg -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
+  if [[ "$(arch)" == "arm64" ]]; then
+    curl -O ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/pkg/AnkaAgentArm.pkg -o /tmp/ && sudo installer -pkg /tmp/AnkaAgentArm.pkg -tgt /
+  else
+    curl -O ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT/pkg/AnkaAgent.pkg -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
+  fi
   sudo ankacluster join ${URL_PROTOCOL}$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT --groups "gitlab-test-group-env" || true
+
   #
   echo "============================================================================="
   echo "Controller UI:  $URL_PROTOCOL$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT"

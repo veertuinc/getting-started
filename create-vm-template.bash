@@ -7,7 +7,6 @@ cd $SCRIPT_DIR
 . ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
 . ./.misc/get-macos-with-mist.bash
-[[ "$(arch)" == "arm64" ]] && SUDO="" || SUDO="sudo" # Can't open the anka viewer to install macos and addons as sudo.
 TEMPLATE_NAME="${MACOS_VERSION}"
 INSTALLER_LOCATION="${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION}${EXTENSION}"
 if [[ "$1" != "--no-anka-create" ]]; then

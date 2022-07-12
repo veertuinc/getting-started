@@ -7,14 +7,14 @@ cd "$SCRIPT_DIR"
 SOURCE_TEMPLATE=${1-"11.3"}
 [[ -z $SOURCE_TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1
 HELPERS="set -exo pipefail;"
-ANKA_RUN="sudo anka run -N -n"
-[[ ! -z "$(sudo anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME)" ]] && REMOTE="--remote $CLOUD_REGISTRY_REPO_NAME"
-ANKA_REGISTRY="sudo anka registry $REMOTE $CERTS"
+ANKA_RUN="${SUDO} anka run -N -n"
+[[ ! -z "$(${SUDO} anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME)" ]] && REMOTE="--remote $CLOUD_REGISTRY_REPO_NAME"
+ANKA_REGISTRY="${SUDO} anka registry $REMOTE $CERTS"
 
 [[ "$(arch)" == "arm64" ]] && ARCH="aarch64" || ARCH="x64"
 
 cleanup() {
-  sudo anka stop -f $TEMPLATE || true
+  ${SUDO} anka stop -f $TEMPLATE || true
 }
 trap cleanup INT
 
@@ -28,7 +28,7 @@ suspend_and_push() {
   TEMPLATE=$1
   TAG=$2
   echo "]] Suspending VM $TEMPLATE and pushing with tag: $TAG..."
-  sudo anka suspend $TEMPLATE || true
+  ${SUDO} anka suspend $TEMPLATE || true
   $ANKA_REGISTRY push $TEMPLATE $TAG -f || true
 }
 
@@ -36,15 +36,15 @@ stop_and_push() {
   TEMPLATE=$1
   TAG=$2
   echo "]] Stopping VM $TEMPLATE and pushing with tag: $TAG..."
-  sudo anka stop $TEMPLATE || true
+  ${SUDO} anka stop $TEMPLATE || true
   $ANKA_REGISTRY push $TEMPLATE $TAG -f || true
 }
 
 does_not_exist() {
   TEMPLATE=$1
   TAG=$2
-  if [[ $(sudo anka --machine-readable registry $REMOTE $CERTS describe $TEMPLATE | jq  -r '.status') != "ERROR" ]]; then
-    [[ -z $(sudo anka --machine-readable registry $REMOTE $CERTS describe $TEMPLATE | jq -r ".body.versions[] | select(.tag == \"$TAG\") | .tag" 2>/dev/null) ]] && true || false
+  if [[ $(${SUDO} anka --machine-readable registry $REMOTE $CERTS describe $TEMPLATE | jq  -r '.status') != "ERROR" ]]; then
+    [[ -z $(${SUDO} anka --machine-readable registry $REMOTE $CERTS describe $TEMPLATE | jq -r ".body.versions[] | select(.tag == \"$TAG\") | .tag" 2>/dev/null) ]] && true || false
   fi
 }
 
@@ -77,7 +77,7 @@ fi
 
 # Set port-forwarding
 prepare-and-push $SOURCE_TEMPLATE "$TAG+port-forward-22" "stop" "
-  sudo anka modify $SOURCE_TEMPLATE add port-forwarding --guest-port 22 ssh || true
+  ${SUDO} anka modify $SOURCE_TEMPLATE add port-forwarding --guest-port 22 ssh || true
 "
 # Install Brew & command line tools (git)
 prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
@@ -100,7 +100,7 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
 if [[ $2 == '--gitlab' ]]; then
   NEW_TEMPLATE="$SOURCE_TEMPLATE-gitlab"
   NEW_TAG="v1"
-  does_not_exist $NEW_TEMPLATE $NEW_TAG && sudo anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE && modify_uuid $NEW_TEMPLATE $GITLAB_RUNNER_VM_TEMPLATE_UUID
+  does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE && modify_uuid $NEW_TEMPLATE $GITLAB_RUNNER_VM_TEMPLATE_UUID
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $NEW_TEMPLATE sudo bash -c \"$HELPERS echo '${INNER_VM_HOST_IP} anka.gitlab' >> /etc/hosts && [[ ! -z \\\$(grep anka.gitlab /etc/hosts) ]]\"
   "
@@ -115,7 +115,7 @@ fi
 if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
   NEW_TEMPLATE="$SOURCE_TEMPLATE-openjdk-11.0.14.1"
   NEW_TAG="v1"
-  does_not_exist $NEW_TEMPLATE $NEW_TAG && sudo anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE
+  does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE
   ## Install OpenJDK
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "stop" "
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS rm -rf zulu* && \
@@ -130,7 +130,7 @@ fi
 if [[ $2 == '--jenkins' ]]; then
   NEW_TAG="v1"
   JENKINS_TEMPLATE_NAME="$SOURCE_TEMPLATE-openjdk-11.0.14.1-jenkins"
-  does_not_exist $JENKINS_TEMPLATE_NAME $NEW_TAG && sudo anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE_NAME && modify_uuid $JENKINS_TEMPLATE_NAME $JENKINS_VM_TEMPLATE_UUID
+  does_not_exist $JENKINS_TEMPLATE_NAME $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE_NAME && modify_uuid $JENKINS_TEMPLATE_NAME $JENKINS_VM_TEMPLATE_UUID
   ## Jenkins misc (Only needed if you're running Jenkins on the same host you run the VMs)
   prepare-and-push $JENKINS_TEMPLATE_NAME $NEW_TAG "suspend" "
     $ANKA_RUN $JENKINS_TEMPLATE_NAME sudo bash -c \"$HELPERS echo '${INNER_VM_HOST_IP} anka.jenkins' >> /etc/hosts && [[ ! -z \\\$(grep anka.jenkins /etc/hosts) ]]\"
@@ -140,7 +140,7 @@ fi
 if [[ $2 == '--teamcity' ]]; then
   NEW_TAG="v1"
   TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-openjdk-11.0.14.1-teamcity"
-  does_not_exist $TEAMCITY_TEMPLATE $NEW_TAG && sudo anka clone $NEW_TEMPLATE $TEAMCITY_TEMPLATE
+  does_not_exist $TEAMCITY_TEMPLATE $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $TEAMCITY_TEMPLATE
   prepare-and-push $TEAMCITY_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $TEAMCITY_TEMPLATE sudo bash -c \"$HELPERS echo '${INNER_VM_HOST_IP} $TEAMCITY_DOCKER_CONTAINER_NAME' >> /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"
     $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"curl -O -L https://download.jetbrains.com/teamcity/TeamCity-$TEAMCITY_VERSION.tar.gz\"

@@ -2,6 +2,7 @@
 
 STORAGE_LOCATION=${STORAGE_LOCATION:-"/tmp"}
 URL_PROTOCOL=${URL_PROTOCOL:-"http://"}
+[[ "$(arch)" == "arm64" ]] && SUDO="" || SUDO="sudo" # Can't open the anka viewer to install macos and addons as sudo.
 
 if [[ "$(uname)" == "Darwin" ]]; then
   if tty -s; then # Disable if the shell isn't interactive (avoids: tput: No value for $TERM and no -T specified)

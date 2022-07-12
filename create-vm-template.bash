@@ -7,13 +7,14 @@ cd $SCRIPT_DIR
 . ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
 . ./.misc/get-macos-with-mist.bash
+[[ "$(arch)" == "arm64" ]] && SUDO="" || SUDO="sudo" # Can't open the anka viewer to install macos and addons as sudo.
 TEMPLATE_NAME="${MACOS_VERSION}"
 INSTALLER_LOCATION="${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION}${EXTENSION}"
 if [[ "$1" != "--no-anka-create" ]]; then
   # Add Registry to CLI (if the registry was installed locally)
   FULL_URL="${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS"
   ADD_REGISTRY=true
-  if [[ -z "$(sudo anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME || true)" ]]; then
+  if [[ -z "$(${SUDO} anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME || true)" ]]; then
     if curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data 2>/dev/null; then
       AWS_USER_DATA="$(curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data 2>/dev/null)"
       if ! echo "${AWS_USER_DATA}" | grep "404 - Not Found"; then
@@ -24,13 +25,13 @@ if [[ "$1" != "--no-anka-create" ]]; then
       ADD_REGISTRY=false
     fi
     if $ADD_REGISTRY; then
-      sudo anka registry add $CLOUD_REGISTRY_REPO_NAME ${FULL_URL}:$CLOUD_REGISTRY_PORT
-      sudo anka registry list-repos
+      ${SUDO} anka registry add $CLOUD_REGISTRY_REPO_NAME ${FULL_URL}:$CLOUD_REGISTRY_PORT
+      ${SUDO} anka registry list-repos
     fi
   fi
   cd $HOME
   # Cleanup already existing Template
-  sudo anka delete --yes $TEMPLATE_NAME &>/dev/null || true
+  ${SUDO} anka delete --yes $TEMPLATE_NAME &>/dev/null || true
   # Create Base Template
   echo "]] Creating $TEMPLATE_NAME using $INSTALLER_LOCATION (please be patient, it can take a while) ..."
   # Retry after an hour and a half just in case macos fails to install for some reason
@@ -41,7 +42,7 @@ if [[ "$1" != "--no-anka-create" ]]; then
     pgrep -f 'anka create' | sudo xargs kill -9 || true
     pgrep -f 'diskimages-helper' | sudo xargs kill -9 || true
     sudo umount /Volumes/Install* || true
-    sudo anka delete --yes "$TEMPLATE_NAME" || true
+    ${SUDO} anka delete --yes "$TEMPLATE_NAME" || true
   done
   [ $NEXT_WAIT_TIME -lt ${RETRIES} ] || exit 5
   [[ "$(arch)" == "arm64" ]] && ANKA_BASE_VM_TEMPLATE_UUID="${ANKA_BASE_VM_TEMPLATE_UUID_APPLE}" || ANKA_BASE_VM_TEMPLATE_UUID="${ANKA_BASE_VM_TEMPLATE_UUID_INTEL}"

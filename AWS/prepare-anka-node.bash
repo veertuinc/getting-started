@@ -83,7 +83,7 @@ if [[ "${DEDICATED_HOST_ID}" == null ]]; then
   while ! DEDICATED_HOST=$(aws_execute -r "ec2 allocate-hosts \
     --quantity 1 \
     --availability-zone \"${AVAILABILITY_ZONE}\" \
-    --instance-type \"mac1.metal\" \
+    --instance-type \"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
     --tag-specifications \"ResourceType=dedicated-host,Tags=[{Key=Name,Value="${AWS_NONUNIQUE_LABEL} Anka Node"},{Key=purpose,Value=${AWS_NONUNIQUE_LABEL}}]\""); do
     read -p "Which ${AWS_REGION} AZ would you like to try instead?: " AVAILABILITY_ZONE
     case "${AVAILABILITY_ZONE}" in
@@ -98,7 +98,7 @@ else
   echo " - Using Dedicated Host: ${COLOR_GREEN}${DEDICATED_HOST_ID}${COLOR_NC}"
 fi
 
-# Create EC2 mac1.metal instance for Anka Node
+# Create EC2 instance for Anka Node
 if [[ "${INSTANCE_ID}" == null ]]; then
   while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"" | jq -r '.Hosts[0].State')" != 'available' ]]; do
     echo "Dedicated Host still not available (this can take a while)..."
@@ -119,7 +119,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
   # We don't use ANKA_JOIN_ARGS here so we can set the instance IP
   INSTANCE=$(aws_execute -r "ec2 run-instances \
     --image-id \"${AMI_ID}\" \
-    --instance-type=\"mac1.metal\" \
+    --instance-type=\"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
     --security-group-ids \"${SECURITY_GROUP_ID}\" \
     --placement \"HostId=${DEDICATED_HOST_ID}\" \
     --key-name \"${AWS_KEY_PAIR_NAME}\" \

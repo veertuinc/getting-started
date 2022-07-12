@@ -127,6 +127,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 **These scripts require a locally configured AWS account, ssh key setup in the region, and proper permissions added to your user in IAM. You'll need the ability to create/modify/delete security groups, create/modify/describe/delete instances, create/modify/describe/delete dedicated machines, create/assign/describe/delete elastic IPs, and describe availability zones.**
 
 > [Documentation](https://docs.veertu.com/anka/intel/getting-started/aws-ec2-mac/)
+
 ### [`prepare-build-cloud.bash`](./AWS/prepare-build-cloud.bash)
 
 - Running this script will create everything necessary inside of AWS to run an Anka Build Cloud. This includes a security group, elastic IP, etc.
@@ -138,8 +139,8 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 > Requires you first run `prepare-build-cloud.bash`. Otherwise, you need to set several necessary environment variables before execution. These ENVs can be found in the script under the comment `# Collect all existing ids and instances`.
 
 - Running this script will create everything necessary inside of AWS to run an EC2 Mac instance. You’ll be prompted for the Anka license to use if the `ANKA_LICENSE` env variable is not set.
+- By default, it will create a mac1.metal dedicated and instance type. If you wish to use the mac2.metal, simply set `AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE="mac2.metal"` when executing the script.
 - If the first argument is `--delete`, it will disjoin the node from the controller, remove the anka license, and terminate the instance. **You need to release the dedicated host manually.**
-
 
 ---
 

@@ -21,7 +21,8 @@ if [[ "$1" != "--no-anka-create" ]]; then
       fi
     elif ! curl -s --connect-timeout 1 ${FULL_URL}:$CLOUD_REGISTRY_PORT 2>/dev/null; then
       echo "no running registry at ${FULL_URL}:$CLOUD_REGISTRY_PORT"
-      ADD_REGISTRY=false
+      echo "please install the registry before running this script"
+      exit
     fi
     if $ADD_REGISTRY; then
       ${SUDO} anka registry add $CLOUD_REGISTRY_REPO_NAME ${FULL_URL}:$CLOUD_REGISTRY_PORT

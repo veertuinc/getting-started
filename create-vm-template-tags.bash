@@ -11,6 +11,8 @@ ANKA_RUN="sudo anka run -N -n"
 [[ ! -z "$(sudo anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME)" ]] && REMOTE="--remote $CLOUD_REGISTRY_REPO_NAME"
 ANKA_REGISTRY="sudo anka registry $REMOTE $CERTS"
 
+[[ "$(arch)" == "arm64" ]] && ARCH="aarch64" || ARCH="x64"
+
 cleanup() {
   sudo anka stop -f $TEMPLATE || true
 }
@@ -117,10 +119,10 @@ if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
   ## Install OpenJDK
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "stop" "
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS rm -rf zulu* && \
-      curl -v -L -O https://cdn.azul.com/zulu/bin/zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_x64.tar.gz && \
-      [ \\\$(du -s zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_x64.tar.gz  | awk '{print \\\$1}') -gt 190000 ] && \
-      tar -xzvf zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_x64.tar.gz && \
-      sudo mkdir -p /usr/local/bin && for file in \\\$(ls ~/zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_x64/bin/*); do sudo rm -f /usr/local/bin/\\\$(echo \\\$file | rev | cut -d/ -f1 | rev); sudo ln -s \\\$file /usr/local/bin/\\\$(echo \\\$file | rev | cut -d/ -f1 | rev); done && \
+      curl -v -L -O https://cdn.azul.com/zulu/bin/zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_${ARCH}.tar.gz && \
+      [ \\\$(du -s zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_${ARCH}.tar.gz  | awk '{print \\\$1}') -gt 190000 ] && \
+      tar -xzvf zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_${ARCH}.tar.gz && \
+      sudo mkdir -p /usr/local/bin && for file in \\\$(ls ~/zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_${ARCH}/bin/*); do sudo rm -f /usr/local/bin/\\\$(echo \\\$file | rev | cut -d/ -f1 | rev); sudo ln -s \\\$file /usr/local/bin/\\\$(echo \\\$file | rev | cut -d/ -f1 | rev); done && \
       java -version && [[ ! -z \\\$(java -version 2>&1 | grep 11.0.14.1) ]]\"
   "
 fi

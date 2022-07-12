@@ -12,15 +12,21 @@ INSTALLER_LOCATION="${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION
 if [[ "$1" != "--no-anka-create" ]]; then
   # Add Registry to CLI (if the registry was installed locally)
   FULL_URL="${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS"
+  ADD_REGISTRY=true
   if [[ -z "$(sudo anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME || true)" ]]; then
     if curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data 2>/dev/null; then
       AWS_USER_DATA="$(curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data 2>/dev/null)"
       if ! echo "${AWS_USER_DATA}" | grep "404 - Not Found"; then
         FULL_URL="$(echo "${AWS_USER_DATA}" | grep ANKA_CONTROLLER_ADDRESS | cut -d\" -f2 | rev | cut -d: -f2-99 | rev)"
       fi
+    elif ! curl -s --connect-timeout 1 ${FULL_URL}:$CLOUD_REGISTRY_PORT 2>/dev/null; then
+      echo "no running registry at ${FULL_URL}:$CLOUD_REGISTRY_PORT"
+      ADD_REGISTRY=false
     fi
-    sudo anka registry add $CLOUD_REGISTRY_REPO_NAME ${FULL_URL}:$CLOUD_REGISTRY_PORT
-    sudo anka registry list-repos
+    if $ADD_REGISTRY; then
+      sudo anka registry add $CLOUD_REGISTRY_REPO_NAME ${FULL_URL}:$CLOUD_REGISTRY_PORT
+      sudo anka registry list-repos
+    fi
   fi
   cd $HOME
   # Cleanup already existing Template

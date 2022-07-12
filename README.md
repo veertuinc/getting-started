@@ -56,7 +56,6 @@ URLs and ports you can expect:
 > [Understanding VM templates, Tags, and Disk Usage](https://docs.veertu.com/anka/intel/getting-started/creating-your-first-vm/#understanding-vm-templates-tags-and-disk-usage)
 
 - Running this script will download the latest macOS installer to create a VM with. You can also specify `MACOS_VERSION="12.2.1"` to target a specific version.
-- No support for Anka 3/M1/ARM yet.
 
 ### [`create-vm-template-tags.bash`](./create-vm-template-tags.bash)
 

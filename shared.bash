@@ -2,7 +2,7 @@
 
 STORAGE_LOCATION=${STORAGE_LOCATION:-"/tmp"}
 URL_PROTOCOL=${URL_PROTOCOL:-"http://"}
-[[ "$(arch)" == "arm64" ]] && SUDO="" || SUDO="sudo" # Can't open the anka viewer to install macos and addons as sudo.
+[[ "$(arch)" == "arm64" ]] && SUDO="" || SUDO="${SUDO} anka" # Can't open the anka viewer to install macos and addons as ${SUDO} anka.
 
 if [[ "$(uname)" == "Darwin" ]]; then
   if tty -s; then # Disable if the shell isn't interactive (avoids: tput: No value for $TERM and no -T specified)
@@ -116,14 +116,14 @@ CERT_DIRECTORY=${CERT_DIRECTORY:-"$HOME/anka-build-cloud-certs"}
 modify_hosts() {
   [[ -z $1 ]] && echo "ARG 1 missing" && exit 1
   if [[ $(uname) == "Darwin" ]]; then
-    SED="sudo sed -i ''"
+    SED="${SUDO} anka sed -i ''"
   else
-    SED="sudo sed -i"
+    SED="${SUDO} anka sed -i"
   fi
   HOSTS_LOCATION="/etc/hosts"
   echo "]] Adding $1 to $HOSTS_LOCATION (requires root)"
   $SED "/$1/d" $HOSTS_LOCATION
-  ( echo "127.0.0.1 $1" | sudo tee -a $HOSTS_LOCATION ) &>/dev/null
+  ( echo "127.0.0.1 $1" | ${SUDO} anka tee -a $HOSTS_LOCATION ) &>/dev/null
 }
 
 jenkins_obtain_crumb() {
@@ -152,15 +152,15 @@ modify_uuid() {
   [[ -z "$2" ]] && echo "Please provided the new UUID as ARG2" && exit 2
   TEMPLATE_NAME=$1
   DEST_UUID=$2
-  CUR_UUID=$(sudo anka --machine-readable list | jq -r ".body[] | select(.name==\"$TEMPLATE_NAME\") | .uuid")
-  if [[ -z "$(sudo anka --machine-readable  registry list | jq ".body[] | select(.id == \"${DEST_UUID}\") | .name")" && "${CUR_UUID}" != "${DEST_UUID}" ]]; then
+  CUR_UUID=$(${SUDO} anka anka --machine-readable list | jq -r ".body[] | select(.name==\"$TEMPLATE_NAME\") | .uuid")
+  if [[ -z "$(${SUDO} anka anka --machine-readable  registry list | jq ".body[] | select(.id == \"${DEST_UUID}\") | .name")" && "${CUR_UUID}" != "${DEST_UUID}" ]]; then
     if [[ "$(arch)" != "arm64" ]]; then
-      sudo mv "$(sudo anka config vm_lib_dir)/$CUR_UUID" "$(sudo anka config vm_lib_dir)/$DEST_UUID"
-      sudo sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(sudo anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml"
-      sudo mv "$(sudo anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml" "$(sudo anka config vm_lib_dir)/$DEST_UUID/$DEST_UUID.yaml"
+      ${SUDO} anka mv "$(${SUDO} anka anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID"
+      ${SUDO} anka sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml"
+      ${SUDO} anka mv "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml" "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID/$DEST_UUID.yaml"
     else
-      sudo mv "$(sudo anka config vm_lib_dir)/$CUR_UUID" "$(sudo anka config vm_lib_dir)/$DEST_UUID"
-      sudo sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(sudo anka config vm_lib_dir)/$DEST_UUID/config.yaml"
+      ${SUDO} anka mv "$(${SUDO} anka anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID"
+      ${SUDO} anka sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID/config.yaml"
     fi
   fi
 }

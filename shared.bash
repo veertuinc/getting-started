@@ -122,14 +122,14 @@ CERT_DIRECTORY=${CERT_DIRECTORY:-"$HOME/anka-build-cloud-certs"}
 modify_hosts() {
   [[ -z $1 ]] && echo "ARG 1 missing" && exit 1
   if [[ $(uname) == "Darwin" ]]; then
-    SED="${SUDO} sed -i ''"
+    SED="sudo sed -i ''"
   else
-    SED="${SUDO} sed -i"
+    SED="sudo sed -i"
   fi
   HOSTS_LOCATION="/etc/hosts"
   echo "]] Adding $1 to $HOSTS_LOCATION (requires root)"
   $SED "/$1/d" $HOSTS_LOCATION
-  ( echo "127.0.0.1 $1" | ${SUDO} tee -a $HOSTS_LOCATION ) &>/dev/null
+  ( echo "127.0.0.1 $1" | sudo tee -a $HOSTS_LOCATION ) &>/dev/null
 }
 
 jenkins_obtain_crumb() {

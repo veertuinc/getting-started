@@ -149,3 +149,7 @@ if [[ $2 == '--teamcity' ]]; then
     $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"sh buildAgent/bin/mac.launchd.sh load && sleep 5\"
   "
 fi
+echo ""
+echo "============================="
+echo "Be sure to delete all VMs from the normal user (anka delete --yes --all) as the Controller will pull and start VMs under sudo/root. Otherwise, you'll be using double the disk space."
+echo ""

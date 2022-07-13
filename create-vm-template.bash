@@ -7,7 +7,7 @@ cd $SCRIPT_DIR
 . ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
 . ./.misc/get-macos-with-mist.bash
-TEMPLATE_NAME="${MACOS_VERSION}"
+TEMPLATE_NAME="${MACOS_VERSION}${ARCH_EXTENSION}"
 INSTALLER_LOCATION="${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION}${EXTENSION}"
 if [[ "$1" != "--no-anka-create" ]]; then
   # Add Registry to CLI (if the registry was installed locally)
@@ -48,6 +48,7 @@ if [[ "$1" != "--no-anka-create" ]]; then
   [[ "$(arch)" == "arm64" ]] && ANKA_BASE_VM_TEMPLATE_UUID="${ANKA_BASE_VM_TEMPLATE_UUID_APPLE}" || ANKA_BASE_VM_TEMPLATE_UUID="${ANKA_BASE_VM_TEMPLATE_UUID_INTEL}"
   modify_uuid $TEMPLATE_NAME $ANKA_BASE_VM_TEMPLATE_UUID
   if [[ "$(arch)" == "arm64" ]]; then
+    set +x
     echo "At the moment the automated macOS installation process is not possible for Anka 3/Apple processors. You need to manually start the VM with anka start -uv {VMNAME} and finish the installation. \
       Don't forget to install the Anka addons! See https://docs.veertu.com/anka/apple/getting-started/creating-your-first-vm/#3-start-the-vm-and-finish-the-macos-install for more information."
     echo "Once you're done, stop the VM and run $SCRIPT_DIR/create-vm-template-tags.bash $TEMPLATE_NAME ${TAG_FLAGS}"

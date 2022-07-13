@@ -98,7 +98,7 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
 "
 
 if [[ $2 == '--gitlab' ]]; then
-  NEW_TEMPLATE="$SOURCE_TEMPLATE-gitlab${ARCH_EXTENSION}"
+  NEW_TEMPLATE="$SOURCE_TEMPLATE-gitlab"
   NEW_TAG="v1"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE && modify_uuid $NEW_TEMPLATE $GITLAB_RUNNER_VM_TEMPLATE_UUID
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "suspend" "
@@ -113,7 +113,7 @@ if [[ $2 == '--gitlab' ]]; then
 fi
 
 if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
-  NEW_TEMPLATE="$SOURCE_TEMPLATE-openjdk-11.0.14.1${ARCH_EXTENSION}"
+  NEW_TEMPLATE="$SOURCE_TEMPLATE-openjdk-11.0.14.1"
   NEW_TAG="v1"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE
   ## Install OpenJDK
@@ -129,7 +129,7 @@ fi
 
 if [[ $2 == '--jenkins' ]]; then
   NEW_TAG="v1"
-  JENKINS_TEMPLATE_NAME="$SOURCE_TEMPLATE-openjdk-11.0.14.1-jenkins${ARCH_EXTENSION}"
+  JENKINS_TEMPLATE_NAME="$SOURCE_TEMPLATE-openjdk-11.0.14.1-jenkins"
   does_not_exist $JENKINS_TEMPLATE_NAME $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE_NAME && modify_uuid $JENKINS_TEMPLATE_NAME $JENKINS_VM_TEMPLATE_UUID
   ## Jenkins misc (Only needed if you're running Jenkins on the same host you run the VMs)
   prepare-and-push $JENKINS_TEMPLATE_NAME $NEW_TAG "suspend" "
@@ -139,7 +139,7 @@ fi
 
 if [[ $2 == '--teamcity' ]]; then
   NEW_TAG="v1"
-  TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-openjdk-11.0.14.1-teamcity${ARCH_EXTENSION}"
+  TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-openjdk-11.0.14.1-teamcity"
   does_not_exist $TEAMCITY_TEMPLATE $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $TEAMCITY_TEMPLATE
   prepare-and-push $TEAMCITY_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $TEAMCITY_TEMPLATE sudo bash -c \"$HELPERS echo '${INNER_VM_HOST_IP} $TEAMCITY_DOCKER_CONTAINER_NAME' >> /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"

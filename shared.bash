@@ -152,15 +152,15 @@ modify_uuid() {
   [[ -z "$2" ]] && echo "Please provided the new UUID as ARG2" && exit 2
   TEMPLATE_NAME=$1
   DEST_UUID=$2
-  CUR_UUID=$(${SUDO} anka anka --machine-readable list | jq -r ".body[] | select(.name==\"$TEMPLATE_NAME\") | .uuid")
-  if [[ -z "$(${SUDO} anka anka --machine-readable  registry list | jq ".body[] | select(.id == \"${DEST_UUID}\") | .name")" && "${CUR_UUID}" != "${DEST_UUID}" ]]; then
+  CUR_UUID=$(${SUDO} anka --machine-readable list | jq -r ".body[] | select(.name==\"$TEMPLATE_NAME\") | .uuid")
+  if [[ -z "$(${SUDO} anka --machine-readable  registry list | jq ".body[] | select(.id == \"${DEST_UUID}\") | .name")" && "${CUR_UUID}" != "${DEST_UUID}" ]]; then
     if [[ "$(arch)" != "arm64" ]]; then
-      ${SUDO} anka mv "$(${SUDO} anka anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID"
-      ${SUDO} anka sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml"
-      ${SUDO} anka mv "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml" "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID/$DEST_UUID.yaml"
+      ${SUDO} anka mv "$(${SUDO} anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID"
+      ${SUDO} anka sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml"
+      ${SUDO} anka mv "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/$DEST_UUID.yaml"
     else
-      ${SUDO} anka mv "$(${SUDO} anka anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID"
-      ${SUDO} anka sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka anka config vm_lib_dir)/$DEST_UUID/config.yaml"
+      ${SUDO} anka mv "$(${SUDO} anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID"
+      ${SUDO} anka sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/config.yaml"
     fi
   fi
 }

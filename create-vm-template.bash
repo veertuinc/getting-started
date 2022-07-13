@@ -49,8 +49,9 @@ if [[ "$1" != "--no-anka-create" ]]; then
   modify_uuid $TEMPLATE_NAME $ANKA_BASE_VM_TEMPLATE_UUID
   if [[ "$(arch)" == "arm64" ]]; then
     set +x
-    echo "At the moment the automated macOS installation process is not possible for Anka 3/Apple processors. You need to manually start the VM with anka start -uv {VMNAME} and finish the installation. \
-      Don't forget to install the Anka addons! See https://docs.veertu.com/anka/apple/getting-started/creating-your-first-vm/#3-start-the-vm-and-finish-the-macos-install for more information."
+    echo "======================================"
+    echo "At the moment the automated macOS installation process is not possible for Anka 3/Apple processors. You need to manually start the VM with anka start -uv {VMNAME} and finish the installation."
+    echo "Don't forget to install the Anka addons! See https://docs.veertu.com/anka/apple/getting-started/creating-your-first-vm/#3-start-the-vm-and-finish-the-macos-install for more information."
     echo "Once you're done, stop the VM and run $SCRIPT_DIR/create-vm-template-tags.bash $TEMPLATE_NAME ${TAG_FLAGS}"
     exit
   fi

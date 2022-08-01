@@ -7,7 +7,6 @@ cd "${WORKDIR}"
 [[ -n "$(command -v mist)" ]] || brew install mist
 # curl --fail --silent -L -O https://raw.githubusercontent.com/veertuinc/getting-started/master/.bin/mist && sudo chmod +x mist
 [[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Monterey"}
-[[ -n "${1}" && $(echo ${MACOS_VERSION} | tr -dc . | awk '{ print length }') != 2 ]] && echo "Versions must have three sections (example: 12.2.1)" && exit 2
 MIST_KIND=${MIST_KIND:-"installer"}
 # Support >= 1.8
 MIST_OPTIONS="${MACOS_VERSION} --kind ${MIST_KIND}"

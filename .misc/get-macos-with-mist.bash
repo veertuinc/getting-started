@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eo pipefail
+set -exo pipefail
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin
 WORKDIR="/tmp"
 cd "${WORKDIR}"
@@ -10,6 +10,7 @@ cd "${WORKDIR}"
 MIST_KIND=${MIST_KIND:-"installer"}
 # Support >= 1.8
 MIST_OPTIONS="${MACOS_VERSION} --kind ${MIST_KIND}"
+MIST_COMPATIBLE_FLAG=""
 MIST_APPLICATION="--application"
 MIST_NAME_OPTION="--application-name"
 if [[ "$(arch)" == "arm64" ]]; then
@@ -20,6 +21,7 @@ fi
 if [[ -n "$(mist version | grep "1.8.* (Latest")" ]]; then
   MIST_OPTIONS="${MIST_KIND} ${MACOS_VERSION}"
   [[ "$(arch)" != "arm64" ]] && MIST_APPLICATION="application"
+  MIST_COMPATIBLE_FLAG="--compatible"
 fi
 FOUND_MIST_MACOS_VERSION="$(mist list ${MIST_OPTIONS} --compatible --latest -o json -q | jq -r '.[].version')"
 INSTALL_MACOS_DIR="/Applications"
@@ -40,8 +42,8 @@ done
 if [[ ! -e "${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${FOUND_MIST_MACOS_VERSION}${EXTENSION}" ]]; then
   if [[ -z "${FOUND_MIST_MACOS_VERSION}" ]]; then
     if [[ "${MIST_KIND}" == "installer" ]]; then
-      echo "No version found in apple's mirrors through mist..."
-      exit 2
+      echo "No versions found in either apple's mirrors..."
+      exit 3
     else
       echo "No versions found in ipsw.me/mist..."
       exit 3
@@ -49,7 +51,7 @@ if [[ ! -e "${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${FOUND_MIST_MACOS_VERS
   else
     LOG_LOC="${WORKDIR}/mist-download.log"
     echo "Downloading macOS ${MACOS_VERSION} using mist. This will not output anything until it's finished and can sometimes take quite a while. You can tail ${LOG_LOC} to check the progress."
-    sudo mist download ${MIST_OPTIONS} ${MIST_APPLICATION} ${MIST_NAME_OPTION} "${PREFIX_FOR_INSTALLERS}%VERSION%${EXTENSION}" --compatible --output-directory "${INSTALL_MACOS_DIR}" > "${LOG_LOC}" # jenkins log becomes unreasonably large if we show all of the output while downloading
+    sudo mist download ${MIST_OPTIONS} ${MIST_APPLICATION} ${MIST_NAME_OPTION} "${PREFIX_FOR_INSTALLERS}%VERSION%${EXTENSION}" ${MIST_COMPATIBLE_FLAG} --output-directory "${INSTALL_MACOS_DIR}" > "${LOG_LOC}" # jenkins log becomes unreasonably large if we show all of the output while downloading
     sudo tail -50 "${LOG_LOC}"
     sudo chmod 644 ${INSTALL_MACOS_DIR}/*.ipsw 2>/dev/null || true
   fi

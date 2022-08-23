@@ -4,7 +4,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
 . ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with brew install jq." && exit 1
-SOURCE_TEMPLATE=${1-"11.3"}
+[[ -z "${1}" ]] && echo "you must provide the source template NAME (not UUID) as the first ARG..." && exit 2
+SOURCE_TEMPLATE="${1}"
 [[ -z $SOURCE_TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1
 HELPERS="set -exo pipefail;"
 ANKA_RUN="${SUDO} anka run -N -n"

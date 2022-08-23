@@ -62,6 +62,7 @@ URLs and ports you can expect:
 
 > `create-vm-template.bash` will run this script once the Template is created.
 
+- ARG 1 must be the name of the VM to build layers/tags for.
 - Running this script will generate several foundational/recommended Tags for the VM Template created with `create-vm-template.bash`.
 
 ---

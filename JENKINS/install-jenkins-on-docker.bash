@@ -85,6 +85,7 @@ fi
     sed -i '' "s/${JENKINS_VM_TEMPLATE_UUID_INTEL}/${JENKINS_VM_TEMPLATE_UUID_APPLE}/g" $JENKINS_DATA_DIR/config.xml
   fi
   execute-docker-compose restart
+  docker exec -it anka.jenkins bash -c "mkdir -p ~/.ssh && echo 'Host *' > ~/.ssh/config && echo '    StrictHostKeyChecking no' >> ~/.ssh/config"
   #
   echo "================================================================================="
   echo "Jenkins UI: http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT

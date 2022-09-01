@@ -1,15 +1,16 @@
 #!/bin/bash
 set -exo pipefail
 echo "]] Starting Anka VM Creation"
-MACOS_VERSION=${MACOS_VERSION:-"${1}"}
+[[ "${1}" != "--no-anka-create" ]] && MACOS_VERSION=${MACOS_VERSION:-"${1}"}
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 . ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
+FLAGS="${*}"; set -- # prevent $1 from going into get-macos-with-mist
 . ./.misc/get-macos-with-mist.bash
 TEMPLATE_NAME="${MACOS_VERSION}${ARCH_EXTENSION}"
 INSTALLER_LOCATION="${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION}${EXTENSION}"
-if [[ "$1" != "--no-anka-create" ]]; then
+if [[ "${FLAGS}" != "--no-anka-create" ]]; then
   # Add Registry to CLI (if the registry was installed locally)
   FULL_URL="${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS"
   ADD_REGISTRY=true

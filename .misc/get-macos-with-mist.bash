@@ -5,7 +5,7 @@ WORKDIR="/tmp"
 cd "${WORKDIR}"
 [[ -n "$(command -v jq)" ]] || brew install jq
 [[ -n "$(command -v mist)" ]] || brew install mist
-[[ "$(mist version | awk '{print $1}' | sed 's/\.//g')" -lt 18 ]] && echo "You must install a version of mist >= 1.8" && exit 1
+[[ "$(mist version | cut -d. -f1,2 | awk '{print $1}' | sed 's/\.//g')" -lt 18 ]] && echo "You must install a version of mist >= 1.8" && exit 1
 # curl --fail --silent -L -O https://raw.githubusercontent.com/veertuinc/getting-started/master/.bin/mist && sudo chmod +x mist
 [[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Monterey"}
 MIST_KIND=${MIST_KIND:-"installer"}

@@ -5,25 +5,30 @@ WORKDIR="/tmp"
 cd "${WORKDIR}"
 [[ -n "$(command -v jq)" ]] || brew install jq
 [[ -n "$(command -v mist)" ]] || brew install mist
+[[ "$(mist version | awk '{print $1}' | sed 's/\.//g')" -lt 18 ]] && echo "You must install a version of mist >= 1.8" && exit 1
 # curl --fail --silent -L -O https://raw.githubusercontent.com/veertuinc/getting-started/master/.bin/mist && sudo chmod +x mist
 [[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Monterey"}
 MIST_KIND=${MIST_KIND:-"installer"}
 # Support >= 1.8
-MIST_OPTIONS="${MACOS_VERSION} --kind ${MIST_KIND}"
-MIST_COMPATIBLE_FLAG=""
-MIST_APPLICATION="--application"
+MIST_OPTIONS="${MIST_KIND} ${MACOS_VERSION}"
+[[ "$(arch)" != "arm64" ]] && MIST_APPLICATION="application"
+MIST_COMPATIBLE_FLAG="--compatible"
 MIST_NAME_OPTION="--application-name"
 if [[ "$(arch)" == "arm64" ]]; then
   MIST_KIND="firmware"
   MIST_NAME_OPTION="--firmware-name"
   MIST_APPLICATION="" # firmware has no need for this
 fi
-if [[ -n "$(mist version | grep "1.8.* (Latest")" ]]; then
-  MIST_OPTIONS="${MIST_KIND} ${MACOS_VERSION}"
-  [[ "$(arch)" != "arm64" ]] && MIST_APPLICATION="application"
-  MIST_COMPATIBLE_FLAG="--compatible"
+if [[ "${MACOS_VERSION}" =~ ^[0-9]+.[0-9]+$ ]]; then
+  MIST_LIST_RESULTS="$(mist list ${MIST_KIND} ${MACOS_VERSION} ${MIST_COMPATIBLE_FLAG} -o json -q)"
+  FOUND_MIST_MACOS_BUILD="$(echo "${MIST_LIST_RESULTS}" | jq -r '.[].build' | tail -1)"
+  FOUND_MIST_MACOS_VERSION="$(echo "${MIST_LIST_RESULTS}" | jq -r '.[].version' | tail -1)"
+else
+  MIST_LIST_RESULTS="$(mist list ${MIST_KIND} ${MACOS_VERSION} ${MIST_COMPATIBLE_FLAG} --latest -o json -q)"
+  FOUND_MIST_MACOS_BUILD="$(echo "${MIST_LIST_RESULTS}" | jq -r '.[].build')"
+  FOUND_MIST_MACOS_VERSION="$(echo "${MIST_LIST_RESULTS}" | jq -r '.[].version')"
 fi
-FOUND_MIST_MACOS_VERSION="$(mist list ${MIST_OPTIONS} ${MIST_COMPATIBLE_FLAG} -o json -q | jq -r '.[].version' | tail -1)"
+MIST_OPTIONS="${MIST_KIND} ${FOUND_MIST_MACOS_BUILD} ${MIST_APPLICATION}"
 INSTALL_MACOS_DIR="/Applications"
 [[ "${MIST_KIND}" == "firmware" ]] && EXTENSION=".ipsw" || EXTENSION=".app"
 PREFIX_FOR_INSTALLERS="macos-"
@@ -50,7 +55,7 @@ if [[ ! -e "${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${FOUND_MIST_MACOS_VERS
     fi
   else
     LOG_LOC="${WORKDIR}/mist-download.log"
-    echo "Downloading macOS ${MACOS_VERSION} using mist. This will not output anything until it's finished and can sometimes take quite a while. You can tail ${LOG_LOC} to check the progress."
+    echo "Downloading macOS ${FOUND_MIST_MACOS_VERSION} (${FOUND_MIST_MACOS_BUILD}) using mist. This will not output anything until it's finished and can sometimes take quite a while. You can tail ${LOG_LOC} to check the progress."
     sudo mist download ${MIST_OPTIONS} ${MIST_APPLICATION} ${MIST_NAME_OPTION} "${PREFIX_FOR_INSTALLERS}%VERSION%${EXTENSION}" ${MIST_COMPATIBLE_FLAG} --output-directory "${INSTALL_MACOS_DIR}" > "${LOG_LOC}" # jenkins log becomes unreasonably large if we show all of the output while downloading
     sudo tail -50 "${LOG_LOC}"
     sudo chmod 644 ${INSTALL_MACOS_DIR}/*.ipsw 2>/dev/null || true

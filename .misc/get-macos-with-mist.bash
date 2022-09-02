@@ -23,7 +23,7 @@ if [[ -n "$(mist version | grep "1.8.* (Latest")" ]]; then
   [[ "$(arch)" != "arm64" ]] && MIST_APPLICATION="application"
   MIST_COMPATIBLE_FLAG="--compatible"
 fi
-FOUND_MIST_MACOS_VERSION="$(mist list ${MIST_OPTIONS} ${MIST_COMPATIBLE_FLAG} --latest -o json -q | jq -r '.[].version')"
+FOUND_MIST_MACOS_VERSION="$(mist list ${MIST_OPTIONS} ${MIST_COMPATIBLE_FLAG} -o json -q | jq -r '.[].version' | tail -1)"
 INSTALL_MACOS_DIR="/Applications"
 [[ "${MIST_KIND}" == "firmware" ]] && EXTENSION=".ipsw" || EXTENSION=".app"
 PREFIX_FOR_INSTALLERS="macos-"

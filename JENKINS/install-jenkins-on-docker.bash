@@ -81,9 +81,7 @@ fi
 </jenkins.model.JenkinsLocationConfiguration>" > $JENKINS_DATA_DIR/jenkins.model.JenkinsLocationConfiguration.xml
   sleep 40 # cp: cannot stat ‘.config.xml’: No such file or directory
   cp -rf .config.xml $JENKINS_DATA_DIR/config.xml
-  if [[ "$(arch)" == "arm64" ]]; then
-    sed -i '' "s/${JENKINS_VM_TEMPLATE_UUID_INTEL}/${JENKINS_VM_TEMPLATE_UUID_APPLE}/g" $JENKINS_DATA_DIR/config.xml
-  fi
+  sed -i '' "s/${JENKINS_VM_TEMPLATE_UUID_INTEL}/${JENKINS_VM_TEMPLATE_UUID}/g" $JENKINS_DATA_DIR/config.xml
   execute-docker-compose restart
   docker exec -t anka.jenkins bash -c "mkdir -p ~/.ssh && echo 'Host *' > ~/.ssh/config && echo '    StrictHostKeyChecking no' >> ~/.ssh/config"
   #

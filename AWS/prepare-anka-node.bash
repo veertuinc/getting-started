@@ -78,19 +78,17 @@ echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID}"
 
 # Create dedicated for macOS metal instances
 if [[ "${DEDICATED_HOST_ID}" == null ]]; then
-  AVAILABILITY_ZONES="$(aws_execute -r "ec2 describe-availability-zones --all-availability-zones" | jq -r '.AvailabilityZones')"
-  AVAILABILITY_ZONE="$(echo ${AVAILABILITY_ZONES} | jq -r '.[0].ZoneName')"
-  while ! DEDICATED_HOST=$(aws_execute -r "ec2 allocate-hosts \
-    --quantity 1 \
-    --availability-zone \"${AVAILABILITY_ZONE}\" \
-    --instance-type \"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
-    --tag-specifications \"ResourceType=dedicated-host,Tags=[{Key=Name,Value="${AWS_NONUNIQUE_LABEL} Anka Node"},{Key=purpose,Value=${AWS_NONUNIQUE_LABEL}}]\""); do
-    read -p "Which ${AWS_REGION} AZ would you like to try instead?: " AVAILABILITY_ZONE
-    case "${AVAILABILITY_ZONE}" in
-      "" ) echo "${COLOR_RED}Please type the name of the AZ to use...${COLOR_NC}";;
-      * ) ;;
-    esac
-    echo ""
+  for AVAILABILITY_ZONE in $(aws ec2 describe-instance-type-offerings --filters Name=instance-type,Values=${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE} --location-type availability-zone --region ${AWS_REGION} --query "InstanceTypeOfferings[].Location" --output text); do
+    echo "${AVAILABILITY_ZONE}"
+    if ! DEDICATED_HOST=$(aws_execute -r "ec2 allocate-hosts \
+      --quantity 1 \
+      --availability-zone \"${AVAILABILITY_ZONE}\" \
+      --instance-type \"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
+      --tag-specifications \"ResourceType=dedicated-host,Tags=[{Key=Name,Value="${AWS_NONUNIQUE_LABEL} Anka Node"},{Key=purpose,Value=${AWS_NONUNIQUE_LABEL}}]\""); then
+      continue
+    else
+      break
+    fi
   done
   DEDICATED_HOST_ID="$(echo "${DEDICATED_HOST}" | jq -r '.HostIds[0]')"
   echo " - Requested Dedicated Host: ${COLOR_GREEN}${DEDICATED_HOST_ID}${COLOR_NC}"

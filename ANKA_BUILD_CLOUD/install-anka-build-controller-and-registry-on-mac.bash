@@ -3,7 +3,7 @@ set -eo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 . ../shared.bash
-[[ "$(arch)" == "arm64" ]] && sudo softwareupdate --install-rosetta
+# [[ "$(arch)" == "arm64" ]] && sudo softwareupdate --install-rosetta
 # Cleanup
 cleanup() {
   rm -f $STORAGE_LOCATION/$CLOUD_NATIVE_PACKAGE

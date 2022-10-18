@@ -11,7 +11,6 @@ This repo contains various scripts for setting up and testing Anka software on y
 ### Important Considerations
 
 - Running everything you need on a single machine can be resource intensive. We highly recommend having a modern Apple machine.
-- These scripts are written on macOS Catalina (10.15).
 - Each script is idempotent and running them a second time will clean up/uninstall the environment before running.
 - Most of these scripts will prompt for the sudo password at some point in their execution. While it's possible to run the Anka CLI as a non-root user, the **Anka Build Cloud** runs anka commands as root. Executing the Anka CLI as a non-sudo user will only cause confusion or waste disk space.
 
@@ -45,8 +44,6 @@ URLs and ports you can expect:
 
 ### [`install-anka-virtualization-on-mac.bash`](./install-anka-virtualization-on-mac.bash)
 
-> Anka 2.X (Intel) only at the moment
-
 - Running this script will install the latest Anka Virtualization package/CLI onto the current machine.
 - If the first argument is an **absolute* path to your installer package, the script will not use the guided downloader: (`./install-anka-virtualization.bash "/Users/myUserName/Downloads/Anka-2.1.1.111.pkg"`).
 - If the first argument is `--uninstall`, it will only remove the existing install.
@@ -63,6 +60,7 @@ URLs and ports you can expect:
 > `create-vm-template.bash` will run this script once the Template is created.
 
 - ARG 1 must be the name of the VM to build layers/tags for.
+- You can use `TAG_FLAGS="--jenkins" ./create-vm-. . .` to tell the tag creation process to prepare the jenkins template/tag.
 - Running this script will generate several foundational/recommended Tags for the VM Template created with `create-vm-template.bash`.
 
 ---

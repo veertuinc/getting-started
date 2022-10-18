@@ -33,7 +33,7 @@ warning() {
 }
 
 obtain_anka_license() {
-  if [[ -z "${ANKA_LICENSE}" ]]; then
+  if [[ -z "${ANKA_LICENSE}" || "${ANKA_LICENSE}" != "skip" ]]; then
     while true; do
       read -p "Input your Anka license (type \"skip\" to skip this): " ANKA_LICENSE
       case "${ANKA_LICENSE}" in

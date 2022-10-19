@@ -7,8 +7,8 @@ cd "${WORKDIR}"
 # [[ -n "$(command -v mist)" ]] || brew install mist
 brew remove mist || true
 sudo rm -f /usr/local/bin/mist || true
-curl -L -O https://github.com/ninxsoft/mist-cli/releases/download/v1.8/Mist.1.8.pkg
-sudo installer -pkg /tmp/Mist.1.8.pkg -target /
+curl -L -O https://github.com/ninxsoft/mist-cli/releases/download/v1.9.1/mist-cli.1.9.1.pkg
+sudo installer -pkg "${WORKDIR}/mist-cli.1.9.1.pkg" -target /
 [[ -n "$(mist version)" && "$(mist version | cut -d. -f1,2 | awk '{print $1}' | sed 's/\.//g')" -lt 18 ]] && echo "You must install a version of mist >= 1.8" && exit 1
 # curl --fail --silent -L -O https://raw.githubusercontent.com/veertuinc/getting-started/master/.bin/mist && sudo chmod +x mist
 [[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Monterey"}

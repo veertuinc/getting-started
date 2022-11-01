@@ -98,9 +98,18 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"PATH=\\\"\\\$PATH:/opt/homebrew/bin\\\" brew install jq\"
 "
 
+if [[ $2 == '--github-actions' ]]; then
+  NEW_TEMPLATE="$SOURCE_TEMPLATE-github-actions"
+  NEW_TAG="${GITHUB_ACTIONS_ANKA_VM_TEMPLATE_TAG}"
+  does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE && modify_uuid $NEW_TEMPLATE $GITHUB_ACTIONS_VM_TEMPLATE_UUID
+  prepare-and-push $NEW_TEMPLATE $NEW_TAG "suspend" "
+    $ANKA_RUN $NEW_TEMPLATE sudo bash -c \"$HELPERS $(curl -fsSL https://raw.githubusercontent.com/veertuinc/anka-actions-connect/nathan/install.sh)\"
+  "
+fi
+
 if [[ $2 == '--gitlab' ]]; then
   NEW_TEMPLATE="$SOURCE_TEMPLATE-gitlab"
-  NEW_TAG="v1"
+  NEW_TAG="${GITLAB_ANKA_VM_TEMPLATE_TAG}"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE && modify_uuid $NEW_TEMPLATE $GITLAB_RUNNER_VM_TEMPLATE_UUID
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $NEW_TEMPLATE sudo bash -c \"$HELPERS echo '${INNER_VM_HOST_IP} anka.gitlab' >> /etc/hosts && [[ ! -z \\\$(grep anka.gitlab /etc/hosts) ]]\"

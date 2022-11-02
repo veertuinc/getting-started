@@ -102,7 +102,7 @@ if [[ $2 == '--github-actions' ]]; then
   NEW_TEMPLATE="$SOURCE_TEMPLATE-github-actions"
   NEW_TAG="${GITHUB_ACTIONS_ANKA_VM_TEMPLATE_TAG}"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE && modify_uuid $NEW_TEMPLATE $GITHUB_ACTIONS_VM_TEMPLATE_UUID
-  prepare-and-push $NEW_TEMPLATE $NEW_TAG "stopped" "
+  prepare-and-push $NEW_TEMPLATE $NEW_TAG "stop" "
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS /bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/veertuinc/getting-started/GITHUB_ACTIONS/install.sh)\\\"\"
   "
 fi

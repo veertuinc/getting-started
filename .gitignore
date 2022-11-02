@@ -5,3 +5,4 @@ ANKA_BUILD_CLOUD/anka-controller-reg*
 .dccache
 content
 softwareupdate.plist
+.idea/

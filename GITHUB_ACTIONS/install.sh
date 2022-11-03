@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+set -x
 
 failed() {
   error=${1:-Undefined error}
@@ -29,3 +30,4 @@ echo "$RUNNER_SHASUM  actions-runner-osx-$RUNNER_ARCH-2.298.2.tar.gz" |
   shasum -a 256 -c || failed "validate checksum"
 
 tar xzf ./actions-runner-osx-"$RUNNER_ARCH"-2.298.2.tar.gz || failed "extract archive"
+echo "runner successfully installed"

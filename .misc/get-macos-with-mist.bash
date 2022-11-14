@@ -11,7 +11,7 @@ curl -L -O https://github.com/ninxsoft/mist-cli/releases/download/v1.9.1/mist-cl
 sudo installer -pkg "${WORKDIR}/mist-cli.1.9.1.pkg" -target /
 [[ -n "$(mist version)" && "$(mist version | cut -d. -f1,2 | awk '{print $1}' | sed 's/\.//g')" -lt 18 ]] && echo "You must install a version of mist >= 1.8" && exit 1
 # curl --fail --silent -L -O https://raw.githubusercontent.com/veertuinc/getting-started/master/.bin/mist && sudo chmod +x mist
-[[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Monterey"}
+[[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Ventura"}
 MIST_KIND=${MIST_KIND:-"installer"}
 # Support >= 1.8
 MIST_OPTIONS="${MIST_KIND} ${MACOS_VERSION}"

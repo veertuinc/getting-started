@@ -38,11 +38,13 @@ if [[ "${FLAGS}" != "--no-anka-create" ]]; then
   # Retry after an hour and a half just in case macos fails to install for some reason
   RETRIES=2
   NEXT_WAIT_TIME=0
-  until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 14400 bash -c "time ${SUDO} ANKA_CREATE_SUSPEND=0 anka create --disk-size 100G --app \"$INSTALLER_LOCATION\" $TEMPLATE_NAME"; do
+  until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 14400 bash -c "time ${SUDO} ANKA_CREATE_SUSPEND=0 anka --debug create --disk-size 100G --app \"$INSTALLER_LOCATION\" $TEMPLATE_NAME"; do
     sleep $(( $(( NEXT_WAIT_TIME++ )) + 20))
     pgrep -f 'anka create' | sudo xargs kill -9 || true
     pgrep -f 'diskimages-helper' | sudo xargs kill -9 || true
     sudo umount /Volumes/Install* || true
+    cat ~/Library/Logs/Anka/$(anka show "${TEMPLATE_NAME}" uuid).log
+    tail -70 ~/Library/Logs/Anka/anka.log
     ${SUDO} anka delete --yes "$TEMPLATE_NAME" || true
   done
   [ $NEXT_WAIT_TIME -lt ${RETRIES} ] || exit 5

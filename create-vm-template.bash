@@ -36,7 +36,7 @@ if [[ "${FLAGS}" != "--no-anka-create" ]]; then
   # Create Base Template
   echo "]] Creating $TEMPLATE_NAME using $INSTALLER_LOCATION (please be patient, it can take a while) ..."
   # Retry after an hour and a half just in case macos fails to install for some reason
-  RETRIES=2
+  RETRIES=4
   NEXT_WAIT_TIME=0
   [[ $DEBUG == true ]] && DEBUG_FLAG="--debug"
   until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 14400 bash -c "time ${SUDO} ANKA_CREATE_SUSPEND=0 anka ${DEBUG_FLAG} create --disk-size 100G --app \"$INSTALLER_LOCATION\" $TEMPLATE_NAME"; do

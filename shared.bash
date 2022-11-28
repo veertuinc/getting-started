@@ -174,14 +174,8 @@ modify_uuid() {
   DEST_UUID=$2
   CUR_UUID=$(${SUDO} anka --machine-readable list | jq -r ".body[] | select(.name==\"$TEMPLATE_NAME\") | .uuid")
   if [[ -z "$(${SUDO} anka --machine-readable  registry list | jq ".body[] | select(.id == \"${DEST_UUID}\") | .name")" && "${CUR_UUID}" != "${DEST_UUID}" ]]; then
-    if [[ "$(arch)" != "arm64" ]]; then
-      ${SUDO} mv "$(${SUDO} anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID"
-      ${SUDO} sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml"
-      ${SUDO} mv "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/$DEST_UUID.yaml"
-    else
-      ${SUDO} mv "$(${SUDO} anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID"
-      ${SUDO} sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/config.yaml"
-    fi
+    ${SUDO} mv "$(${SUDO} anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID"
+    ${SUDO} sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/config.yaml"
   fi
 }
 

@@ -82,7 +82,7 @@ fi
   sleep 40 # cp: cannot stat ‘.config.xml’: No such file or directory
   cp -rf .config.xml $JENKINS_DATA_DIR/config.xml
   SED_EXTRA="-i"
-  [[ $(uname) == "Darwin" ]] && SED_EXTRA="sed -i \'\'"
+  [[ $(uname) == "Darwin" ]] && SED_EXTRA="-i \'\'"
   eval sed ${SED_EXTRA} "s/${JENKINS_VM_TEMPLATE_UUID_INTEL}/${JENKINS_VM_TEMPLATE_UUID}/g" $JENKINS_DATA_DIR/config.xml
   execute-docker-compose restart
   docker exec -t anka.jenkins bash -c "mkdir -p ~/.ssh && echo 'Host *' > ~/.ssh/config && echo '    StrictHostKeyChecking no' >> ~/.ssh/config"

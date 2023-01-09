@@ -38,8 +38,7 @@ if [[ "${FLAGS}" != "--no-anka-create" ]]; then
   # Retry after an hour and a half just in case macos fails to install for some reason
   RETRIES=4
   NEXT_WAIT_TIME=0
-  [[ $DEBUG == true ]] && DEBUG_FLAG="--debug"
-  until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 14400 bash -c "time ${SUDO} ANKA_CREATE_SUSPEND=0 anka ${DEBUG_FLAG} create --disk-size 100G --app \"$INSTALLER_LOCATION\" $TEMPLATE_NAME"; do
+  until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 14400 bash -c "time ${SUDO} anka ${ANKA_DEBUG} create --disk-size 100G --app \"$INSTALLER_LOCATION\" $TEMPLATE_NAME"; do
     cat ~/Library/Logs/Anka/$(anka show "${TEMPLATE_NAME}" uuid).log
     tail -70 ~/Library/Logs/Anka/anka.log
     sleep $(( $(( NEXT_WAIT_TIME++ )) + 20))

@@ -1,4 +1,5 @@
 [[ $DEBUG == true ]] && set -x
+[[ $DEBUG == true ]] && ANKA_DEBUG="--debug"
 
 STORAGE_LOCATION=${STORAGE_LOCATION:-"/tmp"}
 URL_PROTOCOL=${URL_PROTOCOL:-"http://"}
@@ -52,8 +53,8 @@ GITHUB_PLUGIN_VERSION="1.33.1"
 GITLAB_ANKA_RUNNER_VERSION=${GITLAB_ANKA_RUNNER_VERSION:-"1.5.0"}
 GITLAB_RELEASE_TYPE=${GITLAB_RELEASE_TYPE:-"ce"}
 GITLAB_DOCKER_TAG_VERSION=${GITLAB_DOCKER_TAG_VERSION:-"14.0.5-$GITLAB_RELEASE_TYPE.0"}
-CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry-1.30.1-299dcb37.pkg"}
-CLOUD_DOCKER_TAR=${CLOUD_DOCKER_TAR:-"anka-controller-registry-1.30.1-299dcb37.tar.gz"}
+CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry-1.31.0-93a0aa2c.pkg"}
+CLOUD_DOCKER_TAR=${CLOUD_DOCKER_TAR:-"anka-controller-registry-1.31.0-93a0aa2c.tar.gz"}
 ANKA_VIRTUALIZATION_PACKAGE=${ANKA_VIRTUALIZATION_PACKAGE:-"Anka-2.5.7.148.pkg"}
 [[ "$(arch)" == "arm64" ]] && ANKA_VIRTUALIZATION_PACKAGE="${ANKA_VIRTUALIZATION_PACKAGE:-"Anka-3.2.0.153-arm.pkg"}"
 TEAMCITY_VERSION="2020.2.3"
@@ -174,14 +175,8 @@ modify_uuid() {
   DEST_UUID=$2
   CUR_UUID=$(${SUDO} anka --machine-readable list | jq -r ".body[] | select(.name==\"$TEMPLATE_NAME\") | .uuid")
   if [[ -z "$(${SUDO} anka --machine-readable  registry list | jq ".body[] | select(.id == \"${DEST_UUID}\") | .name")" && "${CUR_UUID}" != "${DEST_UUID}" ]]; then
-    if [[ "$(arch)" != "arm64" ]]; then
-      ${SUDO} mv "$(${SUDO} anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID"
-      ${SUDO} sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml"
-      ${SUDO} mv "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/$CUR_UUID.yaml" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/$DEST_UUID.yaml"
-    else
-      ${SUDO} mv "$(${SUDO} anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID"
-      ${SUDO} sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/config.yaml"
-    fi
+    ${SUDO} mv "$(${SUDO} anka config vm_lib_dir)/$CUR_UUID" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID"
+    ${SUDO} sed -i '' "s/$CUR_UUID/$DEST_UUID/" "$(${SUDO} anka config vm_lib_dir)/$DEST_UUID/config.yaml"
   fi
 }
 

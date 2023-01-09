@@ -8,9 +8,9 @@ cd "$SCRIPT_DIR"
 SOURCE_TEMPLATE="${1}"
 [[ -z $SOURCE_TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1
 HELPERS="set -exo pipefail;"
-ANKA_RUN="${SUDO} anka run -N -n"
+ANKA_RUN="${SUDO} anka ${ANKA_DEBUG} run -N -n"
 [[ ! -z "$(${SUDO} anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME)" ]] && REMOTE="--remote $CLOUD_REGISTRY_REPO_NAME"
-ANKA_REGISTRY="${SUDO} anka registry $REMOTE $CERTS"
+ANKA_REGISTRY="${SUDO} anka ${ANKA_DEBUG} registry $REMOTE $CERTS"
 
 [[ "$(arch)" == "arm64" ]] && ARCH="aarch64" || ARCH="x64"
 

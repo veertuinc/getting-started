@@ -122,7 +122,8 @@ fi
     echo "]] Joining this machine (Node) to the Cloud"
     sleep 20
     cd $STORAGE_LOCATION
-    sudo curl -O "${URL_PROTOCOL}${CLOUD_CONTROLLER_ADDRESS}:${CLOUD_CONTROLLER_PORT}/pkg/AnkaAgent.pkg" -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
+    [[ "$(arch)" == "arm64" ]] && AGENT_PKG="AnkaAgentArm.pkg" || ANKA_PKG="AnkaAgent.pkg"
+    sudo curl -O "${URL_PROTOCOL}${CLOUD_CONTROLLER_ADDRESS}:${CLOUD_CONTROLLER_PORT}/pkg/${AGENT_PKG}" -o /tmp/ && sudo installer -pkg /tmp/AnkaAgent.pkg -tgt /
     sudo ankacluster join "${URL_PROTOCOL}${CLOUD_CONTROLLER_ADDRESS}:${CLOUD_CONTROLLER_PORT}" --host $DOCKER_HOST_ADDRESS --groups "gitlab-test-group-env" || true
   fi
   #

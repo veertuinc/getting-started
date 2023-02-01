@@ -97,7 +97,7 @@ else
 fi
 
 # Create EC2 instance for Anka Node
-if [[ "${INSTANCE_ID}" == null ]]; then
+if [[ "${INSTANCE_ID}" == null && ${CREATE_INSTANCE:-true} ]]; then
   while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"" | jq -r '.Hosts[0].State')" != 'available' ]]; do
     echo "Dedicated Host still not available (this can take a while)..."
     sleep 60

@@ -99,17 +99,17 @@ else
 fi
 
 # Create EC2 instance for Anka Node
-if [[ "${INSTANCE_ID}" == null && ${CREATE_INSTANCE:-true} ]]; then
-  while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"" | jq -r '.Hosts[0].State')" != 'available' ]]; do
-    echo "Dedicated Host still not available (this can take a while)..."
-    sleep 60
-  done
-  # Fix An error occurred (InvalidHostState) when calling the RunInstances operation: Dedicated host h-XXX is in an invalid state for launching instances.
-  sleep 120
-  while [[ "$(aws_execute -r -s "ec2 describe-hosts --host-ids \"${DEDICATED_HOST_ID}\"" | jq -r '.Hosts[0].AvailableCapacity.AvailableInstanceCapacity[0].AvailableCapacity')" != "1" ]]; do
-    echo "Dedicated Host capacity still not available (this can take a while)..."
-    sleep 60
-  done
+while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"" | jq -r '.Hosts[0].State')" != 'available' ]]; do
+  echo "Dedicated Host still not available (this can take a while)..."
+  sleep 60
+done
+# Fix An error occurred (InvalidHostState) when calling the RunInstances operation: Dedicated host h-XXX is in an invalid state for launching instances.
+sleep 120
+while [[ "$(aws_execute -r -s "ec2 describe-hosts --host-ids \"${DEDICATED_HOST_ID}\"" | jq -r '.Hosts[0].AvailableCapacity.AvailableInstanceCapacity[0].AvailableCapacity')" != "1" ]]; do
+  echo "Dedicated Host capacity still not available (this can take a while)..."
+  sleep 60
+done
+if [[ "${INSTANCE_ID}" == null ]]; then
   ## Get latest AMI ID (regardless of region)
   echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"
   AMI_ID="$(aws_execute -r -s "ec2 describe-images \
@@ -175,7 +175,7 @@ fi
 # fi
 
 #### SSH in and prepare the machine so it has the public IP
-if [[ "${INSTANCE_IP}" != null ]]; then
+if [[ -n "${INSTANCE_IP}" && "${INSTANCE_IP}" != null ]]; then
   while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "hostname &>/dev/null" &>/dev/null; do
     echo "Instance still starting..."
     sleep 60
@@ -192,6 +192,9 @@ if [[ "${INSTANCE_IP}" != null ]]; then
   #     sleep 30 && tail -50 /var/log/cloud-connect.log \
   #   "
   # fi
+else
+  echo "Instance failed to be created"
+  exit 1
 fi
 
 echo "You can now access your Anka Node with:"

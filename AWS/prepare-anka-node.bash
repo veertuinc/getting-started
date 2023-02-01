@@ -53,10 +53,13 @@ DEDICATED_HOST="$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purp
 DEDICATED_HOST_ID="$(echo "${DEDICATED_HOST}" | jq -r '.Hosts[0].HostId')"
 SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"")"
 SECURITY_GROUP_ID="${SECURITY_GROUP_ID:-"$(echo "${SECURITY_GROUP}" | jq -r '.SecurityGroups[0].GroupId')"}"
-[[ "${SECURITY_GROUP_ID}" == null ]] && error "Unable to find Security Group... Please run the prepare-build-cloud.bash script first OR set SECURITY_GROUP_ID before execution..."
-CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_BUILD_CLOUD_UNIQUE_LABEL}\"")"
-ANKA_CONTROLLER_PRIVATE_IP="${ANKA_CONTROLLER_PRIVATE_IP:-"$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"}"
-[[ "${ANKA_CONTROLLER_PRIVATE_IP}" == null ]] && error "Unable to find Private IP for Controller... Please run the prepare-build-cloud.bash script first OR set ANKA_CONTROLLER_PRIVATE_IP before execution..."
+if ${CONTROLLER_ENABLED:-true}; then
+  [[ "${SECURITY_GROUP_ID}" == null ]] && error "Unable to find Security Group... Please run the prepare-build-cloud.bash script first OR set SECURITY_GROUP_ID before execution..."
+  CLI_OPTIONS="--user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_PRIVATE_IP}:${CLOUD_CONTROLLER_PORT}\\\" export ANKA_LICENSE=\\\"${ANKA_LICENSE}\\\" export ANKA_USE_PUBLIC_IP=true\""
+  CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_BUILD_CLOUD_UNIQUE_LABEL}\"")"
+  ANKA_CONTROLLER_PRIVATE_IP="${ANKA_CONTROLLER_PRIVATE_IP:-"$(echo "${CONTROLLER_ADDRESSES}" | jq -r '.Addresses[0].PrivateIpAddress')"}"
+  [[ "${ANKA_CONTROLLER_PRIVATE_IP}" == null ]] && error "Unable to find Private IP for Controller... Please run the prepare-build-cloud.bash script first OR set ANKA_CONTROLLER_PRIVATE_IP before execution..."
+fi
 INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=tag:purpose,Values=${AWS_ANKA_NODE_UNIQUE_LABEL}\"")"
 INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Reservations[0].Instances[0].InstanceId')"
 [[ "${INSTANCE_ID}" != null ]] && INSTANCE_IP="$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${INSTANCE_ID}\" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text")"
@@ -124,9 +127,8 @@ if [[ "${INSTANCE_ID}" == null && ${CREATE_INSTANCE:-true} ]]; then
     --count 1 \
     --associate-public-ip-address \
     --ebs-optimized \
-    --user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_PRIVATE_IP}:${CLOUD_CONTROLLER_PORT}\\\" export ANKA_LICENSE=\\\"${ANKA_LICENSE}\\\" export ANKA_USE_PUBLIC_IP=true\" \
     --block-device-mappings '[{ \"DeviceName\": \"/dev/sda1\", \"Ebs\": { \"VolumeSize\": 200, \"VolumeType\": \"gp3\", \"Iops\": 6000, \"Throughput\": 256 }}]' \
-    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} Anka Build Node"},{Key=purpose,Value=${AWS_ANKA_NODE_UNIQUE_LABEL}}]\"")
+    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} Anka Build Node"},{Key=purpose,Value=${AWS_ANKA_NODE_UNIQUE_LABEL}}]\" ${CLI_OPTIONS}")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do
     echo "Instance still starting..."

@@ -15,13 +15,17 @@ cleanup() {
     sudo ankacluster disjoin || true; \
   " && warning "Save the fulfillment ID above and send it to support@veertu.com to release the cores"
 
-  [[ "${INSTANCE_ID}" != null ]] && aws_execute "ec2 terminate-instances \
-  --instance-ids \"${INSTANCE_ID}\""
+  if [[ "${INSTANCE_ID}" != null ]]; then
+    aws_execute "ec2 terminate-instances --instance-ids \"${INSTANCE_ID}\""
+    while [[ "$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${INSTANCE_ID}\"" | jq -r '.Reservations[0].Instances[0].State.Name')" != 'terminated' ]]; do
+      echo "Instance terminating..."
+      sleep 50
+    done
+  fi
 
-  while [[ "$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${INSTANCE_ID}\"" | jq -r '.Reservations[0].Instances[0].State.Name')" != 'terminated' ]]; do
-    echo "Instance terminating..."
-    sleep 50
-  done
+  if [[ "${DEDICATED_HOST_ID}" != null ]]; then
+    aws_execute "ec2 delete-tags --resources \"${DEDICATED_HOST_ID}\" --tags Key=purpose Key=Name"
+  fi
 
   warning "Dedicated Hosts are unable to be programmatically released in a Pending state.
          Due to the amount of time required to transition macOS hosts from Pending to Available, you'll need to release the dedicated host manually in the AWS console."
@@ -63,7 +67,7 @@ if ${CONTROLLER_ENABLED:-true}; then
 fi
 INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_ANKA_NODE_UNIQUE_LABEL}\"")"
 INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Reservations[0].Instances[0].InstanceId')"
-[[ "${INSTANCE_ID}" != null ]] && INSTANCE_IP="$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${INSTANCE_ID}\" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text")"
+if [[ "${INSTANCE_ID}" != 'null' ]]; then INSTANCE_IP="$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${INSTANCE_ID}\" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text")"; fi
 
 # Cleanup
 if [[ "$1" == "--delete" ]]; then

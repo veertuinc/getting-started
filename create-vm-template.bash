@@ -39,7 +39,7 @@ if [[ "${FLAGS}" != "--no-anka-create" ]]; then
   RETRIES=4
   NEXT_WAIT_TIME=0
   until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 14400 bash -c "time ${SUDO} anka ${ANKA_DEBUG} create --disk-size 100G --app \"$INSTALLER_LOCATION\" $TEMPLATE_NAME"; do
-    cat ~/Library/Logs/Anka/$(anka show "${TEMPLATE_NAME}" uuid).log
+    cat ~/Library/Logs/Anka/$(${SUDO} anka show "${TEMPLATE_NAME}" uuid).log
     tail -70 ~/Library/Logs/Anka/anka.log
     sleep $(( $(( NEXT_WAIT_TIME++ )) + 20))
     pgrep -f 'anka create' | sudo xargs kill -9 || true

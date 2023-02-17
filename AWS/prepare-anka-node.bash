@@ -133,7 +133,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --count 1 \
     --associate-public-ip-address \
     --ebs-optimized \
-    --block-device-mappings \"[\$(aws ec2 describe-images --image-ids $AMI_ID --query \"Images[0].BlockDeviceMappings[0]\" --output json | jq -cr '.Ebs.VolumeSize = 200 | .Ebs.VolumeType = \\\"gp3\\\"')]\" \
+    --block-device-mappings \"[\$(aws ec2 describe-images --image-ids $AMI_ID --query \"Images[0].BlockDeviceMappings[0]\" --output json | jq -cr '.Ebs.VolumeSize = 200 | .Ebs.VolumeType = \"gp3\"')]\" \
     --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} Anka Build Node"},{Key=purpose,Value=${AWS_ANKA_NODE_UNIQUE_LABEL}}]\" ${CLI_OPTIONS}")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do

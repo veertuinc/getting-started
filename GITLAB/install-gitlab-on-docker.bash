@@ -69,11 +69,7 @@ fi
   docker exec -i anka.gitlab bash -c "gitlab-rails runner \"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_user, :read_repository, :api], name: 'Automation token'); token.set_token('${GITLAB_ACCESS_TOKEN}'); token.save!\""
   ## Create example project
   echo "]] Importing example project"
-  if ${CUSTOM_EXECUTOR_PROJECT:-false}; then
-    curl -s --request POST -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects?name=anka-gitlab-custom-executor&import_url=https://github.com/veertuinc/anka-gitlab-custom-executor.git&auto_devops_enabled=false&shared_runners_enabled=true" 1>/dev/null
-  else
-    curl -s --request POST -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects?name=$GITLAB_EXAMPLE_PROJECT_NAME&import_url=https://github.com/veertuinc/$GITLAB_EXAMPLE_PROJECT_NAME.git&auto_devops_enabled=false&shared_runners_enabled=true" 1>/dev/null
-  fi
+  curl -s --request POST -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects?name=$GITLAB_EXAMPLE_PROJECT_NAME&import_url=https://github.com/veertuinc/$GITLAB_EXAMPLE_PROJECT_NAME.git&auto_devops_enabled=false&shared_runners_enabled=true" 1>/dev/null
   echo "============================================================================"
   echo "GitLab UI: ${URL_PROTOCOL}$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT"
   echo "Logins: root / $GITLAB_ROOT_PASSWORD"

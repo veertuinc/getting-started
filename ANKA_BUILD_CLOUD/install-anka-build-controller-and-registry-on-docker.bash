@@ -120,7 +120,7 @@ fi
   # Ensure we have the right Anka Agent version installed (for rolling back versions)
   if [[ $(uname) == "Darwin" ]]; then
     echo "]] Joining this machine (Node) to the Cloud"
-    sleep 20
+    sleep 40
     cd $STORAGE_LOCATION
     [[ "$(arch)" == "arm64" ]] && AGENT_PKG="AnkaAgentArm.pkg" || ANKA_PKG="AnkaAgent.pkg"
     sudo curl -O "${URL_PROTOCOL}${CLOUD_CONTROLLER_ADDRESS}:${CLOUD_CONTROLLER_PORT}/pkg/${AGENT_PKG}" -o /tmp/ && sudo installer -pkg "/tmp/${AGENT_PKG}" -tgt /

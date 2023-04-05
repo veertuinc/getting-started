@@ -26,6 +26,7 @@ services:
   $GITLAB_DOCKER_CONTAINER_NAME:
     container_name: $GITLAB_DOCKER_CONTAINER_NAME
     hostname: $GITLAB_DOCKER_CONTAINER_NAME
+    platform: "linux/amd64"
     image: gitlab/gitlab-$GITLAB_RELEASE_TYPE:$GITLAB_DOCKER_TAG_VERSION
     restart: always
     ports:

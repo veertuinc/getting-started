@@ -1,6 +1,8 @@
 [[ $DEBUG == true ]] && set -x
 [[ $DEBUG == true ]] && ANKA_DEBUG="--debug"
 
+export ANKA_LOG_LEVEL="debug"
+
 STORAGE_LOCATION=${STORAGE_LOCATION:-"/tmp"}
 URL_PROTOCOL=${URL_PROTOCOL:-"http://"}
 ARCH_EXTENSION=""

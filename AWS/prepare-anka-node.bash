@@ -60,6 +60,19 @@ DEDICATED_HOST_ID="$(echo "${DEDICATED_HOST}" | jq -r '.Hosts[0].HostId')"
 DEDICATED_HOST_STATE="$(echo "${DEDICATED_HOST}" | jq -r '.Hosts[0].State')"
 SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"")"
 SECURITY_GROUP_ID="${SECURITY_GROUP_ID:-"$(echo "${SECURITY_GROUP}" | jq -r '.SecurityGroups[0].GroupId')"}"
+
+# Create security group
+if [[ "${SECURITY_GROUP_ID}" == null ]]; then
+  SECURITY_GROUP=$(aws_execute -r "ec2 create-security-group \
+    --description \"$AWS_NONUNIQUE_LABEL\" \
+    --group-name \"$AWS_NONUNIQUE_LABEL\" \
+    --tag-specifications \"ResourceType=security-group,Tags=[{Key=Name,Value="$AWS_NONUNIQUE_LABEL"},{Key=purpose,Value=${AWS_NONUNIQUE_LABEL}}]\"")
+  SECURITY_GROUP_ID="$(echo "${SECURITY_GROUP}" | jq -r '.GroupId')"
+  echo " - Created Security Group: ${COLOR_GREEN}${SECURITY_GROUP_ID}${COLOR_NC}"
+else
+  echo " - Using existing Security Group: ${COLOR_GREEN}${SECURITY_GROUP_ID} | ${AWS_BUILD_CLOUD_UNIQUE_LABEL}${COLOR_NC}"
+fi
+
 if ${CONTROLLER_ENABLED:-true}; then
   obtain_anka_license
   [[ "${SECURITY_GROUP_ID}" == null ]] && error "Unable to find Security Group... Please run the prepare-build-cloud.bash script first OR set SECURITY_GROUP_ID before execution..."

@@ -111,7 +111,7 @@ while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Va
   sleep 60
 done
 # Fix An error occurred (InvalidHostState) when calling the RunInstances operation: Dedicated host h-XXX is in an invalid state for launching instances.
-# sleep 120
+sleep 120
 while [[ "$(aws_execute -r -s "ec2 describe-hosts --host-ids \"${DEDICATED_HOST_ID}\"" | jq -r '.Hosts[0].AvailableCapacity.AvailableInstanceCapacity[0].AvailableCapacity')" != "1" ]]; do
   echo "Dedicated Host capacity still not available (this can take a while)..."
   sleep 60

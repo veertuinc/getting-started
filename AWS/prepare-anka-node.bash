@@ -111,7 +111,7 @@ while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Va
   sleep 60
 done
 # Fix An error occurred (InvalidHostState) when calling the RunInstances operation: Dedicated host h-XXX is in an invalid state for launching instances.
-sleep 120
+# sleep 120
 while [[ "$(aws_execute -r -s "ec2 describe-hosts --host-ids \"${DEDICATED_HOST_ID}\"" | jq -r '.Hosts[0].AvailableCapacity.AvailableInstanceCapacity[0].AvailableCapacity')" != "1" ]]; do
   echo "Dedicated Host capacity still not available (this can take a while)..."
   sleep 60
@@ -120,8 +120,8 @@ if [[ "${INSTANCE_ID}" == null ]]; then
   ## Get latest AMI ID (regardless of region)
   echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"
   AMI_ID="$(aws_execute -r -s "ec2 describe-images \
-    --filters \"Name=name,Values=${AWS_BUILD_CLOUD_MAC_AMI_NAME}\" \"Name=state,Values=available\" \
-    --query \"sort_by(Images, &CreationDate)[-1].[ImageId]\" \
+    --filters \"Name=name,Values=anka-build-*\" \"Name=state,Values=available\" \"Name=owner-id,Values=930457884660\" \
+    --query \"Images[?contains(Name,\\\`marketplace\\\`) == \\\`false\\\`] ${EXTRA_CONTAINS} | sort_by([*], &CreationDate)[-1].[ImageId]\" \
     --output \"text\"")"
   # We don't use ANKA_JOIN_ARGS here so we can set the instance IP
   INSTANCE=$(aws_execute -r "ec2 run-instances \

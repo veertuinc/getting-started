@@ -38,8 +38,10 @@ fi
 # Ensure region is set for cli
 aws_obtain_region
 # Ensure the key pair for instance creation is set
-aws_obtain_key_pair
-echo "] AWS User: ${COLOR_GREEN}$(aws_execute -s -r "iam get-user | jq -r '.User.UserName, \"|\", .User.UserId' | xargs")${COLOR_NC}";
+if [[ "$1" != "--delete" ]]; then
+  aws_obtain_key_pair
+  echo "] AWS User: ${COLOR_GREEN}$(aws_execute -s -r "iam get-user | jq -r '.User.UserName, \"|\", .User.UserId' | xargs")${COLOR_NC}";
+fi
 echo "${COLOR_CYAN}==============================================${COLOR_NC}"
 
 # Collect all existing ids and instances

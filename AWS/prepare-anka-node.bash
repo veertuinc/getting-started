@@ -34,9 +34,10 @@ cleanup() {
   # [[ "${DEDICATED_HOST_ID}" != null ]] && aws_execute "ec2 release-hosts --host-ids \"${DEDICATED_HOST_ID}\""
 
 }
-
-echo "${COLOR_CYAN}========================================${COLOR_NC}"
-echo "${COLOR_CYAN}]] Creating and setting up Anka Nodes [[${COLOR_NC}"
+if [[ "$1" != "--delete" ]]; then
+  echo "${COLOR_CYAN}========================================${COLOR_NC}"
+  echo "${COLOR_CYAN}]] Creating and setting up Anka Nodes [[${COLOR_NC}"
+fi
 echo "${COLOR_CYAN}========================================${COLOR_NC}"
 
 [[ "$(uname)" != "Darwin" ]] && echo "${COLOR_YELLOW}WARNING: We cannot guarantee this script with function on modern non-Darwin/MacOS shells (bash or zsh)${COLOR_NC}" && sleep 2
@@ -63,7 +64,7 @@ DEDICATED_HOST_STATE="$(echo "${DEDICATED_HOST}" | jq -r '.Hosts[0].State')"
 SECURITY_GROUP="$(aws_execute -r -s "ec2 describe-security-groups --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"")"
 SECURITY_GROUP_ID="${SECURITY_GROUP_ID:-"$(echo "${SECURITY_GROUP}" | jq -r '.SecurityGroups[0].GroupId')"}"
 
-if ${CONTROLLER_ENABLED:-true}; then
+if [[ "$1" != "--delete" ]] && ${CONTROLLER_ENABLED:-true}; then
   obtain_anka_license
   [[ "${SECURITY_GROUP_ID}" == null ]] && error "Unable to find Security Group... Please run the prepare-build-cloud.bash script first OR set SECURITY_GROUP_ID before execution..."
   CONTROLLER_ADDRESSES="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_BUILD_CLOUD_UNIQUE_LABEL}\"")"

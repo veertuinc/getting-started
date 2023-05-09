@@ -148,7 +148,8 @@ echo "${COLOR_CYAN}]] Preparing Instance [[${COLOR_NC}"
 if ! ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" "docker-compose --help &>/dev/null"; then
   ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${ELASTIC_IP_IP}" " \
     sleep 60; \
-    sudo amazon-linux-extras install -y docker; \
+    sudo yum update -y; \
+    sudo yum install docker -y; \
     sudo systemctl enable docker; \
     sudo service docker start; \
     sudo usermod -aG docker ec2-user; \

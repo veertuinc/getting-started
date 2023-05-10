@@ -135,10 +135,10 @@ done
 if [[ "${INSTANCE_ID}" == null ]]; then
   ## Get latest AMI ID (regardless of region)
   echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"
-  AMI_ID="$(aws_execute -r -s "ec2 describe-images \
+  AMI_ID="${AMI_ID:-$(aws_execute -r -s "ec2 describe-images \
     --filters \"Name=name,Values=anka-build-*\" \"Name=state,Values=available\" \"Name=owner-id,Values=930457884660\" \
     --query \"Images[?contains(Name,\\\`marketplace\\\`) == \\\`false\\\`] ${EXTRA_CONTAINS} | sort_by([*], &CreationDate)[-1].[ImageId]\" \
-    --output \"text\"")"
+    --output \"text\"")}"
   # We don't use ANKA_JOIN_ARGS here so we can set the instance IP
   INSTANCE=$(aws_execute -r "ec2 run-instances \
     --image-id \"${AMI_ID}\" \

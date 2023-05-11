@@ -223,4 +223,3 @@ fi
 echo "You can now access your Anka Node with:"
 echo "${COLOR_GREEN}   ssh -i \"${AWS_KEY_PATH}\" \"ec2-user@${INSTANCE_IP}\"${COLOR_NC}"
 echo ""
-echo "IMPORTANT: Our AMIs attempt to do the majority of preparation for you, however, there are several steps you need to perform once the instance is started. Please see our documentation: https://docs.veertu.com/anka/intel/getting-started/aws-ec2-mac/#manual-preparation"

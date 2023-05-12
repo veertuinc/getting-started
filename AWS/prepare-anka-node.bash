@@ -122,17 +122,17 @@ else
 fi
 
 # Create EC2 instance for Anka Node
+if [[ "${INSTANCE_ID}" == null ]]; then
 while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"" | jq -r '.Hosts[0].State')" != 'available' ]]; do
   echo "Dedicated Host still not available (this can take a while)..."
   sleep 60
 done
-# Fix An error occurred (InvalidHostState) when calling the RunInstances operation: Dedicated host h-XXX is in an invalid state for launching instances.
-sleep 120
-while [[ "$(aws_execute -r -s "ec2 describe-hosts --host-ids \"${DEDICATED_HOST_ID}\"" | jq -r '.Hosts[0].AvailableCapacity.AvailableInstanceCapacity[0].AvailableCapacity')" != "1" ]]; do
-  echo "Dedicated Host capacity still not available (this can take a while)..."
-  sleep 60
-done
-if [[ "${INSTANCE_ID}" == null ]]; then
+  # Fix An error occurred (InvalidHostState) when calling the RunInstances operation: Dedicated host h-XXX is in an invalid state for launching instances.
+  sleep 120
+  while [[ "$(aws_execute -r -s "ec2 describe-hosts --host-ids \"${DEDICATED_HOST_ID}\"" | jq -r '.Hosts[0].AvailableCapacity.AvailableInstanceCapacity[0].AvailableCapacity')" != "1" ]]; do
+    echo "Dedicated Host capacity still not available (this can take a while)..."
+    sleep 60
+  done
   ## Get latest AMI ID (regardless of region)
   echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"
   AMI_ID="${AMI_ID:-$(aws_execute -r -s "ec2 describe-images \

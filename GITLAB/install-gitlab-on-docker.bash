@@ -14,7 +14,7 @@ docker rm $GITLAB_DOCKER_CONTAINER_NAME &>/dev/null || true
 [[ -d "${GITLAB_DOCKER_DATA_DIR}" ]] && sudo rm -rf "${GITLAB_DOCKER_DATA_DIR}"
 rm -rf docker-compose.yml
 if [[ $1 != "--uninstall" ]]; then
-  EXTERNAL_URL=${EXTERNAL_URL:-"${URL_PROTOCOL}$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT"}
+  EXTERNAL_URL=${EXTERNAL_URL:-"${URL_PROTOCOL}${GITLAB_DOCKER_CONTAINER_NAME}:${GITLAB_PORT}"}
   modify_hosts $GITLAB_DOCKER_CONTAINER_NAME
   echo "]] Starting the GitLab Docker container"
   mkdir -p $GITLAB_DOCKER_DATA_DIR/config

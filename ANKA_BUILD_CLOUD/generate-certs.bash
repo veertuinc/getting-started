@@ -22,8 +22,8 @@ $ADD_TO_KEYCHAIN && sudo security add-trusted-cert -d -r trustRoot -k /Library/K
 echo "[Creating $CONTROLLER_CN Cert]"
 export CONTROLLER_SERVER_IP=${CONTROLLER_SERVER_IP:-"127.0.0.1"}
 openssl genrsa -out anka-controller+registry-key.pem 4096
-openssl req -new -nodes -sha256 -key anka-controller+registry-key.pem -out anka-controller+registry-csr.pem -subj "/O=$ORGANIZATION/OU=$ORG_UNIT/CN=$CONTROLLER_CN" -reqexts SAN -extensions SAN -config <(cat /etc/ssl/openssl.cnf <(printf "[SAN]\nextendedKeyUsage = serverAuth\nsubjectAltName=IP:$CONTROLLER_SERVER_IP,DNS:anka-controller+registry.my.domain,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:$DOCKER_HOST_ADDRESS"))
-openssl x509 -req -days 365 -sha256 -in anka-controller+registry-csr.pem -CA anka-ca-crt.pem -CAkey anka-ca-key.pem -CAcreateserial -out anka-controller+registry-crt.pem -extfile <(echo subjectAltName = IP:$CONTROLLER_SERVER_IP,DNS:anka-controller+registry.my.domain,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:$DOCKER_HOST_ADDRESS)
+openssl req -new -nodes -sha256 -key anka-controller+registry-key.pem -out anka-controller+registry-csr.pem -subj "/O=$ORGANIZATION/OU=$ORG_UNIT/CN=$CONTROLLER_CN" -reqexts SAN -extensions SAN -config <(cat /etc/ssl/openssl.cnf <(printf "[SAN]\nextendedKeyUsage = serverAuth\nsubjectAltName=IP:$CONTROLLER_SERVER_IP,DNS:anka-controller+registry.my.domain,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:$DOCKER_HOST_ADDRESS,DNS:anka-registry"))
+openssl x509 -req -days 365 -sha256 -in anka-controller+registry-csr.pem -CA anka-ca-crt.pem -CAkey anka-ca-key.pem -CAcreateserial -out anka-controller+registry-crt.pem -extfile <(echo subjectAltName = IP:$CONTROLLER_SERVER_IP,DNS:anka-controller+registry.my.domain,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:$DOCKER_HOST_ADDRESS,DNS:anka-registry)
 echo "[The following should be sha256WithRSAEncryption]"
 openssl x509 -text -noout -in anka-controller+registry-crt.pem | grep Signature
 echo "[Generating Node Certificate]"

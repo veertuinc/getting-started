@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -exo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 . ../shared.bash
@@ -68,9 +68,11 @@ fi
   # GITLAB_ACCESS_TOKEN=$(curl -s --request POST --data "grant_type=password&username=root&password=$GITLAB_ROOT_PASSWORD" http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/oauth/token | jq -r '.access_token')
   echo "]] Creating Access token (be patient)"
   docker exec -i anka.gitlab bash -c "gitlab-rails runner \"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_user, :read_repository, :api], name: 'Automation token'); token.set_token('${GITLAB_ACCESS_TOKEN}'); token.save!\""
+  
   ## Create example project
   echo "]] Importing example project"
-  curl -s --request POST -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects?name=$GITLAB_EXAMPLE_PROJECT_NAME&import_url=https://github.com/veertuinc/$GITLAB_EXAMPLE_PROJECT_NAME.git&auto_devops_enabled=false&shared_runners_enabled=true" 1>/dev/null
+  curl -s --request PUT -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "${URL_PROTOCOL}$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/application/settings?import_sources%5B%5D=git"
+  curl -s --request POST -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "${URL_PROTOCOL}$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects?name=$GITLAB_EXAMPLE_PROJECT_NAME&import_url=https://github.com/veertuinc/$GITLAB_EXAMPLE_PROJECT_NAME.git&auto_devops_enabled=false&shared_runners_enabled=true" 1>/dev/null
   echo "============================================================================"
   echo "GitLab UI: ${URL_PROTOCOL}$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT"
   echo "Logins: root / $GITLAB_ROOT_PASSWORD"

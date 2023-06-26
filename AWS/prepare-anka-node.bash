@@ -135,13 +135,13 @@ done
   done
   ## Get latest AMI ID (regardless of region)
   echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"
-  AMI_ID="${AMI_ID:-$(aws_execute -r -s "ec2 describe-images \
+  COMMUNITY_AMI_ID="${COMMUNITY_AMI_ID:-$(aws_execute -r -s "ec2 describe-images \
     --filters \"Name=name,Values=anka-build-*\" \"Name=state,Values=available\" \"Name=owner-id,Values=930457884660\" \
     --query \"Images[?contains(Name,\\\`marketplace\\\`) == \\\`false\\\`] ${EXTRA_CONTAINS} | sort_by([*], &CreationDate)[-1].[ImageId]\" \
     --output \"text\"")}"
   # We don't use ANKA_JOIN_ARGS here so we can set the instance IP
   INSTANCE=$(aws_execute -r "ec2 run-instances \
-    --image-id \"${AMI_ID}\" \
+    --image-id \"${COMMUNITY_AMI_ID}\" \
     --instance-type=\"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
     --security-group-ids \"${SECURITY_GROUP_ID}\" \
     --placement \"HostId=${DEDICATED_HOST_ID}\" \
@@ -149,7 +149,7 @@ done
     --count 1 \
     --associate-public-ip-address \
     --ebs-optimized \
-    --block-device-mappings \"[\$(aws ec2 describe-images --image-ids $AMI_ID --query \"Images[0].BlockDeviceMappings[0]\" --output json | jq -cr '.Ebs.VolumeType = \"gp3\" | .Ebs.VolumeSize = 200 | .Ebs.Iops = 6000 | .Ebs.Throughput = 256')]\" \
+    --block-device-mappings \"[\$(aws ec2 describe-images --image-ids $COMMUNITY_AMI_ID --query \"Images[0].BlockDeviceMappings[0]\" --output json | jq -cr '.Ebs.VolumeType = \"gp3\" | .Ebs.VolumeSize = 200 | .Ebs.Iops = 6000 | .Ebs.Throughput = 256')]\" \
     --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} Anka Build Node"},{Key=purpose,Value=${AWS_ANKA_NODE_UNIQUE_LABEL}}]\" ${CLI_OPTIONS}")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do

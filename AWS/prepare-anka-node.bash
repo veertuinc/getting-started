@@ -72,7 +72,7 @@ if [[ "$1" != "--delete" ]] && ${CONTROLLER_ENABLED:-true}; then
   if [[ "${ANKA_CONTROLLER_PRIVATE_IP}" == null ]]; then error "Unable to find Private IP for Controller... Please run the prepare-build-cloud.bash script first OR set ANKA_CONTROLLER_PRIVATE_IP before execution..."; fi
   CLI_OPTIONS="--user-data \"export ANKA_CONTROLLER_ADDRESS=\\\"http://${ANKA_CONTROLLER_PRIVATE_IP}:${CLOUD_CONTROLLER_PORT}\\\" export ANKA_LICENSE=\\\"${ANKA_LICENSE}\\\" export ANKA_USE_PUBLIC_IP=true\""
 fi
-INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_ANKA_NODE_UNIQUE_LABEL}\"")"
+INSTANCE="$(aws_execute -r -s "ec2 describe-instances --filters \"Name=instance-state-name,Values=running\" \"Name=tag:purpose,Values=${AWS_ANKA_NODE_UNIQUE_LABEL_PURPOSE}\"")"
 INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Reservations[0].Instances[0].InstanceId')"
 if [[ "${INSTANCE_ID}" != 'null' ]]; then INSTANCE_IP="$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${INSTANCE_ID}\" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text")"; fi
 

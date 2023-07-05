@@ -116,7 +116,7 @@ if [[ "${DEDICATED_HOST_ID}" == null ]]; then
     fi
   done
   DEDICATED_HOST_ID="$(echo "${DEDICATED_HOST}" | jq -r '.HostIds[0]')"
-  [[ -n "${DEDICATED_HOST}" ]] || (echo "unable to create dedicated host right now.. try again later" && exit 2)
+  [[ -n "${DEDICATED_HOST}" && "${DEDICATED_HOST}" != 'null' ]] || (echo "unable to create dedicated host right now.. try again later" && exit 2)
   echo " - Requested Dedicated Host: ${COLOR_GREEN}${DEDICATED_HOST_ID}${COLOR_NC}"
 else
   echo " - Using Dedicated Host: ${COLOR_GREEN}${DEDICATED_HOST_ID}${COLOR_NC}"

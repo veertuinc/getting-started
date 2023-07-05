@@ -8,7 +8,7 @@ if [[ -z "${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}" ]]; then
   AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE="mac1.metal"
 fi
 if [[ "${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}" == "mac2.metal" ]]; then
-  unset EXTRA_CONTAINS
+  EXTRA_CONTAINS="| [?contains(Name,\\\`arm64\\\`) == \\\`true\\\`]"
 fi
 AWS_BUILD_CLOUD_INSTANCE_TYPE="${AWS_BUILD_CLOUD_INSTANCE_TYPE:-"t2.small"}"
 AWS_BUILD_CLOUD_UNIQUE_LABEL="${AWS_BUILD_CLOUD_UNIQUE_LABEL:-"anka-build-demo-cloud"}"

@@ -21,6 +21,7 @@ cleanup() {
       echo "Instance terminating..."
       sleep 50
     done
+    aws_execute "ec2 delete-tags --resources \"${INSTANCE_ID}\" --tags Key=purpose Key=Name"
   fi
 
   if [[ "${DEDICATED_HOST_ID}" != null ]]; then

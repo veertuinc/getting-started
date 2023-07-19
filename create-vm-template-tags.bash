@@ -82,6 +82,10 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+port-forward-22" "stop" "
 "
 # Install Brew & command line tools (git)
 prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
+  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo /usr/sbin/DevToolsSecurity --enable\"
+  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"defaults write NSGlobalDomain NSAppSleepDisabled -bool YES\" # Disable App Nap System Wide
+  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo defaults write /Library/Preferences/com.apple.keyboardtype "keyboardtype" -dict-add "3-7582-0" -int 40\" # Disable Keyboard Setup Assistant window
+  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo pmset hibernatemode 0; sudo rm -f /var/vm/sleepimage\" # Turn off hibernation and get rid of the sleepimage
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo xcodebuild -license || true\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"/bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"[[ -f /opt/homebrew/bin/brew ]] && echo \\\"eval \\\"\\\$(/opt/homebrew/bin/brew shellenv)\\\"\\\" >> /Users/anka/.zprofile || true\"

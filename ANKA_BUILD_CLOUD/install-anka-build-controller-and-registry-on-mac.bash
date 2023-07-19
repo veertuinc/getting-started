@@ -107,7 +107,7 @@ BLOCK
   echo "============================================================================="
   echo "Controller UI:  $URL_PROTOCOL$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT"
   echo "Registry:       $URL_PROTOCOL$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT"
-  echo "Documentation:  https://docs.veertu.com/anka/intel/anka-build-cloud/"
+  echo "Documentation:  https://docs.veertu.com/anka/anka-build-cloud/"
   if [[ ! -z $EXTRA_NOTE ]]; then
     echo "$EXTRA_NOTE
     "

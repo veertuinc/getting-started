@@ -7,7 +7,7 @@ cd "$SCRIPT_DIR"
 [[ -z "${1}" ]] && echo "you must provide the source template NAME (not UUID) as the first ARG..." && exit 2
 SOURCE_TEMPLATE="${1}"
 [[ -z $SOURCE_TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1
-HELPERS="set -exo pipefail;"
+HELPERS="set -exo pipefail;PATH=\\\$PATH:/usr/local/bin:/opt/homebrew/bin;"
 ANKA_RUN="${SUDO} anka ${ANKA_DEBUG} run -N -n"
 [[ ! -z "$(${SUDO} anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME)" ]] && REMOTE="--remote $CLOUD_REGISTRY_REPO_NAME"
 ANKA_REGISTRY="${SUDO} anka ${ANKA_DEBUG} registry $REMOTE $CERTS"
@@ -132,7 +132,7 @@ if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
   ## Install OpenJDK
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "stop" "
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS \
-      [[ \\\$(arch) == arm64 ]] && export ARCH=aarch64 || export ARCH=amd64;
+      [[ \\\$(arch) == arm64 ]] && export ARCH=aarch64 || export ARCH=x64;
       rm -rf zulu*; \
       curl -v -L -O https://cdn.azul.com/zulu/bin/zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_\\\${ARCH}.tar.gz && \
       [ \\\$(du -s zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_\\\${ARCH}.tar.gz  | awk '{print \\\$1}') -gt 190000 ] && \

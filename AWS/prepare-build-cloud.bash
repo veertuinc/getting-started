@@ -107,7 +107,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
   ## Get latest AMI ID (regardless of region)
   AMI_ID="$(aws_execute -r -s "ec2 describe-images \
     --owners \"amazon\" \
-    --filters \"Name=name,Values=${AWS_BUILD_CLOUD_AMI_NAME}\" \"Name=state,Values=available\" \
+    --filters \"Name=name,Values=al2023-ami-2023*-x86_64\" \"Name=state,Values=available\" \
     --query \"sort_by(Images, &CreationDate)[-1].[ImageId]\" \
     --output \"text\"")"
   INSTANCE=$(aws_execute -r "ec2 run-instances \

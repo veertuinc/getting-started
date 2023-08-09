@@ -1,7 +1,6 @@
 HOST_IP="$(curl -s http://whatismyip.akamai.com/)"
 AWS_USE_PROFILE=${AWS_USE_PROFILE:-true}
 AWS_CRED_FILE_LOCATION="${AWS_CRED_FILE_LOCATION:-"${HOME}/.aws/credentials"}"
-AWS_BUILD_CLOUD_AMI_NAME="${AWS_BUILD_CLOUD_AMI_NAME:-"al2023-ami-2023.0.20230503.0-kernel-6.1-x86_64"}"
 AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE="${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE:-""}"
 EXTRA_CONTAINS="| [?contains(Name,\\\`arm64\\\`) == \\\`false\\\`]"
 if [[ -z "${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}" ]]; then

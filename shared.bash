@@ -1,17 +1,26 @@
 [[ $DEBUG == true ]] && set -x
 [[ $DEBUG == true ]] && ANKA_DEBUG="--debug"
 
+capitalize() {
+  printf '%s' "$1" | head -c 1 | tr [:lower:] [:upper:]
+  printf '%s' "$1" | tail -c '+2'
+}
+
 export ANKA_LOG_LEVEL="debug"
 
 STORAGE_LOCATION=${STORAGE_LOCATION:-"/tmp"}
 URL_PROTOCOL=${URL_PROTOCOL:-"http://"}
 ARCH_EXTENSION=""
-if [[ "$(arch)" == "arm64" ]]; then
+
+ARCH="$(arch)"
+if [[ "${ARCH}" != "arm64" ]]; then
+  SUDO="sudo" # Can't open the anka viewer to install macos and addons as ${SUDO} anka.
+  ARCH="amd64"
+else
   ARCH_EXTENSION="-arm64"
   SUDO=""
-else
-  SUDO="sudo" # Can't open the anka viewer to install macos and addons as ${SUDO} anka.
 fi
+ARCH_CAPITALIZED="$(capitalize ${ARCH})"
 
 if [[ "$(uname)" == "Darwin" ]]; then
   if tty -s; then # Disable if the shell isn't interactive (avoids: tput: No value for $TERM and no -T specified)
@@ -55,9 +64,9 @@ GITHUB_PLUGIN_VERSION="1.33.1"
 GITLAB_ANKA_RUNNER_VERSION=${GITLAB_ANKA_RUNNER_VERSION:-"1.5.0"}
 GITLAB_RELEASE_TYPE=${GITLAB_RELEASE_TYPE:-"ce"}
 GITLAB_DOCKER_TAG_VERSION=${GITLAB_DOCKER_TAG_VERSION:-"16.0.4-$GITLAB_RELEASE_TYPE.0"}
-CONTROLLER_VERSION="1.36.1-efbe0727"
-CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry-${CONTROLLER_VERSION}.pkg"}
-CLOUD_DOCKER_TAR=${CLOUD_DOCKER_TAR:-"anka-controller-registry-${CONTROLLER_VERSION}.tar.gz"}
+CONTROLLER_VERSION="1.37.0-4e3ffe71"
+CLOUD_NATIVE_PACKAGE=${CLOUD_NATIVE_PACKAGE:-"AnkaControllerRegistry${ARCH_CAPITALIZED}-${CONTROLLER_VERSION}.pkg"}
+CLOUD_DOCKER_TAR=${CLOUD_DOCKER_TAR:-"anka-controller-registry-amd64-${CONTROLLER_VERSION}.tar.gz"}
 ANKA_VIRTUALIZATION_PACKAGE=${ANKA_VIRTUALIZATION_PACKAGE:-"Anka-3.3.4.169.pkg"}
 # [[ "$(arch)" == "arm64" ]] && ANKA_VIRTUALIZATION_PACKAGE="${ANKA_VIRTUALIZATION_PACKAGE:-"Anka-3.3.2.166.pkg"}"
 TEAMCITY_VERSION="2020.2.3"

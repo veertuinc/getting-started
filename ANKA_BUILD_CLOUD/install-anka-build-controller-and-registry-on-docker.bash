@@ -56,15 +56,15 @@ BLOCK
 )
 if ${CLOUD_USE_DOCKERHUB:-false}; then
 CLOUD_ETCD_BUILD_BLOCK=$(cat <<BLOCK
-    image: veertu/anka-build-cloud-etcd:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f4)
+    image: veertu/anka-build-cloud-etcd:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f5)
 BLOCK
 )
 CLOUD_CONTROLLER_BUILD_BLOCK=$(cat <<BLOCK
-    image: veertu/anka-build-cloud-controller:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f4)
+    image: veertu/anka-build-cloud-controller:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f5)
 BLOCK
 )
 CLOUD_REGISTRY_BUILD_BLOCK=$(cat <<BLOCK
-    image: veertu/anka-build-cloud-registry:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f4)
+    image: veertu/anka-build-cloud-registry:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f5)
 BLOCK
 )
 fi

@@ -73,7 +73,7 @@ fi
   echo "]] Importing example project"
   sleep 20
   curl -s --request PUT -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "${URL_PROTOCOL}$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/application/settings?import_sources%5B%5D=gi,github"
-  sleep 20
+  sleep 30
   curl -s --request POST -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "${URL_PROTOCOL}$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects?name=$GITLAB_EXAMPLE_PROJECT_NAME&import_url=https://github.com/veertuinc/$GITLAB_EXAMPLE_PROJECT_NAME.git&auto_devops_enabled=false&shared_runners_enabled=true"
   sleep 20
   curl -s --request POST -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "${URL_PROTOCOL}$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects?name=$GITLAB_EXAMPLE_PROJECT_NAME&import_url=https://github.com/veertuinc/$GITLAB_EXAMPLE_PROJECT_NAME.git&auto_devops_enabled=false&shared_runners_enabled=true"

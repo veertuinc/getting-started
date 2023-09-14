@@ -20,7 +20,7 @@ cleanup() {
 
   [[ "${SECURITY_GROUP_ID}" != null ]] && aws_execute "ec2 delete-security-group \
     --group-id \"${SECURITY_GROUP_ID}\" \
-    --group-name \"${AWS_NONUNIQUE_LABEL}\""
+    --group-name \"${AWS_NONUNIQUE_LABEL}\"" || true
 }
 
 echo "${COLOR_CYAN}==============================================${COLOR_NC}"

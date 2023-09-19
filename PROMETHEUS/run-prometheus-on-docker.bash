@@ -28,6 +28,12 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
 BLOCK
+if [[ "$(uname)" == "Linux" ]]; then
+cat >> docker-compose.yml <<BLOCK
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+BLOCK
+fi
   execute-docker-compose up -d
   # Check if it's still starting...
   while [[ ! "$(docker logs --tail 100 $PROMETHEUS_DOCKER_CONTAINER_NAME 2>&1)" =~ 'Server is ready to receive web requests' ]]; do 

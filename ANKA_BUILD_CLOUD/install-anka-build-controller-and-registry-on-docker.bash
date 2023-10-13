@@ -107,6 +107,8 @@ ${CLOUD_REGISTRY_BUILD_BLOCK}
     volumes:
       - "${CLOUD_REGISTRY_STORAGE_LOCATION}:/mnt/vol"
 
+  etcd:
+    container_name: anka.etcd
 ${CLOUD_ETCD_BUILD_BLOCK}
     volumes:
       - ${HOME}/anka-docker-etcd-data:/etcd-data

@@ -7,12 +7,6 @@ cd $SCRIPT_DIR
 . ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
 FLAGS="${*}"; set -- # prevent $1 from going into get-macos-with-mist
-if [[ "$(arch)" == "arm64" ]]; then
-  if [[ ! -e /Applications/Xcode.app ]]; then
-    echo "Xcode 15 or greater must be installed to create Anka VMs on non-Sonoma host OS'."
-    exit 1
-  fi
-fi
 . ./.misc/get-macos-with-mist.bash
 TEMPLATE_NAME="${MACOS_VERSION}${ARCH_EXTENSION}"
 INSTALLER_LOCATION="${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION}${EXTENSION}"

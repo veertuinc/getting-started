@@ -38,6 +38,10 @@ if [[ $1 != "--uninstall" ]]; then
   fi
   tar -xzvf $CLOUD_DOCKER_TAR
   # Configuration
+  if [[ "$(arch)" == "arm64" ]]; then
+    sed -i '' 's/FROM ubuntu:20.04/FROM --platform=linux/amd64 ubuntu:20.04/g' controller/Dockerfile
+    sed -i '' 's/FROM ubuntu:20.04/FROM --platform=linux/amd64 ubuntu:20.04/g' registry/Dockerfile
+  fi
   echo "]] Modifying the docker-compose.yml"
 CLOUD_ETCD_BUILD_BLOCK=$(cat <<'BLOCK'
     build:
@@ -80,28 +84,29 @@ ${CLOUD_CONTROLLER_BUILD_BLOCK}
        - etcd
        - anka-registry
     environment:
-      ANKA_ANKA_REGISTRY: "http://$CLOUD_REGISTRY_ADDRESS:8089"
-      ANKA_ETCD_ENDPOINTS: "$CLOUD_ETCD_ADDRESS:2379"
+      ANKA_ANKA_REGISTRY: "http://${CLOUD_REGISTRY_ADDRESS}:8089"
+      ANKA_ETCD_ENDPOINTS: "${CLOUD_ETCD_ADDRESS}:2379"
       ANKA_ENABLE_CENTRAL_LOGGING: "true"
       ANKA_LISTEN_ADDR: :80
       ANKA_LOG_DIR: /var/log/anka-controller
       ANKA_LOCAL_ANKA_REGISTRY: http://anka-registry:8089
+      ANKA_ETCD_ENDPOINTS: etcd:2379
+      # https://docs.veertu.com/anka/anka-build-cloud/configuration-reference/#configuration-envs
     restart: always
 
   anka-registry:
     container_name: anka.registry
 ${CLOUD_REGISTRY_BUILD_BLOCK}
-    environment:
-      ANKA_BASE_PATH: /mnt/vol
-      ANKA_LISTEN_ADDR: :8089
     ports:
       - "8089:8089"
     restart: always
+    environment:
+      ANKA_BASE_PATH: /mnt/vol
+      ANKA_LISTEN_ADDR: :8089
+      # https://docs.veertu.com/anka/anka-build-cloud/configuration-reference/#configuration-envs
     volumes:
       - "${CLOUD_REGISTRY_STORAGE_LOCATION}:/mnt/vol"
 
-  etcd:
-    container_name: anka.etcd
 ${CLOUD_ETCD_BUILD_BLOCK}
     volumes:
       - ${HOME}/anka-docker-etcd-data:/etcd-data
@@ -118,7 +123,6 @@ ${CLOUD_ETCD_BUILD_BLOCK}
       ETCD_AUTO_COMPACTION_MODE: periodic
       ETCD_NAME: my-etcd
     restart: always
-
 BLOCK
 if [[ "$(uname)" == "Linux" ]]; then
 cat >> docker-compose.yml <<BLOCK

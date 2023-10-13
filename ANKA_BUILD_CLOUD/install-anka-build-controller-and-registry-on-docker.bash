@@ -39,8 +39,8 @@ if [[ $1 != "--uninstall" ]]; then
   tar -xzvf $CLOUD_DOCKER_TAR
   # Configuration
   if [[ "$(arch)" == "arm64" ]]; then
-    sed -i '' 's/FROM ubuntu:20.04/FROM --platform=linux/amd64 ubuntu:20.04/g' controller/Dockerfile
-    sed -i '' 's/FROM ubuntu:20.04/FROM --platform=linux/amd64 ubuntu:20.04/g' registry/Dockerfile
+    sed -i '' 's/FROM ubuntu:20.04/FROM --platform=linux\/amd64 ubuntu:20.04/g' controller/Dockerfile
+    sed -i '' 's/FROM ubuntu:20.04/FROM --platform=linux\/amd64 ubuntu:20.04/g' registry/Dockerfile
   fi
   echo "]] Modifying the docker-compose.yml"
 CLOUD_ETCD_BUILD_BLOCK=$(cat <<'BLOCK'

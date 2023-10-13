@@ -90,7 +90,6 @@ ${CLOUD_CONTROLLER_BUILD_BLOCK}
       ANKA_LISTEN_ADDR: :80
       ANKA_LOG_DIR: /var/log/anka-controller
       ANKA_LOCAL_ANKA_REGISTRY: http://anka-registry:8089
-      ANKA_ETCD_ENDPOINTS: etcd:2379
       # https://docs.veertu.com/anka/anka-build-cloud/configuration-reference/#configuration-envs
     restart: always
 

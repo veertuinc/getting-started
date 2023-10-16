@@ -67,7 +67,7 @@ fi
   ## API auth
   # GITLAB_ACCESS_TOKEN=$(curl -s --request POST --data "grant_type=password&username=root&password=$GITLAB_ROOT_PASSWORD" http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/oauth/token | jq -r '.access_token')
   echo "]] Creating Access token (be patient)"
-  docker exec -i anka.gitlab bash -c "gitlab-rails runner \"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_user, :read_repository, :api], name: 'Automation token'); token.set_token('${GITLAB_ACCESS_TOKEN}'); token.save!\""
+  docker exec -i anka.gitlab bash -c "gitlab-rails runner \"token = User.find_by_username('root').personal_access_tokens.create(scopes: [:read_user, :read_repository, :api], name: 'Automation token', expires_at: Time.now + 1.month); token.set_token('${GITLAB_ACCESS_TOKEN}'); token.save!\""
   
   ## Create example project
   echo "]] Importing example project"

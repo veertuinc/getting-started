@@ -10,7 +10,7 @@ SOURCE_TEMPLATE="${1}"
 HELPERS="set -exo pipefail;PATH=\\\$PATH:/usr/local/bin:/opt/homebrew/bin;"
 ANKA_RUN="${SUDO} anka ${ANKA_DEBUG} run -N -n"
 [[ ! -z "$(${SUDO} anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME)" ]] && REMOTE="--remote $CLOUD_REGISTRY_REPO_NAME"
-ANKA_REGISTRY="${SUDO} anka ${ANKA_DEBUG} registry $REMOTE $CERTS"
+ANKA_REGISTRY="time ${SUDO} anka ${ANKA_DEBUG} registry $REMOTE $CERTS"
 
 cleanup() {
   ${SUDO} anka stop -f $TEMPLATE || true

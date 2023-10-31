@@ -206,18 +206,14 @@ if [[ -n "${INSTANCE_IP}" && "${INSTANCE_IP}" != null ]]; then
     echo "Instance still starting..."
     sleep 60
   done
-  # Not needed since 12.2.1 AMI
-  # if ${PREP:-true}; then
-  #   echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
-  #   ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
-  #     sudo launchctl unload -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist; \
-  #     sudo pkill timed && date && \
-  #     sudo /usr/libexec/PlistBuddy -c 'Delete :ProgramArguments:2' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist || true && \
-  #     sudo /usr/libexec/PlistBuddy -c 'Add :ProgramArguments:2 string "--host ${INSTANCE_IP} --reserve-space 20GB --node-id ${INSTANCE_ID}"' /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
-  #     sudo launchctl load -w /Library/LaunchDaemons/com.veertu.aws-ec2-mac-amis.cloud-connect.plist && \
-  #     sleep 30 && tail -50 /var/log/cloud-connect.log \
-  #   "
-  # fi
+  if ${PREP:-true}; then
+    echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
+    echo "Prewarming the EBS volume for maximum performance"
+    ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
+      brew install fio
+      sudo fio --filename=/dev/r\$(df -h / | grep -o 'disk[0-9]') --rw=read --bs=1M --iodepth=32 --ioengine=posixaio --direct=1 --name=volume-initialize
+    "
+  fi
 else
   echo "Instance failed to be created"
   exit 1

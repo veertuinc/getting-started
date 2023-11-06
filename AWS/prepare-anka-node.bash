@@ -206,14 +206,11 @@ if [[ -n "${INSTANCE_IP}" && "${INSTANCE_IP}" != null ]]; then
     echo "Instance still starting..."
     sleep 60
   done
-  if ${PREP:-true}; then
-    echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
-    echo "Prewarming the EBS volume for maximum performance"
-    ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "PATH=\"/usr/local/bin:\$PATH\" \
-      brew install fio
-      sudo fio --filename=/dev/r\$(df -h / | grep -o 'disk[0-9]') --rw=read --bs=1M --iodepth=32 --ioengine=posixaio --direct=1 --name=volume-initialize
-    "
-  fi
+  # if ${PREP:-true}; then
+  #   echo "${COLOR_CYAN}]] Preparing Instance${COLOR_NC}"
+  #   echo "Prewarming the EBS volume for maximum performance"
+  #   ssh -o "StrictHostKeyChecking=no" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "PATH=\"/usr/local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:\$PATH\" brew install fio; sudo fio --filename=/dev/r\$(df -h / | grep -o 'disk[0-9]') --rw=read --bs=1M --iodepth=32 --ioengine=posixaio --direct=1 --name=volume-initialize"
+  # fi
 else
   echo "Instance failed to be created"
   exit 1

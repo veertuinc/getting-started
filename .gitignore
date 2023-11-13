@@ -6,3 +6,7 @@ ANKA_BUILD_CLOUD/anka-controller-reg*
 content
 softwareupdate.plist
 .idea/
+GITLAB/anka-cloud-gitlab-executor*
+GITLAB/config*
+GITLAB/custom-executor.*
+GITLAB/gitlab-runner-auth-token

@@ -70,7 +70,7 @@ BLOCK
   eval "${SED} '/executor = \"custom\"/c\\
   executor = \"custom\"\\
   environment = [\\
-    \"ANKA_CLOUD_CONTROLLER_URL=http://host.docker.internal:8090/\",\\
+    \"ANKA_CLOUD_CONTROLLER_URL=http://host.docker.internal:8090\",#\"ANKA_CLOUD_DEBUG=true\",\\
   ]\\
 ' config/config.toml"
 

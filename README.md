@@ -189,7 +189,12 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 > There is a known issue with running this on macOS Docker Desktop that causes "too many open files"/500 errors after a few jobs have run: https://gitlab.com/gitlab-org/gitlab/-/issues/255992
 
-### [`install-and-run-anka-gitlab-runners-on-docker.bash`](./GITLAB/install-and-run-anka-gitlab-runners-on-docker.bash)
+### [`install-gitlab-runner-and-custom-executor-on-docker.bash`](./GITLAB/install-gitlab-runner-and-custom-executor-on-docker.bash)
+
+- Running this script sets up a Gitlab Runner (at the latest version) with the [Anka Cloud Gitlab Executor](https://github.com/veertuinc/anka-cloud-gitlab-executor) attached.
+- If the first argument is `--uninstall`, it will only remove the existing install.
+
+<!-- ### [`install-and-run-anka-gitlab-runners-on-docker.bash`](./GITLAB/install-and-run-anka-gitlab-runners-on-docker.bash)
 
 - Running this script will setup two gitlab runner containers that are registered as a shared and project specific runner with your gitlab instance.
 - If the first argument is `--uninstall`, it will only remove the existing containers
@@ -197,7 +202,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 ### [`install-and-run-anka-gitlab-runners-on-mac.bash`](./GITLAB/install-and-run-anka-gitlab-runners-on-mac.bash)
 
 - Running this script will setup two gitlab runners that are registered as a shared and project specific runner with your gitlab instance.
-- If the first argument is `--uninstall`, it will only remove the existing containers
+- If the first argument is `--uninstall`, it will only remove the existing containers -->
 
 ---
 

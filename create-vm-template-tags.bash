@@ -115,7 +115,7 @@ if [[ $2 == '--gitlab' ]]; then
   NEW_TAG="${GITLAB_ANKA_VM_TEMPLATE_TAG}"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE && modify_uuid $NEW_TEMPLATE $GITLAB_RUNNER_VM_TEMPLATE_UUID
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "suspend" "
-    $ANKA_RUN $NEW_TEMPLATE sudo bash -c \"$HELPERS echo \\\$(ifconfig en0 | grep 'inet ' | awk '{print \\\$2}' | cut -d. -f1-3).1 anka.gitlab >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep anka.gitlab /etc/hosts) ]]\"
+    $ANKA_RUN $NEW_TEMPLATE sudo bash -c \"$HELPERS echo \$(sudo defaults read /Library/Preferences/SystemConfiguration/com.apple.vmnet.plist Shared_Net_Address) anka.gitlab >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep anka.gitlab /etc/hosts) ]]\"
   "
   prepare-and-push $NEW_TEMPLATE "v1-with-file" "suspend" "
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS touch /Users/anka/Desktop/test.file\"
@@ -148,7 +148,7 @@ if [[ $2 == '--jenkins' ]]; then
   does_not_exist $JENKINS_TEMPLATE_NAME $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE_NAME && modify_uuid $JENKINS_TEMPLATE_NAME $JENKINS_VM_TEMPLATE_UUID
   ## Jenkins misc (Only needed if you're running Jenkins on the same host you run the VMs)
   prepare-and-push $JENKINS_TEMPLATE_NAME $NEW_TAG "stop" "
-    $ANKA_RUN $JENKINS_TEMPLATE_NAME sudo bash -c \"$HELPERS echo \$(ifconfig en0 | grep 'inet ' | awk '{print \\\$2}' | cut -d. -f1-3).1 anka.jenkins >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep anka.jenkins /etc/hosts) ]]\"
+    $ANKA_RUN $JENKINS_TEMPLATE_NAME sudo bash -c \"$HELPERS echo \$(sudo defaults read /Library/Preferences/SystemConfiguration/com.apple.vmnet.plist Shared_Net_Address) anka.jenkins >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep anka.jenkins /etc/hosts) ]]\"
   "
 fi
 
@@ -157,7 +157,7 @@ if [[ $2 == '--teamcity' ]]; then
   TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-openjdk-11.0.14.1-teamcity"
   does_not_exist $TEAMCITY_TEMPLATE $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $TEAMCITY_TEMPLATE
   prepare-and-push $TEAMCITY_TEMPLATE $NEW_TAG "suspend" "
-    $ANKA_RUN $TEAMCITY_TEMPLATE sudo bash -c \"$HELPERS echo \$(ifconfig en0 | grep 'inet ' | awk '{print \\\$2}' | cut -d. -f1-3).1 $TEAMCITY_DOCKER_CONTAINER_NAME >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"
+    $ANKA_RUN $TEAMCITY_TEMPLATE sudo bash -c \"$HELPERS echo \$(sudo defaults read /Library/Preferences/SystemConfiguration/com.apple.vmnet.plist Shared_Net_Address) $TEAMCITY_DOCKER_CONTAINER_NAME >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"
     $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"curl -O -L https://download.jetbrains.com/teamcity/TeamCity-$TEAMCITY_VERSION.tar.gz\"
     $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"tar -xzvf TeamCity-$TEAMCITY_VERSION.tar.gz && mv Teamcity/BuildAgent /Users/anka/buildAgent\"
     $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"echo >> buildAgent/conf/buildagent.properties\"

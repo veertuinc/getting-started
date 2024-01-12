@@ -16,15 +16,17 @@ if [[ $1 != "--uninstall" ]]; then
   cp -f .log.properties $JENKINS_DATA_DIR/log.properties # Enable debug logging
   echo "]] Starting the Jenkins Docker container"
 cat > docker-compose.yml <<BLOCK
-version: '3.7'
+version: '3.9'
 services:
   $JENKINS_DOCKER_CONTAINER_NAME:
     container_name: $JENKINS_DOCKER_CONTAINER_NAME
     image: jenkins/jenkins:$JENKINS_TAG_VERSION
     restart: always
     ports:
-      - "$JENKINS_PORT:$SERVICE_PORT"
-      - "50000:50000"
+      - target: $SERVICE_PORT
+        published: $JENKINS_PORT
+      - target: 50000
+        published: 50000
     volumes:
       - $JENKINS_DATA_DIR:/var/jenkins_home
     environment:

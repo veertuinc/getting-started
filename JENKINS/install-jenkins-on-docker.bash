@@ -28,7 +28,9 @@ services:
       - target: 50000
         published: 50000
     volumes:
-      - $JENKINS_DATA_DIR:/var/jenkins_home
+      - type: bind
+        source: $JENKINS_DATA_DIR
+        target: /var/jenkins_home
     environment:
       JAVA_OPTS: "-Djenkins.install.runSetupWizard=false -Djava.util.logging.config.file=/var/jenkins_home/log.properties"
 BLOCK

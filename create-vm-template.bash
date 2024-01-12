@@ -15,8 +15,11 @@ if [[ "${FLAGS}" != "--no-anka-create" ]]; then
   FULL_URL="${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS"
   ADD_REGISTRY=true
   if [[ -z "$(${SUDO} anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME || true)" ]]; then
-    if curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data 2>/dev/null; then
-      AWS_USER_DATA="$(curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data 2>/dev/null)"
+    IMDS_TOKEN="$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")"
+    [[ -n "${IMDS_TOKEN}" ]] || (echo "error: no IMDS token obtained from http://169.254.169.254/latest/api/token" && exit 1)
+
+    if curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data -H "X-aws-ec2-metadata-token: ${IMDS_TOKEN}" 2>/dev/null; then
+      AWS_USER_DATA="$(curl -s --connect-timeout 3 http://169.254.169.254/latest/user-data -H "X-aws-ec2-metadata-token: ${IMDS_TOKEN}" 2>/dev/null)"
       if ! echo "${AWS_USER_DATA}" | grep "404 - Not Found"; then
         FULL_URL="$(echo "${AWS_USER_DATA}" | grep ANKA_CONTROLLER_ADDRESS | cut -d\" -f2 | rev | cut -d: -f2-99 | rev)"
       fi

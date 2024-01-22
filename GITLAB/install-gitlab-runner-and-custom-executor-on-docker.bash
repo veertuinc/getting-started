@@ -31,6 +31,10 @@ if [[ $1 != "--uninstall" ]]; then
   chmod +x ${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}
 cat > custom-executor.template.toml <<BLOCK
 [[runners]]
+  environment = [
+    "ANKA_CLOUD_CONTROLLER_URL=${ANKA_CLOUD_CONTROLLER_URL:-"http://host.docker.internal"}:${CLOUD_CONTROLLER_PORT}",
+    "ANKA_CLOUD_TEMPLATE_ID=${GITLAB_VM_TEMPLATE_UUID}"
+  ]
   [runners.custom]
     config_exec = "/mnt/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}"
     config_args = ["config"]
@@ -67,13 +71,6 @@ BLOCK
   log_format = \"text\"\\
 ' config/config.toml"
   eval "${SED} 's/concurrent.*/concurrent = 2/' config/config.toml"
-
-  eval "${SED} '/executor = \"custom\"/c\\
-  executor = \"custom\"\\
-  environment = [\\
-    \"ANKA_CLOUD_CONTROLLER_URL=${ANKA_CLOUD_CONTROLLER_URL:-"http://host.docker.internal"}:${CLOUD_CONTROLLER_PORT}\",#\"ANKA_CLOUD_DEBUG=true\",\\
-  ]\\
-' config/config.toml"
 
   # Actually run it in the background
   docker run --rm -tid --name "${GITLAB_RUNNER_SHARED_RUNNER_NAME}" \

@@ -113,7 +113,7 @@ fi
 if [[ $2 == '--gitlab' ]]; then
   NEW_TEMPLATE="$SOURCE_TEMPLATE-gitlab"
   NEW_TAG="${GITLAB_ANKA_VM_TEMPLATE_TAG}"
-  does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE && modify_uuid $NEW_TEMPLATE $GITLAB_RUNNER_VM_TEMPLATE_UUID
+  does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE && modify_uuid $NEW_TEMPLATE $GITLAB_VM_TEMPLATE_UUID
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $NEW_TEMPLATE sudo bash -c \"$HELPERS echo \$(sudo defaults read /Library/Preferences/SystemConfiguration/com.apple.vmnet.plist Shared_Net_Address) anka.gitlab >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep anka.gitlab /etc/hosts) ]]\"
   "

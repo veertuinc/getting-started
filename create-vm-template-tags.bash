@@ -154,7 +154,7 @@ fi
 
 if [[ $2 == '--teamcity' ]]; then
   NEW_TAG="v1"
-  TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-openjdk-11.0.14.1-teamcity"
+  TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-teamcity"
   does_not_exist $TEAMCITY_TEMPLATE $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $TEAMCITY_TEMPLATE
   prepare-and-push $TEAMCITY_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $TEAMCITY_TEMPLATE sudo bash -c \"$HELPERS echo \$(sudo defaults read /Library/Preferences/SystemConfiguration/com.apple.vmnet.plist Shared_Net_Address) $TEAMCITY_DOCKER_CONTAINER_NAME >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"

@@ -15,11 +15,11 @@ rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
 # Install
 if [[ $1 != "--uninstall" ]]; then
   echo "]] Starting the TeamCity Docker container"
-  cp -f $TEAMCITY_DOCKER_CONTAINER_NAME-data.tar.gz $HOME/
-  cd $HOME
-  tar -xzf $TEAMCITY_DOCKER_DATA_DIR.tar.gz
-  rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
-  cd "$SCRIPT_DIR"
+  curl -o $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME-data.tar.gz https://downloads.veertu.com/anka/$TEAMCITY_DOCKER_CONTAINER_NAME-data.tar.gz
+  pushd $HOME
+    tar -xzf $TEAMCITY_DOCKER_DATA_DIR.tar.gz
+    rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
+  popd
 cat > docker-compose.yml <<BLOCK
 version: '3.7'
 services:

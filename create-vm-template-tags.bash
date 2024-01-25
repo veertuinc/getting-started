@@ -126,7 +126,7 @@ if [[ $2 == '--gitlab' ]]; then
 fi
 
 if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
-  NEW_TEMPLATE="$SOURCE_TEMPLATE-openjdk-11.0.14.1"
+  NEW_TEMPLATE="$SOURCE_TEMPLATE-jre17.48.15"
   NEW_TAG="v1"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE
   ## Install OpenJDK
@@ -134,17 +134,17 @@ if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS \
       [[ \\\$(arch) == arm64 ]] && export ARCH=aarch64 || export ARCH=x64;
       rm -rf zulu*; \
-      curl -v -L -O https://cdn.azul.com/zulu/bin/zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_\\\${ARCH}.tar.gz && \
-      [ \\\$(du -s zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_\\\${ARCH}.tar.gz  | awk '{print \\\$1}') -gt 190000 ] && \
-      tar -xzvf zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_\\\${ARCH}.tar.gz && \
-      sudo mkdir -p /usr/local/bin && for file in \\\$(ls ~/zulu11.54.25-ca-fx-jdk11.0.14.1-macosx_\\\${ARCH}/bin/*); do sudo rm -f /usr/local/bin/\\\$(echo \\\$file | rev | cut -d/ -f1 | rev); sudo ln -s \\\$file /usr/local/bin/\\\$(echo \\\$file | rev | cut -d/ -f1 | rev); done && \
-      java -version && [[ ! -z \\\$(java -version 2>&1 | grep 11.0.14.1) ]]\"
+      curl -v -L -O https://cdn.azul.com/zulu/bin/zulu17.48.15-ca-jre17.0.10-macosx_\\\${ARCH}.tar.gz && \
+      [ \\\$(du -s zulu17.48.15-ca-jre17.0.10-macosx_\\\${ARCH}.tar.gz  | awk '{print \\\$1}') -gt 80000 ] && \
+      tar -xzvf zulu17.48.15-ca-jre17.0.10-macosx_\\\${ARCH}.tar.gz && \
+      sudo mkdir -p /usr/local/bin && for file in \\\$(ls ~/zulu17.48.15-ca-jre17.0.10-macosx_\\\${ARCH}/bin/*); do sudo rm -f /usr/local/bin/\\\$(echo \\\$file | rev | cut -d/ -f1 | rev); sudo ln -s \\\$file /usr/local/bin/\\\$(echo \\\$file | rev | cut -d/ -f1 | rev); done && \
+      java -version && [[ ! -z \\\$(java -version 2>&1 | grep 17.48.15) ]]\"
   "
 fi
 
 if [[ $2 == '--jenkins' ]]; then
   NEW_TAG="v1"
-  JENKINS_TEMPLATE_NAME="$SOURCE_TEMPLATE-openjdk-11.0.14.1-jenkins"
+  JENKINS_TEMPLATE_NAME="$SOURCE_TEMPLATE-jre17.48.15-jenkins"
   does_not_exist $JENKINS_TEMPLATE_NAME $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE_NAME && modify_uuid $JENKINS_TEMPLATE_NAME $JENKINS_VM_TEMPLATE_UUID
   ## Jenkins misc (Only needed if you're running Jenkins on the same host you run the VMs)
   prepare-and-push $JENKINS_TEMPLATE_NAME $NEW_TAG "stop" "
@@ -154,7 +154,7 @@ fi
 
 if [[ $2 == '--teamcity' ]]; then
   NEW_TAG="v1"
-  TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-teamcity"
+  TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-teamcity" # teamcity has a limit on the length of an agent's name, so we can't have jre version in the name :(
   does_not_exist $TEAMCITY_TEMPLATE $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $TEAMCITY_TEMPLATE
   prepare-and-push $TEAMCITY_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $TEAMCITY_TEMPLATE sudo bash -c \"$HELPERS echo \$(sudo defaults read /Library/Preferences/SystemConfiguration/com.apple.vmnet.plist Shared_Net_Address) $TEAMCITY_DOCKER_CONTAINER_NAME >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"

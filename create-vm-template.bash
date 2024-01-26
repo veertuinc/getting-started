@@ -32,7 +32,6 @@ if [[ "${FLAGS}" != "--no-anka-create" ]]; then
       ${SUDO} anka registry list-repos
     fi
   fi
-  exit
   cd $HOME
   # Cleanup already existing Template
   ${SUDO} anka delete --yes $TEMPLATE_NAME &>/dev/null || true

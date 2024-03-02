@@ -152,7 +152,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --count 1 \
     --associate-public-ip-address \
     --ebs-optimized \
-    --block-device-mappings \"[\$(aws ec2 describe-images --image-ids $COMMUNITY_AMI_ID --query \"Images[0].BlockDeviceMappings[0]\" --output json | jq -cr '.Ebs.VolumeType = \"gp3\" | .Ebs.VolumeSize = 200 | .Ebs.Iops = 6000 | .Ebs.Throughput = 256')]\" \
+    --block-device-mappings \"[\$(aws ec2 describe-images --image-ids $COMMUNITY_AMI_ID --query \"Images[0].BlockDeviceMappings[0]\" --output json | jq -cr '.Ebs.VolumeType = \"gp3\" | .Ebs.VolumeSize = ${EBS_VOLUME_SIZE:-200} | .Ebs.Iops = 6000 | .Ebs.Throughput = 256')]\" \
     --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} ${AWS_ANKA_NODE_NAME_TAG_LABEL}"},{Key=purpose,Value="${AWS_ANKA_NODE_UNIQUE_LABEL_PURPOSE}"}]\" ${CLI_OPTIONS}")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do

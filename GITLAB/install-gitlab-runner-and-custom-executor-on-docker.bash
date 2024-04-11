@@ -4,6 +4,9 @@ set -exo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 . ../shared.bash
+
+${ANKA_USE_HTTPS:-false} && SCHEME="https://" || SCHEME="http://"
+
 echo
 (
   echo "] ======================================================"
@@ -24,7 +27,7 @@ if [[ $1 != "--uninstall" ]]; then
   ANKA_CONTROLLER_ADDRESS=${ANKA_CONTROLLER_ADDRESS:-"${URL_PROTOCOL}${DOCKER_HOST_ADDRESS}:$CLOUD_CONTROLLER_PORT"}
   GITLAB_EXAMPLE_PROJECT_ID=$(curl -s --request GET -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/projects" | jq -r ".[] | select(.name==\"$GITLAB_EXAMPLE_PROJECT_NAME\") | .id")
   # GitLab Runner
-  [[ "$(uname)" == "Linux" ]] && DOCKER_RUN_EXTRAS="--add-host=host.docker.internal:host-gateway ${DOCKER_RUN_EXTRAS}"
+  [[ "$(uname)" == "Linux" ]] && DOCKER_RUN_EXTRAS="--add-host=${DOCKER_HOST_ADDRESS}:host-gateway ${DOCKER_RUN_EXTRAS}"
   # download the custom executor
   rm -f ${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}
   curl -LO https://github.com/veertuinc/anka-cloud-gitlab-executor/releases/download/${GITLAB_RUNNER_CUSTOM_EXECUTOR_VERSION}/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}
@@ -32,7 +35,7 @@ if [[ $1 != "--uninstall" ]]; then
 cat > custom-executor.template.toml <<BLOCK
 [[runners]]
   environment = [
-    "ANKA_CLOUD_CONTROLLER_URL=${ANKA_CLOUD_CONTROLLER_URL:-"http://host.docker.internal"}:${CLOUD_CONTROLLER_PORT}",
+    "ANKA_CLOUD_CONTROLLER_URL=${ANKA_CLOUD_CONTROLLER_URL:-"${SCHEME}${DOCKER_HOST_ADDRESS}"}:${CLOUD_CONTROLLER_PORT}",
     "ANKA_CLOUD_TEMPLATE_ID=${GITLAB_VM_TEMPLATE_UUID}"
   ]
   [runners.custom]
@@ -73,6 +76,7 @@ BLOCK
   eval "${SED} 's/concurrent.*/concurrent = 2/' config/config.toml"
 
   # Actually run it in the background
+  sleep 5
   docker run --rm -tid --name "${GITLAB_RUNNER_SHARED_RUNNER_NAME}" \
     -v "${SCRIPT_DIR}:/mnt" -v "${SCRIPT_DIR}/config:/etc/gitlab-runner" ${GITLAB_RUNNER_DOCKER_IMAGE}
 fi

@@ -104,17 +104,21 @@ echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID}"
 
 # Create dedicated for macOS metal instances
 if [[ "${DEDICATED_HOST_ID}" == null ]]; then
-  for AVAILABILITY_ZONE in $(aws ec2 describe-instance-type-offerings --filters Name=instance-type,Values=${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE} --location-type availability-zone --region ${AWS_REGION} --query "InstanceTypeOfferings[].Location" --output text); do
-    echo "${AVAILABILITY_ZONE}"
-    if ! DEDICATED_HOST=$(aws_execute -r "ec2 allocate-hosts \
-      --quantity 1 \
-      --availability-zone \"${AVAILABILITY_ZONE}\" \
-      --instance-type \"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
-      --tag-specifications \"ResourceType=dedicated-host,Tags=[{Key=Name,Value="${AWS_NONUNIQUE_LABEL} Anka Node"},{Key=purpose,Value=${AWS_NONUNIQUE_LABEL}}]\""); then
-      continue
-    else
-      break
-    fi
+  for i in {1..20}; do
+    for AVAILABILITY_ZONE in $(aws ec2 describe-instance-type-offerings --filters Name=instance-type,Values=${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE} --location-type availability-zone --region ${AWS_REGION} --query "InstanceTypeOfferings[].Location" --output text); do
+      echo "${AVAILABILITY_ZONE}"
+      if ! DEDICATED_HOST=$(aws_execute -r "ec2 allocate-hosts \
+        --quantity 1 \
+        --availability-zone \"${AVAILABILITY_ZONE}\" \
+        --instance-type \"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
+        --tag-specifications \"ResourceType=dedicated-host,Tags=[{Key=Name,Value="${AWS_NONUNIQUE_LABEL} Anka Node"},{Key=purpose,Value=${AWS_NONUNIQUE_LABEL}}]\""); then
+        continue
+      else
+        break 2
+      fi
+    done
+    echo "Attempt $i failed, retrying in 120 seconds..."
+    sleep 120
   done
   DEDICATED_HOST_ID="$(echo "${DEDICATED_HOST}" | jq -r '.HostIds[0]')"
   [[ -n "${DEDICATED_HOST}" && "${DEDICATED_HOST}" != 'null' ]] || (echo "unable to create dedicated host right now.. try again later" && exit 2)

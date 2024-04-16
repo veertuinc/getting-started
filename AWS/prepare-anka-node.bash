@@ -104,7 +104,7 @@ echo " - Added ${HOST_IP} to Security Group ${SECURITY_GROUP_ID}"
 
 # Create dedicated for macOS metal instances
 if [[ "${DEDICATED_HOST_ID}" == null ]]; then
-  outer_loop_broken=false
+  DEDICATED_OBTAINED=false
   for i in {1..20}; do
     for AVAILABILITY_ZONE in $(aws ec2 describe-instance-type-offerings --filters Name=instance-type,Values=${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE} --location-type availability-zone --region ${AWS_REGION} --query "InstanceTypeOfferings[].Location" --output text); do
       echo "${AVAILABILITY_ZONE}"
@@ -115,13 +115,11 @@ if [[ "${DEDICATED_HOST_ID}" == null ]]; then
         --tag-specifications \"ResourceType=dedicated-host,Tags=[{Key=Name,Value="${AWS_NONUNIQUE_LABEL} Anka Node"},{Key=purpose,Value=${AWS_NONUNIQUE_LABEL}}]\""); then
         continue
       else
-        outer_loop_broken=true
+        DEDICATED_OBTAINED=true
         break
       fi
     done
-    if [[ "$outer_loop_broken" = true ]]; then
-      break
-    fi
+    $DEDICATED_OBTAINED && break
     echo "Attempt $i failed, retrying in 120 seconds..."
     sleep 120
   done

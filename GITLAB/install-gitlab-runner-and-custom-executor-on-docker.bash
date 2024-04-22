@@ -22,6 +22,7 @@ echo
   rm -f gitlab-runner-auth-token
   rm -rf config
 ) || true
+sleep 2
 if [[ $1 != "--uninstall" ]]; then
   VM_CLONE_ADDRESS="${VM_CLONE_ADDRESS:-"${GITLAB_DOCKER_CONTAINER_NAME}"}"
   ANKA_CONTROLLER_ADDRESS=${ANKA_CONTROLLER_ADDRESS:-"${URL_PROTOCOL}${DOCKER_HOST_ADDRESS}:$CLOUD_CONTROLLER_PORT"}
@@ -29,8 +30,10 @@ if [[ $1 != "--uninstall" ]]; then
   # GitLab Runner
   [[ "$(uname)" == "Linux" ]] && DOCKER_RUN_EXTRAS="--add-host=${DOCKER_HOST_ADDRESS}:host-gateway ${DOCKER_RUN_EXTRAS}"
   # download the custom executor
-  rm -f ${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}
-  curl -LO https://github.com/veertuinc/anka-cloud-gitlab-executor/releases/download/${GITLAB_RUNNER_CUSTOM_EXECUTOR_VERSION}/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}
+  if [[ ! -f ${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME} ]]; then
+    rm -f ${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}
+    curl -LO https://github.com/veertuinc/anka-cloud-gitlab-executor/releases/download/${GITLAB_RUNNER_CUSTOM_EXECUTOR_VERSION}/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}
+  fi
   chmod +x ${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}
 cat > custom-executor.template.toml <<BLOCK
 [[runners]]
@@ -76,7 +79,7 @@ BLOCK
   eval "${SED} 's/concurrent.*/concurrent = 2/' config/config.toml"
 
   # Actually run it in the background
-  sleep 5
+  sleep 2
   docker run --rm -tid --name "${GITLAB_RUNNER_SHARED_RUNNER_NAME}" \
     -v "${SCRIPT_DIR}:/mnt" -v "${SCRIPT_DIR}/config:/etc/gitlab-runner" ${GITLAB_RUNNER_DOCKER_IMAGE}
 fi

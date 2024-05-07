@@ -39,7 +39,9 @@ cat > custom-executor.template.toml <<BLOCK
 [[runners]]
   environment = [
     "ANKA_CLOUD_CONTROLLER_URL=${ANKA_CLOUD_CONTROLLER_URL:-"${SCHEME}${DOCKER_HOST_ADDRESS}"}:${CLOUD_CONTROLLER_PORT}",
-    "ANKA_CLOUD_TEMPLATE_ID=${GITLAB_VM_TEMPLATE_UUID}"
+    "ANKA_CLOUD_TEMPLATE_ID=${GITLAB_VM_TEMPLATE_UUID}",
+    "ANKA_CLOUD_SSH_CONNECTION_ATTEMPTS=5",
+    "ANKA_CLOUD_SSH_CONNECTION_ATTEMPT_DELAY=1"
   ]
   [runners.custom]
     config_exec = "/mnt/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}"
@@ -47,7 +49,7 @@ cat > custom-executor.template.toml <<BLOCK
     prepare_exec = "/mnt/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}"
     prepare_args = ["prepare"]
     run_exec = "/mnt/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}"
-    run_args = ["run"]
+    run_args = ["run", "--ssh-username", "anka", "--ssh-password", "admisn"]
     cleanup_exec = "/mnt/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}"
     cleanup_args = ["cleanup"]
 BLOCK

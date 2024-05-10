@@ -30,7 +30,7 @@ if [[ $1 != "--uninstall" ]]; then
   --ssh-password $ANKA_VM_PASSWORD \
   --name "localhost shared runner" \
   --anka-controller-address $ANKA_CONTROLLER_ADDRESS \
-  --anka-template-uuid $GITLAB_RUNNER_VM_TEMPLATE_UUID_INTEL \
+  --anka-template-uuid $GITLAB_VM_TEMPLATE_UUID \
   --anka-tag $GITLAB_ANKA_VM_TEMPLATE_TAG \
   --executor anka \
   $EXTRAS \
@@ -46,7 +46,7 @@ if [[ $1 != "--uninstall" ]]; then
   --ssh-password $ANKA_VM_PASSWORD \
   --name "localhost project specific runner" \
   --anka-controller-address $ANKA_CONTROLLER_ADDRESS \
-  --anka-template-uuid $GITLAB_RUNNER_VM_TEMPLATE_UUID_INTEL \
+  --anka-template-uuid $GITLAB_VM_TEMPLATE_UUID \
   --anka-tag $GITLAB_ANKA_VM_TEMPLATE_TAG \
   --executor anka \
   $EXTRAS \

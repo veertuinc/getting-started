@@ -34,7 +34,7 @@ if [[ $1 != "--uninstall" ]]; then
   --ssh-password admin \
   --name "localhost shared runner" \
   --anka-controller-address "http://anka.controller:8090/" \
-  --anka-template-uuid $GITLAB_RUNNER_VM_TEMPLATE_UUID \
+  --anka-template-uuid $GITLAB_VM_TEMPLATE_UUID \
   --anka-tag v1 \
   --executor anka \
   --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \
@@ -47,7 +47,7 @@ if [[ $1 != "--uninstall" ]]; then
   --ssh-password admin \
   --name "localhost specific runner" \
   --anka-controller-address "http://anka.controller:8090/" \
-  --anka-template-uuid $GITLAB_RUNNER_VM_TEMPLATE_UUID \
+  --anka-template-uuid $GITLAB_VM_TEMPLATE_UUID \
   --anka-tag v1 \
   --executor anka \
   --clone-url "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT" \

@@ -6,11 +6,11 @@ cd "${WORKDIR}"
 [[ -n "$(command -v jq)" ]] || brew install jq
 # [[ -n "$(command -v mist)" ]] || brew install mist
 # [[ -n "$(mist --version)" && "$(mist --version | cut -d. -f1,2 | awk '{print $1}' | sed 's/\.//g')" -lt 18 ]] && echo "You must install a version of mist >= 1.8" && exit 1
-if ! mist &>/dev/null || [[ -n "$(mist --version)" && "$(mist --version | cut -d. -f1,2 | awk '{print $1}' | sed 's/\.//g')" -ne 20 ]]; then
+if ! mist &>/dev/null || [[ -n "$(mist --version)" && "$(mist --version | cut -d. -f1,2 | awk '{print $1}' | sed 's/\.//g')" -lt 21 ]]; then
   brew remove mist || true
   sudo rm -f /usr/local/bin/mist || true
-  curl -L -O https://github.com/ninxsoft/mist-cli/releases/download/v2.0/mist-cli.2.0.pkg
-  sudo installer -pkg "${WORKDIR}/mist-cli.2.0.pkg" -target /
+  curl -L -O https://github.com/ninxsoft/mist-cli/releases/download/v2.1.1/mist-cli.2.1.1.pkg
+  sudo installer -pkg "${WORKDIR}/mist-cli.2.1.1.pkg" -target /
 fi
 # curl --fail --silent -L -O https://raw.githubusercontent.com/veertuinc/getting-started/master/.bin/mist && sudo chmod +x mist
 [[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Sonoma"}

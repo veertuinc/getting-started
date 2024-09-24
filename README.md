@@ -193,7 +193,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 - Running this script sets up a Gitlab Runner (at the latest version) with the [Anka Cloud Gitlab Executor](https://github.com/veertuinc/anka-cloud-gitlab-executor) attached.
 - If the first argument is `--uninstall`, it will only remove the existing install.
-- Use A`NKA_CLOUD_CONTROLLER_URL="" ./. . .` to change the controller address the runner will comunicate with. It defaults to `host.docker.internal`.
+- Use `ANKA_CLOUD_CONTROLLER_URL="" ./. . .` to change the controller address the runner will comunicate with. It defaults to `host.docker.internal`.
 
 <!-- ### [`install-and-run-anka-gitlab-runners-on-docker.bash`](./GITLAB/install-and-run-anka-gitlab-runners-on-docker.bash)
 

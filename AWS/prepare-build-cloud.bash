@@ -108,7 +108,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
   AMI_ID="$(aws_execute -r -s "ec2 describe-images \
     --owners \"amazon\" \
     --filters \"Name=name,Values=al2023-ami-2023*-x86_64\" \"Name=state,Values=available\" \
-    --query \"sort_by(Images, &CreationDate)[-1].[ImageId]\" \
+    --query \"sort_by(Images, &CreationDate)[-1].[templateId]\" \
     --output \"text\"")"
   INSTANCE=$(aws_execute -r "ec2 run-instances \
     --image-id \"${AMI_ID}\" \

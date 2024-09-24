@@ -158,11 +158,11 @@ if [[ $2 == '--teamcity' ]]; then
   does_not_exist $TEAMCITY_TEMPLATE $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $TEAMCITY_TEMPLATE
   prepare-and-push $TEAMCITY_TEMPLATE $NEW_TAG "suspend" "
     $ANKA_RUN $TEAMCITY_TEMPLATE sudo bash -c \"$HELPERS echo \$(sudo defaults read /Library/Preferences/SystemConfiguration/com.apple.vmnet.plist Shared_Net_Address) $TEAMCITY_DOCKER_CONTAINER_NAME >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"
-    $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"curl -O -L https://download.jetbrains.com/teamcity/TeamCity-$TEAMCITY_VERSION.tar.gz\"
-    $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"tar -xzvf TeamCity-$TEAMCITY_VERSION.tar.gz && mv Teamcity/BuildAgent /Users/anka/buildAgent\"
-    $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"echo >> buildAgent/conf/buildagent.properties\"
-    $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"sh buildAgent/bin/mac.launchd.sh load && sleep 5\"
   "
+  # $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"curl -O -L https://download.jetbrains.com/teamcity/TeamCity-$TEAMCITY_VERSION.tar.gz\"
+  # $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"tar -xzvf TeamCity-$TEAMCITY_VERSION.tar.gz && mv Teamcity/BuildAgent /Users/anka/buildAgent && rm -rf TeamCity*\"
+  # $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"echo > buildAgent/conf/buildagent.properties\"
+  # $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"sh buildAgent/bin/mac.launchd.sh load && sleep 5\"
 fi
 echo ""
 echo "============================="

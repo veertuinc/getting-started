@@ -13,7 +13,7 @@ if ! mist &>/dev/null || [[ -n "$(mist --version)" && "$(mist --version | cut -d
   sudo installer -pkg "${WORKDIR}/mist-cli.2.1.1.pkg" -target /
 fi
 # curl --fail --silent -L -O https://raw.githubusercontent.com/veertuinc/getting-started/master/.bin/mist && sudo chmod +x mist
-[[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Sonoma"}
+[[ -z "${MACOS_VERSION}" ]] && MACOS_VERSION=${1:-"Sequoia"}
 MIST_KIND=${MIST_KIND:-"installer"}
 # Support >= 1.8
 MIST_OPTIONS="${MIST_KIND} ${MACOS_VERSION}"

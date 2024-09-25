@@ -156,7 +156,7 @@ if [[ $2 == '--teamcity' ]]; then
   NEW_TAG="v1"
   TEAMCITY_TEMPLATE="$SOURCE_TEMPLATE-teamcity" # teamcity has a limit on the length of an agent's name, so we can't have jre version in the name :(
   does_not_exist $TEAMCITY_TEMPLATE $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $TEAMCITY_TEMPLATE
-  prepare-and-push $TEAMCITY_TEMPLATE $NEW_TAG "suspend" "
+  prepare-and-push $TEAMCITY_TEMPLATE $NEW_TAG "stop" "
     $ANKA_RUN $TEAMCITY_TEMPLATE sudo bash -c \"$HELPERS echo \$(sudo defaults read /Library/Preferences/SystemConfiguration/com.apple.vmnet.plist Shared_Net_Address) $TEAMCITY_DOCKER_CONTAINER_NAME >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep $TEAMCITY_DOCKER_CONTAINER_NAME /etc/hosts) ]]\"
   "
   # $ANKA_RUN $TEAMCITY_TEMPLATE bash -c \"curl -O -L https://download.jetbrains.com/teamcity/TeamCity-$TEAMCITY_VERSION.tar.gz\"

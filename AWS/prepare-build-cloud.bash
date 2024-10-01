@@ -15,8 +15,16 @@ cleanup() {
         sleep 50
       done
 
-  [[ "${ELASTIC_IP_ID}" != null ]] && aws_execute "ec2 release-address \
-    --allocation-id \"${ELASTIC_IP_ID}\""
+  if [[ "${ELASTIC_IP_ID}" != null ]]; then
+    aws_execute "ec2 release-address \
+      --allocation-id \"${ELASTIC_IP_ID}\""
+  else
+    if [[ -n "${AWS_BUILD_CLOUD_UNIQUE_LABEL}" ]]; then
+      ELASTIC_IP="$(aws_execute -r -s "ec2 describe-addresses --filter \"Name=tag:purpose,Values=${AWS_BUILD_CLOUD_UNIQUE_LABEL}\"")"
+      ELASTIC_IP_ID="$(echo "${ELASTIC_IP}" | jq -r '.Addresses[0].AllocationId')"
+      aws_execute "ec2 release-address --allocation-id \"${ELASTIC_IP_ID}\""
+    fi
+  fi
 
   [[ "${SECURITY_GROUP_ID}" != null ]] && aws_execute "ec2 delete-security-group \
     --group-id \"${SECURITY_GROUP_ID}\" \

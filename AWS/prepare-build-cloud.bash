@@ -108,8 +108,12 @@ if [[ "${INSTANCE_ID}" == null ]]; then
   AMI_ID="$(aws_execute -r -s "ec2 describe-images \
     --owners \"amazon\" \
     --filters \"Name=name,Values=al2023-ami-2023*-x86_64\" \"Name=state,Values=available\" \
-    --query \"sort_by(Images, &CreationDate)[-1].[templateId]\" \
+    --query \"sort_by(Images, &CreationDate)[-1].[ImageId]\" \
     --output \"text\"")"
+  if [[ "${AMI_ID}" == "None" ]]; then
+    error "Unable to find AMI ID for Amazon Linux 2023..."
+    exit 1
+  fi
   INSTANCE=$(aws_execute -r "ec2 run-instances \
     --image-id \"${AMI_ID}\" \
     --instance-type \"${AWS_BUILD_CLOUD_INSTANCE_TYPE}\" \

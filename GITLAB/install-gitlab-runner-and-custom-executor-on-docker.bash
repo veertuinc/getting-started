@@ -49,7 +49,7 @@ cat > custom-executor.template.toml <<BLOCK
     prepare_exec = "/mnt/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}"
     prepare_args = ["prepare"]
     run_exec = "/mnt/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}"
-    run_args = ["run", "--ssh-username", "anka", "--ssh-password", "admisn"]
+    run_args = ["run", "--ssh-username", "anka", "--ssh-password", "admin"]
     cleanup_exec = "/mnt/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}"
     cleanup_args = ["cleanup"]
 BLOCK

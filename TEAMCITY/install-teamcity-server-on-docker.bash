@@ -30,7 +30,7 @@ services:
     ports:
       - "$TEAMCITY_PORT:$SERVICE_PORT"
     volumes:
-      - $TEAMCITY_DOCKER_DATA_DIR:/data/teamcity_server/datadir
+      - $TEAMCITY_DOCKER_DATA_DIR:/data/teamcity_server
       - $TEAMCITY_DOCKER_DATA_DIR/logs:/opt/teamcity/logs
     environment:
       TEAMCITY_SERVER_MEM_OPTS: "-Xmx1240m"

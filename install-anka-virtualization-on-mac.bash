@@ -31,7 +31,7 @@ if [[ $1 != "--uninstall" ]]; then
     sudo installer -pkg $INSTALLER_LOCATION -target /
   fi
   # Device support for 15.x VM creation
-  curl -O https://downloads.veertu.com/anka/MobileDevice-16.1.pkg && sudo installer -pkg MobileDevice-16.1.pkg -tgt / || exit 100
+  curl -O https://downloads.veertu.com/anka/MobileDevice-16.1.pkg && sudo installer -pkg MobileDevice-16.1.pkg -tgt / || true
   # Licensing
   echo "]] Activating license"
   sudo anka license accept-eula || true

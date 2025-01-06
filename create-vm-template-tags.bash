@@ -53,6 +53,7 @@ prepare-and-push() {
   echo "]] Preparing and pushing VM template $TEMPLATE and tag $TAG"
   if does_not_exist "$TEMPLATE" "$TAG"; then
     eval "$4"
+    [[ -n $5 ]] && modify_uuid $TEMPLATE $5
     if [[ "$3" == "stop" ]]; then
       stop_and_push "$TEMPLATE" "$TAG"
     else
@@ -142,7 +143,7 @@ if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS brew install openjdk@17 && [[ \\\$(arch) == arm64 ]] && \
       sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk || \
       sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk\"
-  " # we install openjdk@17 because it's the only version that works with the Jenkins agent
+  " "fa990c7f-d540-4c5b-bf72-b886c4692c3a" # we install openjdk@17 because it's the only version that works with the Jenkins agent
 fi
 
 if [[ $2 == '--jenkins' ]]; then

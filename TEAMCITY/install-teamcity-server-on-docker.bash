@@ -6,19 +6,23 @@ cd "$SCRIPT_DIR"
 SERVICE_PORT="8111"
 # Cleanup
 echo "]] Cleaning up the previous TeamCity installation"
+set -x
 execute-docker-compose down &>/dev/null || true
 docker stop $TEAMCITY_DOCKER_CONTAINER_NAME &>/dev/null || true
 docker rm $TEAMCITY_DOCKER_CONTAINER_NAME &>/dev/null || true
 rm -rf $TEAMCITY_DOCKER_DATA_DIR
-rm -rf docker-compose.yml
+rm -f docker-compose.yml
 rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
+set +x
 # Install
 if [[ $1 != "--uninstall" ]]; then
   echo "]] Starting the TeamCity Docker container"
-  curl -o $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME-data.tar.gz https://downloads.veertu.com/anka/$TEAMCITY_DOCKER_CONTAINER_NAME-data.tar.gz
+  echo "]]] Downloading the TeamCity data"
+  curl -o $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME-data.zip https://downloads.veertu.com/anka/$TEAMCITY_DOCKER_CONTAINER_NAME-data.zip
+  echo "]]] Extracting the TeamCity data"
   pushd $HOME
-    tar -xzf $TEAMCITY_DOCKER_DATA_DIR.tar.gz
-    rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
+    unzip $TEAMCITY_DOCKER_DATA_DIR.zip
+    rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.zip
   popd
 cat > docker-compose.yml <<BLOCK
 version: '3.7'
@@ -30,11 +34,12 @@ services:
     ports:
       - "$TEAMCITY_PORT:$SERVICE_PORT"
     volumes:
-      - $TEAMCITY_DOCKER_DATA_DIR:/data/teamcity_server
-      - $TEAMCITY_DOCKER_DATA_DIR/logs:/opt/teamcity/logs
+      - ${TEAMCITY_DOCKER_DATA_DIR}/datadir:/data/teamcity_server/datadir
+      - ${TEAMCITY_DOCKER_DATA_DIR}/teamcity-startup.properties:/opt/teamcity/conf/teamcity-startup.properties
+      - ${TEAMCITY_DOCKER_DATA_DIR}/logs:/opt/teamcity/logs
     environment:
-      TEAMCITY_SERVER_MEM_OPTS: "-Xmx1240m"
-      TEAMCITY_SERVER_OPTS: "-Dteamcity.kotlinConfigsDsl.pluginsCompilationXmx=512m"
+      TEAMCITY_SERVER_MEM_OPTS: "-Xmx2440m"
+      TEAMCITY_SERVER_OPTS: "-Dteamcity.kotlinConfigsDsl.pluginsCompilationXmx=1024m -Dteamcity.development.mode=true"
 BLOCK
 if [[ "$(uname)" == "Linux" ]]; then
 cat >> docker-compose.yml <<BLOCK

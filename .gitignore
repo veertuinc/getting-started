@@ -10,4 +10,4 @@ GITLAB/anka-cloud-gitlab-executor*
 GITLAB/config*
 GITLAB/custom-executor.*
 GITLAB/gitlab-runner-auth-token
-TEAMCITY/*.tar.gz
+TEAMCITY/*.zip

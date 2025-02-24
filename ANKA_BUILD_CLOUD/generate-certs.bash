@@ -4,10 +4,10 @@ SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd $SCRIPT_DIR
 ADD_TO_KEYCHAIN=${ADD_TO_KEYCHAIN:-true}
 [[ -f ./shared.bash ]] && . ./shared.bash || . ../shared.bash
-ORGANIZATION=${ORGANIZATION:-"Veertu Inc"}
-ORG_UNIT=${ORG_UNIT:-"Developer Relations"}
-CA_CN=${CA_CN:-"Anka Root CA"}
-CONTROLLER_CN=${CONTROLLER_CN:-"Anka Controller"}
+ORGANIZATION=${ORGANIZATION:-"VeertuInc"}
+ORG_UNIT=${ORG_UNIT:-"DeveloperRelations"}
+CA_CN=${CA_CN:-"AnkaRootCA"}
+CONTROLLER_CN=${CONTROLLER_CN:-"AnkaController"}
 mkdir -p $CERT_DIRECTORY
 cd $CERT_DIRECTORY
 # Cleanup
@@ -22,8 +22,26 @@ $ADD_TO_KEYCHAIN && sudo security add-trusted-cert -d -r trustRoot -k /Library/K
 echo "[Creating $CONTROLLER_CN Cert]"
 export CONTROLLER_SERVER_IP=${CONTROLLER_SERVER_IP:-"127.0.0.1"}
 openssl genrsa -out anka-controller+registry-key.pem 4096
-openssl req -new -nodes -sha256 -key anka-controller+registry-key.pem -out anka-controller+registry-csr.pem -subj "/O=$ORGANIZATION/OU=$ORG_UNIT/CN=$CONTROLLER_CN" -reqexts SAN -extensions SAN -config <(cat /etc/ssl/openssl.cnf <(printf "[SAN]\nextendedKeyUsage = serverAuth\nsubjectAltName=IP:$CONTROLLER_SERVER_IP,DNS:anka-controller+registry.my.domain,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:$DOCKER_HOST_ADDRESS,DNS:anka-registry"))
-openssl x509 -req -days 365 -sha256 -in anka-controller+registry-csr.pem -CA anka-ca-crt.pem -CAkey anka-ca-key.pem -CAcreateserial -out anka-controller+registry-crt.pem -extfile <(echo subjectAltName = IP:$CONTROLLER_SERVER_IP,DNS:anka-controller+registry.my.domain,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:$DOCKER_HOST_ADDRESS,DNS:anka-registry)
+openssl \
+  req \
+  -new -nodes -sha256 \
+  -key anka-controller+registry-key.pem \
+  -out anka-controller+registry-csr.pem \
+  -subj "/O=$ORGANIZATION/OU=$ORG_UNIT/CN=$CONTROLLER_CN" \
+  -reqexts SAN \
+  -extensions SAN \
+  -config <(cat /etc/ssl/openssl.cnf <(printf "[SAN]\nextendedKeyUsage = serverAuth\nsubjectAltName=IP:$CONTROLLER_SERVER_IP,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:$DOCKER_HOST_ADDRESS,DNS:anka-registry"))
+openssl \
+  x509 \
+  -req \
+  -days 365 \
+  -sha256 \
+  -in anka-controller+registry-csr.pem \
+  -CA anka-ca-crt.pem \
+  -CAkey anka-ca-key.pem \
+  -CAcreateserial \
+  -out anka-controller+registry-crt.pem \
+  -extfile <(echo subjectAltName = IP:$CONTROLLER_SERVER_IP,DNS:$CLOUD_CONTROLLER_ADDRESS,DNS:$CLOUD_REGISTRY_ADDRESS,DNS:$DOCKER_HOST_ADDRESS,DNS:anka-registry)
 echo "[The following should be sha256WithRSAEncryption]"
 openssl x509 -text -noout -in anka-controller+registry-crt.pem | grep Signature
 echo "[Generating Node Certificate]"
@@ -35,8 +53,24 @@ NODE_NAMES=(
 )
 for NODE_NAME in "${NODE_NAMES[@]}"; do
   openssl genrsa -out anka-node-$NODE_NAME-key.pem 4096
-  openssl req -new -sha256 -key anka-node-$NODE_NAME-key.pem -out anka-node-$NODE_NAME-csr.pem -subj "/O=$ORGANIZATION/OU=$ORG_UNIT/CN=$NODE_NAME"
-  openssl x509 -req -days 365 -sha256 -in anka-node-$NODE_NAME-csr.pem -CA anka-ca-crt.pem -CAkey anka-ca-key.pem -CAcreateserial -out anka-node-$NODE_NAME-crt.pem
+  openssl \
+    req \
+    -new \
+    -sha256 \
+    -key anka-node-$NODE_NAME-key.pem \
+    -out anka-node-$NODE_NAME-csr.pem \
+    -subj "/O=$ORGANIZATION/OU=$ORG_UNIT/CN=$NODE_NAME" \
+
+  openssl x509 \
+    -req \
+    -days 365 \
+    -sha256 \
+    -in anka-node-$NODE_NAME-csr.pem \
+    -CA anka-ca-crt.pem \
+    -CAkey anka-ca-key.pem \
+    -CAcreateserial \
+    -out anka-node-$NODE_NAME-crt.pem \
+
   echo "sudo ankacluster join https://${CLOUD_CONTROLLER_ADDRESS}:$CLOUD_CONTROLLER_PORT --cert $CERT_DIRECTORY/anka-node-$NODE_NAME-crt.pem --cert-key $CERT_DIRECTORY/anka-node-$NODE_NAME-key.pem --cacert $CERT_DIRECTORY/anka-ca-crt.pem"
   echo "curl -v https://${CLOUD_CONTROLLER_ADDRESS}:$CLOUD_CONTROLLER_PORT/api/v1/status --cert $CERT_DIRECTORY/anka-node-$NODE_NAME-crt.pem --key $CERT_DIRECTORY/anka-node-$NODE_NAME-key.pem"
 done

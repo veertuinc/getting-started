@@ -142,6 +142,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     echo "Dedicated Host capacity still not available (this can take a while)..."
     sleep 60
   done
+  echo "please wait 2 minutes while dedicated fully starts..."
   sleep 120 # invalid state for dedicated host
   ## Get latest AMI ID (regardless of region)
   echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"

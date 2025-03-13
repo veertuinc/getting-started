@@ -142,6 +142,7 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     echo "Dedicated Host capacity still not available (this can take a while)..."
     sleep 60
   done
+  sleep 120 # invalid state for dedicated host
   ## Get latest AMI ID (regardless of region)
   echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"
   COMMUNITY_AMI_ID="${COMMUNITY_AMI_ID:-$(aws_execute -r -s "ec2 describe-images \
@@ -150,33 +151,18 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     --output \"text\"")}"
   # We don't use ANKA_JOIN_ARGS here so we can set the instance IP
   AWS_ANKA_NODE_NAME_TAG_LABEL="${AWS_ANKA_NODE_NAME_TAG_LABEL:-"Anka Build Node"}"
-  INSTANCE_CREATED=false
-  for i in {1..5}; do
-    if INSTANCE=$(aws_execute -r "ec2 run-instances \
-      --image-id \"${COMMUNITY_AMI_ID}\" \
-      --instance-type=\"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
-      --security-group-ids \"${SECURITY_GROUP_ID}\" \
-      --placement \"HostId=${DEDICATED_HOST_ID}\" \
-      --key-name \"${AWS_KEY_PAIR_NAME}\" \
-      --count 1 \
-      --associate-public-ip-address \
-      --ebs-optimized \
-      --metadata-options \"HttpTokens=required\" \
-      --block-device-mappings \"[\$(aws ec2 describe-images --image-ids $COMMUNITY_AMI_ID --query \"Images[0].BlockDeviceMappings[0]\" --output json | jq -cr '.Ebs.VolumeType = \"gp3\" | .Ebs.VolumeSize = ${EBS_VOLUME_SIZE:-200} | .Ebs.Iops = 6000 | .Ebs.Throughput = 256')]\" \
-      --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value=\"${AWS_ANKA_NODE_UNIQUE_LABEL} ${AWS_ANKA_NODE_NAME_TAG_LABEL}\"},{Key=purpose,Value=\"${AWS_ANKA_NODE_UNIQUE_LABEL_PURPOSE}\"}]\" ${CLI_OPTIONS}"); then
-      INSTANCE_CREATED=true
-      break
-    else
-      echo "Attempt $i to create instance failed, retrying in 60 seconds..."
-      sleep 60
-    fi
-  done
-  
-  if ! $INSTANCE_CREATED; then
-    echo "Failed to create instance after multiple attempts. Exiting."
-    exit 2
-  fi
-  
+  INSTANCE=$(aws_execute -r "ec2 run-instances \
+    --image-id \"${COMMUNITY_AMI_ID}\" \
+    --instance-type=\"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
+    --security-group-ids \"${SECURITY_GROUP_ID}\" \
+    --placement \"HostId=${DEDICATED_HOST_ID}\" \
+    --key-name \"${AWS_KEY_PAIR_NAME}\" \
+    --count 1 \
+    --associate-public-ip-address \
+    --ebs-optimized \
+    --metadata-options "HttpTokens=required" \
+    --block-device-mappings \"[\$(aws ec2 describe-images --image-ids $COMMUNITY_AMI_ID --query \"Images[0].BlockDeviceMappings[0]\" --output json | jq -cr '.Ebs.VolumeType = \"gp3\" | .Ebs.VolumeSize = ${EBS_VOLUME_SIZE:-200} | .Ebs.Iops = 6000 | .Ebs.Throughput = 256')]\" \
+    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} ${AWS_ANKA_NODE_NAME_TAG_LABEL}"},{Key=purpose,Value="${AWS_ANKA_NODE_UNIQUE_LABEL_PURPOSE}"}]\" ${CLI_OPTIONS}")
   INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
   while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do
     echo "Instance still starting..."

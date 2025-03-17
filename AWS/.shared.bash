@@ -6,7 +6,7 @@ EXTRA_CONTAINS="| [?contains(Name,\\\`arm64\\\`) == \\\`false\\\`]"
 if [[ -z "${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}" ]]; then
   AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE="mac1.metal"
 fi
-if [[ "${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}" == "mac2.metal" ]]; then
+if [[ "${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}" == "mac2.metal" || "${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}" == "mac2-m2.metal" ]]; then
   EXTRA_CONTAINS="| [?contains(Name,\\\`arm64\\\`) == \\\`true\\\`]"
 fi
 AWS_BUILD_CLOUD_INSTANCE_TYPE="${AWS_BUILD_CLOUD_INSTANCE_TYPE:-"t2.small"}"

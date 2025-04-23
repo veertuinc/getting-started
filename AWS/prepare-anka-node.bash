@@ -142,8 +142,8 @@ if [[ "${INSTANCE_ID}" == null ]]; then
     echo "Dedicated Host capacity still not available (this can take a while)..."
     sleep 60
   done
-  echo "please wait 3 minutes while dedicated fully starts..."
-  sleep 180 # invalid state for dedicated host
+  echo "please wait several minutes while dedicated fully starts..."
+  sleep 240 # invalid state for dedicated host
   ## Get latest AMI ID (regardless of region)
   echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"
   COMMUNITY_AMI_ID="${COMMUNITY_AMI_ID:-$(aws_execute -r -s "ec2 describe-images \

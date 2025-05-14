@@ -6,10 +6,18 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd $SCRIPT_DIR
 . ./shared.bash
 [[ -z $(command -v jq) ]] && echo "JQ is required. You can install it with: brew install jq" && exit 1
-FLAGS="${*}"; set -- # prevent $1 from going into get-macos-with-mist
-. ./.misc/get-macos-with-mist.bash
-TEMPLATE_NAME="${MACOS_VERSION}${ARCH_EXTENSION}"
-INSTALLER_LOCATION="${INSTALL_MACOS_DIR}/${PREFIX_FOR_INSTALLERS}${MACOS_VERSION}${EXTENSION}"
+# FLAGS="${*}"; set -- # prevent $1 from going into get-macos-with-mist
+# . ./.misc/get-macos-with-mist.bash
+
+# get latest macos ipsw
+if [[ $ARCH == "arm64" ]]; then
+  INSTALLER_LOCATION="$(curl -s https://downloads.veertu.com/ipsw/versions.json | jq -r 'map(select(.beta == false and .rc == false)) | .[0] | .download_url')"
+  TEMPLATE_NAME="$(curl -s https://downloads.veertu.com/ipsw/versions.json | jq -r 'map(select(.beta == false and .rc == false)) | .[0] | .version')${ARCH_EXTENSION}"
+else
+  INSTALLER_LOCATION="$(anka -j create --list | jq -r '.body | sort_by(.version) | reverse | .[0] | .version')"
+  TEMPLATE_NAME="${INSTALLER_LOCATION}${ARCH_EXTENSION}"
+fi
+
 if [[ "${FLAGS}" != "--no-anka-create" ]]; then
   # Add Registry to CLI (if the registry was installed locally)
   FULL_URL="${URL_PROTOCOL}$CLOUD_REGISTRY_ADDRESS"
@@ -43,7 +51,7 @@ if [[ "${FLAGS}" != "--no-anka-create" ]]; then
   # Retry after an hour and a half just in case macos fails to install for some reason
   RETRIES=4
   NEXT_WAIT_TIME=0
-  until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 14400 bash -c "time ${SUDO} ANKA_CLICK_DEBUG=1 anka ${ANKA_DEBUG} create --disk-size 100G --app \"$INSTALLER_LOCATION\" $TEMPLATE_NAME"; do
+  until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 14400 bash -c "time ${SUDO} ANKA_CLICK_DEBUG=1 anka ${ANKA_DEBUG} create --disk-size 100G ${TEMPLATE_NAME} ${INSTALLER_LOCATION}"; do
     cat ~/Library/Logs/Anka/$(${SUDO} anka show "${TEMPLATE_NAME}" uuid).log
     tail -70 ~/Library/Logs/Anka/anka.log
     sleep $(( $(( NEXT_WAIT_TIME++ )) + 20))

@@ -54,7 +54,7 @@ BLOCK
   
   ## Collect the Shared runner token
   if [[ ! -f gitlab-runner-auth-token ]]; then
-    curl -s -X POST --header "PRIVATE-TOKEN: token-string-here123" --data "runner_type=instance_type&description=${GITLAB_RUNNER_SHARED_RUNNER_NAME}&tag_list=localhost-shared,localhost,iOS" http://anka.gitlab:8093/api/v4/user/runners | cut -d\" -f6 > gitlab-runner-auth-token
+    curl -s -X POST --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" --data "runner_type=instance_type&description=${GITLAB_RUNNER_SHARED_RUNNER_NAME}&tag_list=localhost-shared,localhost,iOS" http://anka.gitlab:8093/api/v4/user/runners | cut -d\" -f6 > gitlab-runner-auth-token
   fi
   GITLAB_RUNNER_AUTH_TOKEN="$(cat gitlab-runner-auth-token)"
 

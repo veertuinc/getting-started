@@ -86,7 +86,7 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo defaults write /Library/Preferences/com.apple.keyboardtype "keyboardtype" -dict-add "3-7582-0" -int 40\" # Disable Keyboard Setup Assistant window
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo pmset hibernatemode 0; sudo rm -f /var/vm/sleepimage\" # Turn off hibernation and get rid of the sleepimage
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo xcodebuild -license || true\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"/bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
+  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"softwareupdate --list && /bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"[[ -f /opt/homebrew/bin/brew ]] && echo \\\"eval \\\"\\\$(/opt/homebrew/bin/brew shellenv)\\\"\\\" >> /Users/anka/.zprofile || true\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.coreduetd.osx.plist\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"launchctl unload -w /System/Library/LaunchAgents/com.apple.wifi.WiFiAgent.plist || true\"

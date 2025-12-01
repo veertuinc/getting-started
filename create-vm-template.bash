@@ -42,10 +42,10 @@ if [[ "${FLAGS}" != "--no-anka-create" ]]; then
   fi
   cd $HOME
   # Cleanup already existing Template
-  ${SUDO} anka delete --yes $TEMPLATE_NAME &>/dev/null || true
-  echo "]] Installing Apple's Device Support package"
-  curl -O https://downloads.veertu.com/anka/DeviceSupport-15.4.pkg
-  sudo installer -pkg DeviceSupport-15.4.pkg -target /
+  # ${SUDO} anka delete --yes $TEMPLATE_NAME &>/dev/null || true
+  # echo "]] Installing Apple's Device Support package"
+  # curl -O https://downloads.veertu.com/anka/DeviceSupport-15.4.pkg
+  # sudo installer -pkg DeviceSupport-15.4.pkg -target /
   # Create Base Template
   echo "]] Creating $TEMPLATE_NAME using $INSTALLER_LOCATION (please be patient, it can take a while) ..."
   # Retry after an hour and a half just in case macos fails to install for some reason

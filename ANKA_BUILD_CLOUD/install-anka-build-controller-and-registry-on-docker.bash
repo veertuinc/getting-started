@@ -44,8 +44,7 @@ if [[ $1 != "--uninstall" ]]; then
   fi
   echo "]] Modifying the docker-compose.yml"
 CLOUD_ETCD_BUILD_BLOCK=$(cat <<'BLOCK'
-    build:
-      context: etcd
+    image: quay.io/coreos/etcd:v3.5.25
 BLOCK
 )
 CLOUD_CONTROLLER_BUILD_BLOCK=$(cat <<'BLOCK'
@@ -60,7 +59,7 @@ BLOCK
 )
 if ${CLOUD_USE_DOCKERHUB:-false}; then
 CLOUD_ETCD_BUILD_BLOCK=$(cat <<BLOCK
-    image: veertu/anka-build-cloud-etcd:v$(echo $CLOUD_DOCKER_TAR | cut -d- -f5)
+    image: quay.io/coreos/etcd:v3.5.25
 BLOCK
 )
 CLOUD_CONTROLLER_BUILD_BLOCK=$(cat <<BLOCK

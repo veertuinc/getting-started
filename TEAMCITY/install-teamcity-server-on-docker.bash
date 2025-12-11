@@ -30,6 +30,7 @@ services:
   $TEAMCITY_DOCKER_CONTAINER_NAME:
     container_name: $TEAMCITY_DOCKER_CONTAINER_NAME
     image: jetbrains/teamcity-server:$TEAMCITY_DOCKER_TAG_VERSION
+    platform: linux/amd64
     restart: always
     ports:
       - "$TEAMCITY_PORT:$SERVICE_PORT"
@@ -39,7 +40,7 @@ services:
       - ${TEAMCITY_DOCKER_DATA_DIR}/logs:/opt/teamcity/logs
     environment:
       TEAMCITY_SERVER_MEM_OPTS: "-Xmx2440m"
-      TEAMCITY_SERVER_OPTS: "-Dteamcity.kotlinConfigsDsl.pluginsCompilationXmx=1024m -Dteamcity.development.mode=true"
+      TEAMCITY_SERVER_OPTS: "-Dteamcity.kotlinConfigsDsl.pluginsCompilationXmx=1024m -Dteamcity.development.mode=true -Dteamcity.development.shadowCopyClasses=true -Dteamcity.cloudDebug=true"
 BLOCK
 if [[ "$(uname)" == "Linux" ]]; then
 cat >> docker-compose.yml <<BLOCK

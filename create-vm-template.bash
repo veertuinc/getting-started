@@ -46,21 +46,32 @@ if [[ "${FLAGS}" != "--no-anka-create" ]]; then
   # echo "]] Installing Apple's Device Support package"
   # curl -O https://downloads.veertu.com/anka/DeviceSupport-15.4.pkg
   # sudo installer -pkg DeviceSupport-15.4.pkg -target /
-  # Create Base Template
-  echo "]] Creating $TEMPLATE_NAME using $INSTALLER_LOCATION (please be patient, it can take a while) ..."
-  # Retry after an hour and a half just in case macos fails to install for some reason
-  RETRIES=4
-  NEXT_WAIT_TIME=0
-  until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 14400 bash -c "time ${SUDO} ANKA_CLICK_DEBUG=1 anka ${ANKA_DEBUG} create --disk-size 100G ${TEMPLATE_NAME} ${INSTALLER_LOCATION}"; do
-    cat ~/Library/Logs/Anka/$(${SUDO} anka show "${TEMPLATE_NAME}" uuid).log
-    tail -70 ~/Library/Logs/Anka/anka.log
-    sleep $(( $(( NEXT_WAIT_TIME++ )) + 20))
-    pgrep -f 'anka create' | sudo xargs kill -9 || true
-    pgrep -f 'diskimages-helper' | sudo xargs kill -9 || true
-    sudo umount /Volumes/Install* || true
-    ${SUDO} anka delete --yes "$TEMPLATE_NAME" || true
-  done
-  [ $NEXT_WAIT_TIME -lt ${RETRIES} ] || exit 5
+  # Create Base Template (skip if it already exists with actual data)
+  if ${SUDO} anka show "$TEMPLATE_NAME" &>/dev/null; then
+    DATA_SIZE=$(${SUDO} anka -j show "$TEMPLATE_NAME" disk | jq -r '.body.data_size')
+    if [[ "$DATA_SIZE" -gt 0 ]]; then
+      echo "]] VM template $TEMPLATE_NAME already exists (data_size=$DATA_SIZE), skipping creation"
+    else
+      echo "]] VM template $TEMPLATE_NAME exists but has no data (data_size=$DATA_SIZE), deleting and recreating"
+      ${SUDO} anka delete --yes "$TEMPLATE_NAME"
+    fi
+  fi
+  if ! ${SUDO} anka show "$TEMPLATE_NAME" &>/dev/null; then
+    echo "]] Creating $TEMPLATE_NAME using $INSTALLER_LOCATION (please be patient, it can take a while) ..."
+    # Retry after an hour and a half just in case macos fails to install for some reason
+    RETRIES=4
+    NEXT_WAIT_TIME=0
+    until [ ${NEXT_WAIT_TIME} -eq ${RETRIES} ] || timeout 14400 bash -c "time ${SUDO} ANKA_CLICK_DEBUG=1 anka ${ANKA_DEBUG} create --disk-size 100G ${TEMPLATE_NAME} ${INSTALLER_LOCATION}"; do
+      cat ~/Library/Logs/Anka/$(${SUDO} anka show "${TEMPLATE_NAME}" uuid).log
+      tail -70 ~/Library/Logs/Anka/anka.log
+      sleep $(( $(( NEXT_WAIT_TIME++ )) + 20))
+      pgrep -f 'anka create' | sudo xargs kill -9 || true
+      pgrep -f 'diskimages-helper' | sudo xargs kill -9 || true
+      sudo umount /Volumes/Install* || true
+      ${SUDO} anka delete --yes "$TEMPLATE_NAME" || true
+    done
+    [ $NEXT_WAIT_TIME -lt ${RETRIES} ] || exit 5
+  fi
   [[ "$(arch)" == "arm64" ]] && ANKA_BASE_VM_TEMPLATE_UUID="${ANKA_BASE_VM_TEMPLATE_UUID_APPLE}" || ANKA_BASE_VM_TEMPLATE_UUID="${ANKA_BASE_VM_TEMPLATE_UUID_INTEL}"
   modify_uuid $TEMPLATE_NAME $ANKA_BASE_VM_TEMPLATE_UUID
   $SCRIPT_DIR/create-vm-template-tags.bash $TEMPLATE_NAME ${TAG_FLAGS}

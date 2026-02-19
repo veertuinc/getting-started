@@ -54,6 +54,7 @@ URLs and ports you can expect:
 
 - Running this script will download the latest macOS installer to create a VM with. You can also specify `MACOS_VERSION="12.2.1"` to target a specific version.
 - The downsides of this script is that it relies on shared.bash in the repo, so be sure to clone the whole repo. You also need to override `ANKA_BASE_VM_TEMPLATE_UUID_INTEL` as it will set the same UUID forcibly for any VMs the script creates. Since you may want to use this script anytime you create a new macOS version, obtain and set a new/unique UUID with `ANKA_BASE_VM_TEMPLATE_UUID_INTEL=$(anka create tmp-gss &>/dev/null;anka show tmp-gss uuid | xargs;anka delete --yes tmp-gss) ./create-vm-template.bash`
+- You can use `TAG_FLAGS="--gitlab" ./create-vm-template.bash` to tell the template creation process to prepare the gitlab template/tag with `create-vm-template-tags.bash` after it's done creating the base template.
 
 ### [`create-vm-template-tags.bash`](./create-vm-template-tags.bash)
 

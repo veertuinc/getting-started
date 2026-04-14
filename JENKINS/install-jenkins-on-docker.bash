@@ -4,6 +4,27 @@ SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd "$SCRIPT_DIR"
 . ../shared.bash
 SERVICE_PORT="8080"
+JENKINS_ANKA_MGMT_HOST_FOR_DOCKER="${JENKINS_ANKA_MGMT_HOST_FOR_DOCKER:-$DOCKER_HOST_ADDRESS}"
+JENKINS_ANKA_MGMT_PORT_FOR_DOCKER="${JENKINS_ANKA_MGMT_PORT_FOR_DOCKER:-$CLOUD_CONTROLLER_PORT}"
+
+wait_for_jenkins_http() {
+  local jenkins_ready_max_attempts="${JENKINS_READY_MAX_ATTEMPTS:-36}"
+  local jenkins_ready_attempt=1
+  local jenkins_ready_delay_seconds=5
+  while [[ "${jenkins_ready_attempt}" -le "${jenkins_ready_max_attempts}" ]]; do
+    if curl --silent --fail --connect-timeout 5 --max-time 10 "http://${JENKINS_DOCKER_CONTAINER_NAME}:${JENKINS_PORT}/login" >/dev/null; then
+      echo "]] Jenkins HTTP endpoint is ready."
+      return 0
+    fi
+    echo "waiting for Jenkins HTTP endpoint to become ready (${jenkins_ready_attempt}/${jenkins_ready_max_attempts})..."
+    sleep "${jenkins_ready_delay_seconds}"
+    jenkins_ready_attempt=$((jenkins_ready_attempt + 1))
+  done
+  echo "Jenkins did not become ready in time. Recent logs:"
+  docker logs --tail 200 "${JENKINS_DOCKER_CONTAINER_NAME}" || true
+  return 1
+}
+
 echo "]] Cleaning up the previous Jenkins installation"
 execute-docker-compose down &>/dev/null || true
 docker stop $JENKINS_DOCKER_CONTAINER_NAME &>/dev/null || true
@@ -47,8 +68,8 @@ fi
     sleep 10
     echo "waiting for config file to be created..."
   done
+  wait_for_jenkins_http
   # Credential
-  sleep 30
   jenkins_obtain_crumb
   # Must do a failing curl to avoid WARNING: No such plugin credentials to install
   jenkins_curl_or_warn "Priming Jenkins credentials plugin installation request" -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"credentials@2.5\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins
@@ -85,9 +106,7 @@ fi
 </jenkins.model.JenkinsLocationConfiguration>" > $JENKINS_DATA_DIR/jenkins.model.JenkinsLocationConfiguration.xml
   sleep 40 # cp: cannot stat ‘.config.xml’: No such file or directory
   cp -rf .config.xml $JENKINS_DATA_DIR/config.xml
-  SED_EXTRA="-i"
-  [[ $(uname) == "Darwin" ]] && SED_EXTRA="-i \'\'"
-  eval sed ${SED_EXTRA} "s/${JENKINS_VM_TEMPLATE_UUID_INTEL}/${JENKINS_VM_TEMPLATE_UUID}/g" $JENKINS_DATA_DIR/config.xml
+  configure_jenkins_cloud_config "$JENKINS_DATA_DIR/config.xml" "$JENKINS_VM_TEMPLATE_UUID" "$JENKINS_ANKA_MGMT_HOST_FOR_DOCKER" "$JENKINS_ANKA_MGMT_PORT_FOR_DOCKER"
   execute-docker-compose restart
   docker exec -t anka.jenkins bash -c "mkdir -p ~/.ssh && echo 'Host *' > ~/.ssh/config && echo '    StrictHostKeyChecking no' >> ~/.ssh/config"
   #

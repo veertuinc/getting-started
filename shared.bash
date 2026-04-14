@@ -104,7 +104,7 @@ GITHUB_ACTIONS_VM_TEMPLATE_UUID_INTEL="${GITHUB_ACTIONS_VM_TEMPLATE_UUID_INTEL:-
 GITHUB_ACTIONS_VM_TEMPLATE_UUID_APPLE="${GITHUB_ACTIONS_VM_TEMPLATE_UUID_APPLE:-"63bd43f0-9e7a-49e6-b1cd-ab9ed2ed021b"}" # This is used in CI/CD; change screwdriver runner-setup script if you change the name of the var
 [[ "$(arch)" == "arm64" ]] && GITHUB_ACTIONS_VM_TEMPLATE_UUID="${GITHUB_ACTIONS_VM_TEMPLATE_UUID_APPLE}" || GITHUB_ACTIONS_VM_TEMPLATE_UUID="${GITHUB_ACTIONS_VM_TEMPLATE_UUID_INTEL}"
 
-JENKINS_PORT="${JENKINS_PORT:-"8092"}"
+JENKINS_PORT="${JENKINS_PORT:-"9092"}"
 JENKINS_SERVICE_PORT="8080"
 JENKINS_DOCKER_CONTAINER_NAME="anka.jenkins"
 JENKINS_TAG_VERSION=${JENKINS_TAG_VERSION:-"lts"}
@@ -117,7 +117,7 @@ if [[ "$(arch)" == "arm64" || "${JENKINS_TEMPLATE_ARCH}" == "arm64_mac" ]]; then
   JENKINS_VM_TEMPLATE_UUID="${JENKINS_VM_TEMPLATE_UUID:-"${JENKINS_VM_TEMPLATE_UUID_APPLE}"}"
 fi
 
-GITLAB_PORT="${GITLAB_PORT:-"8093"}"
+GITLAB_PORT="${GITLAB_PORT:-"9093"}"
 GITLAB_DOCKER_CONTAINER_NAME="anka.gitlab"
 GITLAB_DOCKER_DATA_DIR="$HOME/$GITLAB_DOCKER_CONTAINER_NAME-data"
 GITLAB_ROOT_PASSWORD="kLF2Cx2XmaWdBwcKAmWRD/Ew9eifMCnyPUFnUPlk6Lw="
@@ -139,13 +139,13 @@ if [[ "$(arch)" == "arm64" || "${GITLAB_TEMPLATE_ARCH}" == "arm64_mac" ]]; then
   GITLAB_VM_TEMPLATE_UUID="${GITLAB_VM_TEMPLATE_UUID_APPLE}"
 fi
 
-PROMETHEUS_PORT="8095"
+PROMETHEUS_PORT="9095"
 PROMETHEUS_DOCKER_CONTAINER_NAME="anka.prometheus"
 PROMETHEUS_DOCKER_TAG_VERSION=${PROMETHEUS_DOCKER_TAG_VERSION:-"2.21.0"}
 PROMETHEUS_DOCKER_DATA_DIR="$HOME/$PROMETHEUS_DOCKER_CONTAINER_NAME-data"
 PROMETHEUS_BINARY_NAME="anka-prometheus-exporter"
 
-TEAMCITY_PORT="8094"
+TEAMCITY_PORT="9094"
 TEAMCITY_DOCKER_TAG_VERSION=${TEAMCITY_DOCKER_TAG_VERSION:-"$TEAMCITY_VERSION-linux"}
 TEAMCITY_DOCKER_CONTAINER_NAME="anka.teamcity"
 TEAMCITY_DOCKER_DATA_DIR="$HOME/$TEAMCITY_DOCKER_CONTAINER_NAME-data"
@@ -217,6 +217,27 @@ jenkins_plugin_install() {
     TRIES=$(($TRIES + 1))
   done
   true
+}
+
+replace_text_in_file() {
+  local destination_file_path="$1"
+  local text_to_replace="$2"
+  local replacement_text="$3"
+  if [[ "$(uname)" == "Darwin" ]]; then
+    sed -i '' "s|${text_to_replace}|${replacement_text}|g" "$destination_file_path"
+  else
+    sed -i "s|${text_to_replace}|${replacement_text}|g" "$destination_file_path"
+  fi
+}
+
+configure_jenkins_cloud_config() {
+  local jenkins_config_file_path="$1"
+  local jenkins_vm_template_uuid_value="$2"
+  local jenkins_anka_mgmt_host_value="$3"
+  local jenkins_anka_mgmt_port_value="$4"
+  replace_text_in_file "$jenkins_config_file_path" "$JENKINS_VM_TEMPLATE_UUID_INTEL" "$jenkins_vm_template_uuid_value"
+  replace_text_in_file "$jenkins_config_file_path" "JENKINS_ANKA_MGMT_HOST_PLACEHOLDER" "$jenkins_anka_mgmt_host_value"
+  replace_text_in_file "$jenkins_config_file_path" "JENKINS_ANKA_MGMT_PORT_PLACEHOLDER" "$jenkins_anka_mgmt_port_value"
 }
 
 modify_uuid() {

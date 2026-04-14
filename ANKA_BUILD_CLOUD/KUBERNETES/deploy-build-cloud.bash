@@ -65,7 +65,7 @@ spec:
   type: LoadBalancer
   ports:
     - name: build-cloud-controller
-      port: 8090
+      port: ${CLOUD_CONTROLLER_PORT}
       protocol: TCP
       targetPort: 80
   selector:
@@ -79,9 +79,9 @@ spec:
   type: LoadBalancer
   ports:
     - name: build-cloud-registry
-      port: 8089
+      port: ${CLOUD_REGISTRY_PORT}
       protocol: TCP
-      targetPort: 8089
+      targetPort: ${CLOUD_REGISTRY_PORT}
   selector:
     app: build-cloud
 ---
@@ -94,7 +94,7 @@ spec:
   ports:
     - port: 80
       name: controller
-    - port: 8089
+    - port: ${CLOUD_REGISTRY_PORT}
       name: registry
   selector:
     app: build-cloud
@@ -126,9 +126,9 @@ spec:
             - name: ANKA_LISTEN_ADDR
               value: ":80"
             - name: ANKA_ANKA_REGISTRY
-              value: "http://anka.registry:8089"
+              value: "http://anka.registry:${CLOUD_REGISTRY_PORT}"
             - name: ANKA_LOCAL_ANKA_REGISTRY
-              value: "http://localhost:8089"
+              value: "http://localhost:${CLOUD_REGISTRY_PORT}"
             - name: ANKA_ETCD_ENDPOINTS
               value: "http://etcd-client:2379"
           image: veertu/anka-build-cloud-controller:latest
@@ -141,8 +141,11 @@ spec:
         - name: registry
           image: veertu/anka-build-cloud-registry:latest
           imagePullPolicy: IfNotPresent
+          env:
+            - name: ANKA_LISTEN_ADDR
+              value: ":${CLOUD_REGISTRY_PORT}"
           ports:
-            - containerPort: 8089
+            - containerPort: ${CLOUD_REGISTRY_PORT}
               name: registry
               protocol: TCP
           volumeMounts:
@@ -170,6 +173,6 @@ echo "==========================================================================
 echo "Controller UI:  $URL_PROTOCOL$CLOUD_CONTROLLER_ADDRESS:$CLOUD_CONTROLLER_PORT"
 echo "Registry:       $URL_PROTOCOL$CLOUD_REGISTRY_ADDRESS:$CLOUD_REGISTRY_PORT"
 echo "- registry data is stored inside of the minikube (kube node) docker container under /data/build-cloud (you can get into it with 'minikube ssh')"
-echo "- Accessing the dashboard and registry requires that you first run 'minikube tunnel --cleanup; minikube tunnel'. Once it's running, http://anka.controller:8090 and the registry http://anka.registry:8089 are now available."
+echo "- Accessing the dashboard and registry requires that you first run 'minikube tunnel --cleanup; minikube tunnel'. Once it's running, http://anka.controller:${CLOUD_CONTROLLER_PORT} and the registry http://anka.registry:${CLOUD_REGISTRY_PORT} are now available."
 
 # watch -n 2 "kubectl get svc && kubectl get pods -o wide && echo ==================== && kubectl logs --tail 10 build-cloud-0 -c controller && echo ==================== && kubectl logs --tail 10 build-cloud-0 -c registry && echo ==================== && kubectl logs --tail 10 build-cloud-1 -c controller && echo ==================== && kubectl logs --tail 10 build-cloud-1 -c registry && kubectl logs --tail 10 etcd-0"

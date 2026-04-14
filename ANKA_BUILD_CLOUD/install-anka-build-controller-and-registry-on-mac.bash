@@ -52,12 +52,12 @@ export ANKA_DATA_DIR="${CLOUD_CONTROLLER_DATA_DIR}"
 export ANKA_ENABLE_CENTRAL_LOGGING="true"
 export ANKA_LOG_DIR="${CLOUD_CONTROLLER_LOG_DIR}"
 \${ANKA_USE_HTTPS:-false} && SCHEME="https://" || SCHEME="http://"
-export ANKA_ANKA_REGISTRY="\${SCHEME}anka.registry:8089"
+export ANKA_ANKA_REGISTRY="\${SCHEME}anka.registry:${CLOUD_REGISTRY_PORT}"
 /Library/Application\ Support/Veertu/Anka/bin/anka-controller
 BLOCK
 cat << BLOCK | sudo tee /usr/local/bin/anka-registryd > /dev/null
 #!/usr/bin/env bash
-export ANKA_LISTEN_ADDR=":8089"
+export ANKA_LISTEN_ADDR=":${CLOUD_REGISTRY_PORT}"
 export ANKA_LOG_DIR="/Library/Logs/Veertu/AnkaRegistry"
 export ANKA_BASE_PATH="${CLOUD_REGISTRY_STORAGE_LOCATION}"
 export ANKA_ENABLE_CENTRAL_LOGGING="true"

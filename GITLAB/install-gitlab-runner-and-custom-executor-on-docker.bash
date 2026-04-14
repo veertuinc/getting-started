@@ -14,7 +14,7 @@ echo
   if [[ -f gitlab-runner-auth-token ]]; then
     docker run --rm -v "${SCRIPT_DIR}/config:/etc/gitlab-runner" -ti ${GITLAB_RUNNER_DOCKER_IMAGE} unregister \
       --url "http://${DOCKER_HOST_ADDRESS}:$GITLAB_PORT" --token "$(cat gitlab-runner-auth-token)";
-    RUNNER_ID="$(curl -s --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" http://anka.gitlab:8093/api/v4/runners/all | jq -r '.[] | select(.description=="gitlab-runner-shared") | .id')"
+    RUNNER_ID="$(curl -s --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "http://${GITLAB_DOCKER_CONTAINER_NAME}:${GITLAB_PORT}/api/v4/runners/all" | jq -r '.[] | select(.description=="gitlab-runner-shared") | .id')"
     curl -s --request DELETE -H "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" "http://$GITLAB_DOCKER_CONTAINER_NAME:$GITLAB_PORT/api/v4/runners/${RUNNER_ID}"
   fi
   docker stop $GITLAB_RUNNER_SHARED_RUNNER_NAME;
@@ -54,7 +54,7 @@ BLOCK
   
   ## Collect the Shared runner token
   if [[ ! -f gitlab-runner-auth-token ]]; then
-    curl -s -X POST --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" --data "runner_type=instance_type&description=${GITLAB_RUNNER_SHARED_RUNNER_NAME}&tag_list=localhost-shared,localhost,iOS" http://anka.gitlab:8093/api/v4/user/runners | cut -d\" -f6 > gitlab-runner-auth-token
+    curl -s -X POST --header "PRIVATE-TOKEN: $GITLAB_ACCESS_TOKEN" --data "runner_type=instance_type&description=${GITLAB_RUNNER_SHARED_RUNNER_NAME}&tag_list=localhost-shared,localhost,iOS" "http://${GITLAB_DOCKER_CONTAINER_NAME}:${GITLAB_PORT}/api/v4/user/runners" | cut -d\" -f6 > gitlab-runner-auth-token
   fi
   GITLAB_RUNNER_AUTH_TOKEN="$(cat gitlab-runner-auth-token)"
 

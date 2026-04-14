@@ -83,12 +83,12 @@ ${CLOUD_CONTROLLER_BUILD_BLOCK}
        - etcd
        - anka-registry
     environment:
-      ANKA_ANKA_REGISTRY: "http://${CLOUD_REGISTRY_ADDRESS}:8089"
+      ANKA_ANKA_REGISTRY: "http://${CLOUD_REGISTRY_ADDRESS}:${CLOUD_REGISTRY_PORT}"
       ANKA_ETCD_ENDPOINTS: "${CLOUD_ETCD_ADDRESS}:2379"
       ANKA_ENABLE_CENTRAL_LOGGING: "true"
       ANKA_LISTEN_ADDR: :80
       ANKA_LOG_DIR: /var/log/anka-controller
-      ANKA_LOCAL_ANKA_REGISTRY: http://anka-registry:8089
+      ANKA_LOCAL_ANKA_REGISTRY: http://anka-registry:${CLOUD_REGISTRY_PORT}
       # https://docs.veertu.com/anka/anka-build-cloud/configuration-reference/#configuration-envs
     restart: always
 
@@ -96,11 +96,11 @@ ${CLOUD_CONTROLLER_BUILD_BLOCK}
     container_name: anka.registry
 ${CLOUD_REGISTRY_BUILD_BLOCK}
     ports:
-      - "8089:8089"
+      - "${CLOUD_REGISTRY_PORT}:${CLOUD_REGISTRY_PORT}"
     restart: always
     environment:
       ANKA_BASE_PATH: /mnt/vol
-      ANKA_LISTEN_ADDR: :8089
+      ANKA_LISTEN_ADDR: :${CLOUD_REGISTRY_PORT}
       # https://docs.veertu.com/anka/anka-build-cloud/configuration-reference/#configuration-envs
     volumes:
       - "${CLOUD_REGISTRY_STORAGE_LOCATION}:/mnt/vol"

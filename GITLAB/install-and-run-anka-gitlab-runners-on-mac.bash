@@ -33,7 +33,7 @@ if [[ $1 != "--uninstall" ]]; then
   --ssh-user anka \
   --ssh-password admin \
   --name "localhost shared runner" \
-  --anka-controller-address "http://anka.controller:8090/" \
+  --anka-controller-address "http://anka.controller:${CLOUD_CONTROLLER_PORT}/" \
   --anka-template-uuid $GITLAB_VM_TEMPLATE_UUID \
   --anka-tag v1 \
   --executor anka \
@@ -46,7 +46,7 @@ if [[ $1 != "--uninstall" ]]; then
   --ssh-user anka \
   --ssh-password admin \
   --name "localhost specific runner" \
-  --anka-controller-address "http://anka.controller:8090/" \
+  --anka-controller-address "http://anka.controller:${CLOUD_CONTROLLER_PORT}/" \
   --anka-template-uuid $GITLAB_VM_TEMPLATE_UUID \
   --anka-tag v1 \
   --executor anka \

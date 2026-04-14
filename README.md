@@ -36,9 +36,9 @@ URLs and ports you can expect:
 
 - Controller: http://anka.controller:8090
 - Registry:   http://anka.registry:8089
-- Jenkins:    http://anka.jenkins:8092
-- GitLab:     http://anka.gitlab:8093
-- TeamCity:   http://anka.teamcity:8094
+- Jenkins:    http://anka.jenkins:9092
+- GitLab:     http://anka.gitlab:9093
+- TeamCity:   http://anka.teamcity:9094
 
 ---
 
@@ -114,7 +114,7 @@ URLs and ports you can expect:
 
 > To check the service and pod health, use `kubectl get svc && kubectl get pods -o wide`
 
-Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --cleanup; minikube tunnel` in your terminal to make the service ports available on 127.0.0.1 and therefore http://anka.controller:8090.
+Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --cleanup; minikube tunnel` in your terminal to make the service ports available on 127.0.0.1 and therefore http://anka.controller:9090.
 
 > Registry data is not stored on the host and will be lost should you delete your minikube container
 
@@ -164,7 +164,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 
 > **Be sure to generate the required VM Tag using `./create-vm-template-tags.bash 10.15.5 --jenkins`**
 
-- Running this script will start a Jenkins container and configure it to run on http://anka.jenkins:8092. It will install all of the necessary plugins and example Jobs that use [Static and Dynamic Labels](https://docs.veertu.com/anka/intel/ci-plugins-and-integrations/jenkins/#install-and-configure-the-anka-plugin-in-jenkins).
+- Running this script will start a Jenkins container and configure it to run on http://anka.jenkins:9092. It will install all of the necessary plugins and example Jobs that use [Static and Dynamic Labels](https://docs.veertu.com/anka/intel/ci-plugins-and-integrations/jenkins/#install-and-configure-the-anka-plugin-in-jenkins).
 
 ---
 
@@ -216,7 +216,7 @@ Once the Kubernetes setup looks healthy, you'll need to run `minikube tunnel --c
 The scripts included in this directory can be run, respectively, to setup both prometheus and also our anka-prometheus-exporter. 
 ### [`run-prometheus-on-docker.bash`](./PROMETHEUS/run-prometheus-on-docker.bash)
 
-- Running this script will create a docker container pre-configured and ready for the anka-prometheus-exporter. It is setup to run on http://anka.prometheus:8095.
+- Running this script will create a docker container pre-configured and ready for the anka-prometheus-exporter. It is setup to run on http://anka.prometheus:9095.
 - If the first argument is `--uninstall`, it will only remove the existing containers
 
 ### [`install-and-run-anka-prometheus-on-mac.bash`](./PROMETHEUS/install-and-run-anka-prometheus-on-mac.bash)

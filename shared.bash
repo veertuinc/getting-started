@@ -169,14 +169,46 @@ modify_hosts() {
 
 jenkins_obtain_crumb() {
   COOKIEJAR="$(mktemp)"
-  CRUMB=$(curl -u "admin: admin" --cookie-jar "$COOKIEJAR" -s "http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)")
+  CRUMB=$(jenkins_curl_or_warn "Obtaining Jenkins CSRF crumb" -u "admin: admin" --cookie-jar "$COOKIEJAR" -s "http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/crumbIssuer/api/xml?xpath=concat(//crumbRequestField,\":\",//crumb)") || return 1
+  if [[ -z "$CRUMB" ]]; then
+    warning "Obtaining Jenkins CSRF crumb returned an empty response." >&2
+    return 1
+  fi
+}
+
+jenkins_curl() {
+  local jenkins_curl_connect_timeout_seconds="${JENKINS_CURL_CONNECT_TIMEOUT_SECONDS:-10}"
+  local jenkins_curl_max_time_seconds="${JENKINS_CURL_MAX_TIME_SECONDS:-60}"
+  curl --fail --show-error --connect-timeout "$jenkins_curl_connect_timeout_seconds" --max-time "$jenkins_curl_max_time_seconds" "$@"
+}
+
+jenkins_curl_or_warn() {
+  local jenkins_request_description="$1"
+  shift
+  echo "]] $jenkins_request_description" >&2
+  local jenkins_curl_exit_code=0
+  if jenkins_curl "$@"; then
+    return 0
+  else
+    jenkins_curl_exit_code=$?
+  fi
+  if [[ "$jenkins_curl_exit_code" == "28" ]]; then
+    warning "$jenkins_request_description timed out after ${JENKINS_CURL_MAX_TIME_SECONDS:-60}s." >&2
+  elif [[ "$jenkins_curl_exit_code" == "7" ]]; then
+    warning "$jenkins_request_description could not connect to Jenkins." >&2
+  elif [[ "$jenkins_curl_exit_code" == "22" ]]; then
+    warning "$jenkins_request_description returned a non-success HTTP status." >&2
+  else
+    warning "$jenkins_request_description failed with curl exit code $jenkins_curl_exit_code." >&2
+  fi
+  return "$jenkins_curl_exit_code"
 }
 
 jenkins_plugin_install() {
   PLUGIN_NAME=$(echo $1 | cut -d@ -f1)
   PLUGIN_VERSION=$(echo $1 | cut -d@ -f2)
   jenkins_obtain_crumb
-  curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"${PLUGIN_NAME}@${PLUGIN_VERSION}\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins
+  jenkins_curl_or_warn "Requesting Jenkins plugin installation for ${PLUGIN_NAME}@${PLUGIN_VERSION}" -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"${PLUGIN_NAME}@${PLUGIN_VERSION}\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins || return 1
   TRIES=0
   while [[ "$(docker logs --tail 500 $JENKINS_DOCKER_CONTAINER_NAME 2>&1 | grep "INFO: Installation successful: ${PLUGIN_NAME}$" | head -1)" != "INFO: Installation successful: $PLUGIN_NAME" ]]; do
     echo "Installation of $PLUGIN_NAME plugin still pending..."

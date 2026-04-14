@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eo pipefail
+set -exo pipefail
 SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd "$SCRIPT_DIR"
 . ../shared.bash
@@ -51,11 +51,11 @@ fi
   sleep 30
   jenkins_obtain_crumb
   # Must do a failing curl to avoid WARNING: No such plugin credentials to install
-  curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"credentials@2.5\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins
+  jenkins_curl_or_warn "Priming Jenkins credentials plugin installation request" -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"credentials@2.5\" /></jenkins>" --header 'Content-Type: text/xml' http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/pluginManager/installNecessaryPlugins
   sleep 30
   jenkins_plugin_install "credentials@$CREDENTIALS_PLUGIN_VERSION"
   echo "]] Adding the needed credentials"
-  curl -X POST -H "$CRUMB" --cookie "$COOKIEJAR" http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/credentials/store/system/domain/_/createCredentials \
+  jenkins_curl_or_warn "Creating Jenkins Anka credentials entry" -X POST -H "$CRUMB" --cookie "$COOKIEJAR" http://$JENKINS_DOCKER_CONTAINER_NAME:$JENKINS_PORT/credentials/store/system/domain/_/createCredentials \
   --data-urlencode 'json={
     "": "0",
     "credentials": {

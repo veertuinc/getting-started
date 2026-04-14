@@ -11,3 +11,4 @@ GITLAB/config*
 GITLAB/custom-executor.*
 GITLAB/gitlab-runner-auth-token
 TEAMCITY/*.zip
+Anka-*.pkg

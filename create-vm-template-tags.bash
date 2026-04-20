@@ -135,14 +135,13 @@ if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS \
       [[ \\\$(arch) == arm64 ]] && export ARCH=aarch64 || export ARCH=x64;
       rm -rf zulu*; \
-      curl -v -L -O https://cdn.azul.com/zulu/bin/zulu17.48.15-ca-jre17.0.10-macosx_\\\${ARCH}.tar.gz && \
-      [ \\\$(du -s zulu17.48.15-ca-jre17.0.10-macosx_\\\${ARCH}.tar.gz  | awk '{print \\\$1}') -gt 80000 ] && \
-      tar -xzvf zulu17.48.15-ca-jre17.0.10-macosx_\\\${ARCH}.tar.gz && \
-      sudo mkdir -p /usr/local/bin && for file in \\\$(ls ~/zulu17.48.15-ca-jre17.0.10-macosx_\\\${ARCH}/bin/*); do sudo rm -f /usr/local/bin/\\\$(echo \\\$file | rev | cut -d/ -f1 | rev); sudo ln -s \\\$file /usr/local/bin/\\\$(echo \\\$file | rev | cut -d/ -f1 | rev); done && \
-      java -version && [[ ! -z \\\$(java -version 2>&1 | grep 17.48.15) ]]\"
-    $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS brew install openjdk@17 && [[ \\\$(arch) == arm64 ]] && \
-      sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk || \
-      sudo ln -sfn /usr/local/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk\"
+      DMG=zulu21.48.17-ca-jre21.0.10-macosx_\\\${ARCH}.dmg; \
+      curl -v -L -O https://cdn.azul.com/zulu/bin/\\\$DMG && \
+      [ \\\$(du -s \\\$DMG | cut -f1) -gt 80000 ] && \
+      MOUNT=\\\$(hdiutil attach \\\$DMG -nobrowse | grep -o '/Volumes/.*' | tail -1) && \
+      sudo installer -pkg \\\"\\\$MOUNT\\\"/*.pkg -target / && \
+      hdiutil detach \\\"\\\$MOUNT\\\" && \
+      java -version && [[ ! -z \\\$(java -version 2>&1 | grep 21.0.10) ]]\"
   " "fa990c7f-d540-4c5b-bf72-b886c4692c3a" # we install openjdk@17 because it's the only version that works with the Jenkins agent
 fi
 

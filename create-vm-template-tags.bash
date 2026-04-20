@@ -142,6 +142,7 @@ if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
       sudo installer -pkg \\\"\\\$MOUNT\\\"/*.pkg -target / && \
       hdiutil detach \\\"\\\$MOUNT\\\" && \
       java -version && [[ ! -z \\\$(java -version 2>&1 | grep 21.0.10) ]]\"
+    $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS rm -rf zulu*\"
   " "fa990c7f-d540-4c5b-bf72-b886c4692c3a" # we install openjdk@17 because it's the only version that works with the Jenkins agent
 fi
 

@@ -127,7 +127,7 @@ if [[ $2 == '--gitlab' ]]; then
 fi
 
 if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
-  NEW_TEMPLATE="$SOURCE_TEMPLATE-jre17.48.15"
+  NEW_TEMPLATE="$SOURCE_TEMPLATE-jre21.0.10"
   NEW_TAG="v1"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE
   ## Install OpenJDK

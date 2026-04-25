@@ -154,6 +154,36 @@ USE_CERTS=${USE_CERTS:-false}
 CERT_DIRECTORY=${CERT_DIRECTORY:-"$HOME/local-build-cloud-certs"}
 [[ "$USE_CERTS" == true ]] && CERTS="--cacert $CERT_DIRECTORY/anka-ca-crt.pem --cert $CERT_DIRECTORY/anka-node-$(hostname)-crt.pem --key $CERT_DIRECTORY/anka-node-$(hostname)-key.pem"
 
+dump_jenkins_logs() {
+  local jenkins_log_tail_lines="${JENKINS_LOG_TAIL_LINES:-200}"
+  if [[ -n "$JENKINS_BINARY_LOG_FILE" && -e "$JENKINS_BINARY_LOG_FILE" ]]; then
+    echo "]] Recent Jenkins binary logs (tail -n $jenkins_log_tail_lines $JENKINS_BINARY_LOG_FILE):"
+    tail -n "$jenkins_log_tail_lines" "$JENKINS_BINARY_LOG_FILE" || true
+  elif command -v docker >/dev/null && docker ps -a --format '{{.Names}}' | grep -q "^${JENKINS_DOCKER_CONTAINER_NAME}$"; then
+    echo "]] Recent Jenkins docker logs (docker logs --tail $jenkins_log_tail_lines $JENKINS_DOCKER_CONTAINER_NAME):"
+    docker logs --tail "$jenkins_log_tail_lines" "$JENKINS_DOCKER_CONTAINER_NAME" 2>&1 || true
+  else
+    warning "No Jenkins log source found to dump (checked \$JENKINS_BINARY_LOG_FILE and docker container '$JENKINS_DOCKER_CONTAINER_NAME')."
+  fi
+}
+
+wait_for_jenkins_config_file() {
+  local jenkins_config_file_path="$JENKINS_DATA_DIR/config.xml"
+  local jenkins_config_wait_max_attempts="${JENKINS_CONFIG_WAIT_MAX_ATTEMPTS:-30}"
+  local jenkins_config_wait_delay_seconds="${JENKINS_CONFIG_WAIT_DELAY_SECONDS:-10}"
+  local jenkins_config_wait_attempt=1
+  while [[ ! -e "$jenkins_config_file_path" ]]; do
+    if [[ "$jenkins_config_wait_attempt" -gt "$jenkins_config_wait_max_attempts" ]]; then
+      echo "Jenkins config file '$jenkins_config_file_path' was not created after $((jenkins_config_wait_max_attempts * jenkins_config_wait_delay_seconds)) seconds."
+      dump_jenkins_logs
+      error "Jenkins did not create '$jenkins_config_file_path' in time."
+    fi
+    echo "waiting for config file to be created... (${jenkins_config_wait_attempt}/${jenkins_config_wait_max_attempts})"
+    sleep "$jenkins_config_wait_delay_seconds"
+    jenkins_config_wait_attempt=$((jenkins_config_wait_attempt + 1))
+  done
+}
+
 modify_hosts() {
   [[ -z $1 ]] && echo "ARG 1 missing" && exit 1
   if [[ $(uname) == "Darwin" ]]; then

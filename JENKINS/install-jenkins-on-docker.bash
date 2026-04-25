@@ -20,8 +20,8 @@ wait_for_jenkins_http() {
     sleep "${jenkins_ready_delay_seconds}"
     jenkins_ready_attempt=$((jenkins_ready_attempt + 1))
   done
-  echo "Jenkins did not become ready in time. Recent logs:"
-  docker logs --tail 200 "${JENKINS_DOCKER_CONTAINER_NAME}" || true
+  echo "Jenkins did not become ready in time."
+  dump_jenkins_logs
   return 1
 }
 
@@ -64,10 +64,7 @@ fi
   execute-docker-compose pull || true
   execute-docker-compose up -d
   echo "]] Waiting for Jenkins to start properly..."
-  while [[ -z "$(ls $JENKINS_DATA_DIR/config.xml 2>/dev/null)" ]]; do
-    sleep 10
-    echo "waiting for config file to be created..."
-  done
+  wait_for_jenkins_config_file
   wait_for_jenkins_http
   # Credential
   jenkins_obtain_crumb

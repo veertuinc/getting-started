@@ -29,8 +29,8 @@ wait_for_jenkins_http() {
     sleep "${jenkins_ready_delay_seconds}"
     jenkins_ready_attempt=$((jenkins_ready_attempt + 1))
   done
-  echo "Jenkins did not become ready in time. Recent logs:"
-  [[ -e "$JENKINS_BINARY_LOG_FILE" ]] && tail -n 200 "$JENKINS_BINARY_LOG_FILE"
+  echo "Jenkins did not become ready in time."
+  dump_jenkins_logs
   return 1
 }
 
@@ -91,7 +91,7 @@ jenkins_binary_plugin_install() {
   done
 
   echo "Something is wrong with the Jenkins ${plugin_name} installation..."
-  [[ -e "$JENKINS_BINARY_LOG_FILE" ]] && tail -n 200 "$JENKINS_BINARY_LOG_FILE"
+  dump_jenkins_logs
   return 1
 }
 
@@ -146,10 +146,7 @@ if [[ "$JENKINS_BINARY_ACTION" == "install" ]]; then
   echo "]] Starting Jenkins binary"
   start_jenkins_binary
   echo "]] Waiting for Jenkins to start properly..."
-  while [[ -z "$(ls "$JENKINS_DATA_DIR/config.xml" 2>/dev/null)" ]]; do
-    sleep 10
-    echo "waiting for config file to be created..."
-  done
+  wait_for_jenkins_config_file
   wait_for_jenkins_http
   # Credential
   jenkins_obtain_crumb

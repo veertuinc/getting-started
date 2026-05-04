@@ -133,17 +133,22 @@ if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
   ## Install OpenJDK
   prepare-and-push $NEW_TEMPLATE $NEW_TAG "stop" "
     $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS \
-      [[ \\\$(arch) == arm64 ]] && export ARCH=aarch64 || export ARCH=x64;
-      rm -rf zulu*; \
-      DMG=zulu21.48.17-ca-jre21.0.10-macosx_\\\${ARCH}.dmg; \
-      curl -v -L -O https://cdn.azul.com/zulu/bin/\\\$DMG && \
-      [ \\\$(du -s \\\$DMG | cut -f1) -gt 80000 ] && \
-      MOUNT=\\\$(hdiutil attach \\\$DMG -nobrowse | grep -o '/Volumes/.*' | tail -1) && \
-      sudo installer -pkg \\\"\\\$MOUNT\\\"/*.pkg -target / && \
-      hdiutil detach \\\"\\\$MOUNT\\\" && \
-      java -version && [[ ! -z \\\$(java -version 2>&1 | grep 21.0.10) ]]\"
-    $ANKA_RUN $NEW_TEMPLATE bash -c \"$HELPERS rm -rf zulu*\"
-  " "fa990c7f-d540-4c5b-bf72-b886c4692c3a" # we install openjdk@17 because it's the only version that works with the Jenkins agent
+      if [[ \\\$(arch) == arm64 ]]; then \
+        rm -rf zulu*; \
+        DMG=zulu21.48.17-ca-jre21.0.10-macosx_aarch64.dmg; \
+        curl -v -L -O https://cdn.azul.com/zulu/bin/\\\$DMG && \
+        [ \\\$(du -s \\\$DMG | cut -f1) -gt 80000 ] && \
+        MOUNT=\\\$(hdiutil attach \\\$DMG -nobrowse | grep -o '/Volumes/.*' | tail -1) && \
+        sudo installer -pkg \\\"\\\$MOUNT\\\"/*.pkg -target / && \
+        hdiutil detach \\\"\\\$MOUNT\\\" && \
+        rm -f \\\$DMG && \
+        rm -rf zulu*; \
+      else \
+        PATH=\\\"\\\$PATH:/usr/local/bin\\\" brew install openjdk@21 && \
+        sudo ln -sfn /usr/local/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk; \
+      fi && \
+      java -version && [[ ! -z \\\$(java -version 2>&1 | grep '\"21') ]]\"
+  " "fa990c7f-d540-4c5b-bf72-b886c4692c3a" # Intel: Homebrew openjdk@21 + symlink; ARM: Zulu aarch64 DMG (no reliable x64 DMG from this URL pattern)
 fi
 
 if [[ $2 == '--jenkins' ]]; then

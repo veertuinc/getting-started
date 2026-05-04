@@ -92,8 +92,12 @@ fi
   echo "]] Installing Plugins (may take a while)..."
   sleep 80 # Waits for "jenkins.slaves.restarter.JnlpSlaveRestarterInstaller install" to finish
   jenkins_plugin_install "github@$GITHUB_PLUGIN_VERSION"
-  jenkins_plugin_install "anka-build@$JENKINS_PLUGIN_VERSION"
+  jenkins_plugin_install "node-iterator-api@$NODE_ITERATOR_API_PLUGIN_VERSION"
+  jenkins_plugin_install "ssh-slaves@$SSH_SLAVES_PLUGIN_VERSION"
+  jenkins_plugin_install "workflow-basic-steps@$WORKFLOW_BASIC_STEPS_PLUGIN_VERSION"
+  jenkins_plugin_install "workflow-durable-task-step@$WORKFLOW_DURABLE_TASK_STEP_PLUGIN_VERSION"
   jenkins_plugin_install "pipeline-model-definition@$JENKINS_PIPELINE_PLUGIN_VERSION"
+  jenkins_plugin_install "anka-build@$JENKINS_PLUGIN_VERSION"
   # Add in the config.xml with the cloud
   echo "]] Adding the configuration you'll need"
   echo "<?xml version='1.1' encoding='UTF-8'?>

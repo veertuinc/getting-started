@@ -147,7 +147,7 @@ if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
         PATH=\\\"\\\$PATH:/usr/local/bin\\\" brew install openjdk@21 && \
         sudo ln -sfn /usr/local/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk; \
       fi && \
-      java -version && [[ ! -z \\\$(java -version 2>&1 | grep '\"21') ]]\"
+      java -version 2>&1 | grep -qF '21.0'\"
   " "fa990c7f-d540-4c5b-bf72-b886c4692c3a" # Intel: Homebrew openjdk@21 + symlink; ARM: Zulu aarch64 DMG (no reliable x64 DMG from this URL pattern)
 fi
 

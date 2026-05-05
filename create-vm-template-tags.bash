@@ -146,6 +146,7 @@ if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
       else \
         PATH=\\\"\\\$PATH:/usr/local/bin\\\" brew install openjdk@21 && \
         sudo ln -sfn /usr/local/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk; \
+        sudo ls -laht /Library/Java/JavaVirtualMachines/; \
       fi && \
       java -version 2>&1 | grep -qF '21.0'\"
   " "fa990c7f-d540-4c5b-bf72-b886c4692c3a" # Intel: Homebrew openjdk@21 + symlink; ARM: Zulu aarch64 DMG (no reliable x64 DMG from this URL pattern)
@@ -157,6 +158,7 @@ if [[ $2 == '--jenkins' ]]; then
   does_not_exist $JENKINS_TEMPLATE_NAME $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE_NAME && modify_uuid $JENKINS_TEMPLATE_NAME $JENKINS_VM_TEMPLATE_UUID
   ## Jenkins misc (Only needed if you're running Jenkins on the same host you run the VMs)
   prepare-and-push $JENKINS_TEMPLATE_NAME $NEW_TAG "stop" "
+    $ANKA_RUN $JENKINS_TEMPLATE_NAME sudo ls -laht /Library/Java/JavaVirtualMachines/; \
     $ANKA_RUN $JENKINS_TEMPLATE_NAME sudo bash -c \"$HELPERS echo \$(sudo defaults read /Library/Preferences/SystemConfiguration/com.apple.vmnet.plist Shared_Net_Address) anka.jenkins >> /etc/hosts && cat /etc/hosts && [[ ! -z \\\$(grep anka.jenkins /etc/hosts) ]]\"
   "
 fi

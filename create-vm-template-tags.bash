@@ -127,7 +127,7 @@ if [[ $2 == '--gitlab' ]]; then
 fi
 
 if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
-  NEW_TEMPLATE="$SOURCE_TEMPLATE-jre21.0.10"
+  NEW_TEMPLATE="$SOURCE_TEMPLATE-jre21"
   NEW_TAG="v1"
   does_not_exist $NEW_TEMPLATE $NEW_TAG && ${SUDO} anka clone $SOURCE_TEMPLATE $NEW_TEMPLATE
   ## Install OpenJDK
@@ -153,7 +153,7 @@ fi
 
 if [[ $2 == '--jenkins' ]]; then
   NEW_TAG="v1"
-  JENKINS_TEMPLATE_NAME="$SOURCE_TEMPLATE-jre17.48.15-jenkins"
+  JENKINS_TEMPLATE_NAME="$SOURCE_TEMPLATE-jre21-jenkins"
   does_not_exist $JENKINS_TEMPLATE_NAME $NEW_TAG && ${SUDO} anka clone $NEW_TEMPLATE $JENKINS_TEMPLATE_NAME && modify_uuid $JENKINS_TEMPLATE_NAME $JENKINS_VM_TEMPLATE_UUID
   ## Jenkins misc (Only needed if you're running Jenkins on the same host you run the VMs)
   prepare-and-push $JENKINS_TEMPLATE_NAME $NEW_TAG "stop" "

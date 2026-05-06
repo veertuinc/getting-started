@@ -40,8 +40,8 @@ anka_node_terminate_instance_and_strip_tags() {
 # Exits the script if ANKA_NODE_MAX_REACHABILITY_RECREATES (default 5) has been reached.
 anka_node_act_on_reachability_failed() {
   local instance_id="$1"
-  warning "EC2 instance status reports failed reachability for ${instance_id}; waiting 5 minutes to recheck (may be temporary)..."
-  sleep 300
+  warning "EC2 instance status reports failed reachability for ${instance_id}; waiting 10 minutes to recheck (may be temporary)..."
+  sleep 600
   if [[ "$(anka_node_instance_reachability_status "${instance_id}")" != "failed" ]]; then
     echo "Reachability no longer failed; continuing to wait for this instance."
     return 1

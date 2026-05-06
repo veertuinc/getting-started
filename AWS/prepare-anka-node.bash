@@ -7,6 +7,87 @@ cd "$SCRIPT_DIR"
 . ./.shared.bash
 [[ -z $(command -v jq) ]] && error "JQ is required. You can install it with brew install jq."
 warning "This script is tested with AWS CLI v2.2.9. If your version differs (mostly a concern for older versions), there is no guarantee it will function as expected!${COLOR_NC}" && sleep 2
+
+anka_node_instance_reachability_status() {
+  local instance_id="$1"
+  if [[ -z "${instance_id}" || "${instance_id}" == "null" ]]; then
+    echo ""
+    return 0
+  fi
+  aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${instance_id}\" --include-all-instances" | jq -r '
+    .InstanceStatuses[0] as $s
+    | if ($s | type) != "object" then ""
+      else (($s.InstanceStatus.Details // []) | map(select(.Name == "reachability")) | .[0].Status // "")
+      end'
+}
+
+anka_node_terminate_instance_and_strip_tags() {
+  local instance_id="$1"
+  aws_execute "ec2 terminate-instances --instance-ids \"${instance_id}\""
+  while [[ "$(aws_execute -r -s "ec2 describe-instances --instance-ids \"${instance_id}\"" | jq -r '.Reservations[0].Instances[0].State.Name')" != 'terminated' ]]; do
+    echo "Waiting for instance ${instance_id} to terminate..."
+    sleep 15
+  done
+  aws_execute "ec2 delete-tags --resources \"${instance_id}\" --tags Key=purpose Key=Name"
+}
+
+anka_node_launch_new_ec2_mac_instance() {
+  while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"" | jq -r '.Hosts[0].State')" != 'available' ]]; do
+    echo "Dedicated Host still not available (this can take a while)..."
+    sleep 60
+  done
+  # Fix An error occurred (InvalidHostState) when calling the RunInstances operation: Dedicated host h-XXX is in an invalid state for launching instances.
+  sleep 120
+
+  while true; do
+    while [[ "$(aws_execute -r -s "ec2 describe-hosts --host-ids \"${DEDICATED_HOST_ID}\"" | jq -r '.Hosts[0].AvailableCapacity.AvailableInstanceCapacity[0].AvailableCapacity')" != "1" ]]; do
+      echo "Dedicated Host capacity still not available (this can take a while)..."
+      sleep 60
+    done
+    echo "please wait several minutes while dedicated fully starts..."
+    sleep 240 # invalid state for dedicated host
+
+    echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"
+    COMMUNITY_AMI_ID="${COMMUNITY_AMI_ID:-$(aws_execute -r -s "ec2 describe-images \
+      --filters \"Name=name,Values=anka-build-*\" \"Name=state,Values=available\" \"Name=owner-id,Values=930457884660\" \
+      --query \"Images[?contains(Name,\\\`marketplace\\\`) == \\\`false\\\`] ${EXTRA_CONTAINS} | sort_by([*], &CreationDate)[-1].[ImageId]\" \
+      --output \"text\"")}"
+    AWS_ANKA_NODE_NAME_TAG_LABEL="${AWS_ANKA_NODE_NAME_TAG_LABEL:-"Anka Build Node"}"
+    INSTANCE=$(aws_execute -r "ec2 run-instances \
+      --image-id \"${COMMUNITY_AMI_ID}\" \
+      --instance-type=\"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
+      --security-group-ids \"${SECURITY_GROUP_ID}\" \
+      --placement \"HostId=${DEDICATED_HOST_ID}\" \
+      --key-name \"${AWS_KEY_PAIR_NAME}\" \
+      --count 1 \
+      --associate-public-ip-address \
+      --ebs-optimized \
+      --metadata-options "HttpTokens=required" \
+      --block-device-mappings \"[\$(aws ec2 describe-images --image-ids $COMMUNITY_AMI_ID --query \"Images[0].BlockDeviceMappings[0]\" --output json | jq -cr '.Ebs.VolumeType = \"gp3\" | .Ebs.VolumeSize = ${EBS_VOLUME_SIZE:-200} | .Ebs.Iops = 6000 | .Ebs.Throughput = 256')]\" \
+      --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} ${AWS_ANKA_NODE_NAME_TAG_LABEL}"},{Key=purpose,Value="${AWS_ANKA_NODE_UNIQUE_LABEL_PURPOSE}"}]\" ${CLI_OPTIONS}")
+    INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
+    while true; do
+      INSTANCE_STATE_POLL="$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\" --include-all-instances" | jq -r '.InstanceStatuses[0].InstanceState.Name // empty')"
+      INSTANCE_REACHABILITY="$(anka_node_instance_reachability_status "${INSTANCE_ID}")"
+      if [[ "${INSTANCE_REACHABILITY}" == "failed" ]]; then
+        warning "EC2 instance status reports failed reachability for ${INSTANCE_ID}; terminating and launching a replacement..."
+        anka_node_terminate_instance_and_strip_tags "${INSTANCE_ID}"
+        break
+      fi
+      if [[ "${INSTANCE_STATE_POLL}" == "running" ]]; then
+        INSTANCE_IP="$(aws_execute -r -s "ec2 describe-instances \
+          --instance-ids \"${INSTANCE_ID}\" \
+          --query 'Reservations[*].Instances[*].PublicIpAddress' --output text")"
+        echo " - Created Instance: ${COLOR_GREEN}${INSTANCE_ID} | ${INSTANCE_IP}${COLOR_NC}"
+        sleep 10
+        return 0
+      fi
+      echo "Instance still starting..."
+      sleep 10
+    done
+  done
+}
+
 cleanup() {
 
   [[ -n "${INSTANCE_IP}" && "${INSTANCE_IP}" != null ]] && ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" " \
@@ -132,48 +213,8 @@ fi
 
 # Create EC2 instance for Anka Node
 if [[ "${INSTANCE_ID}" == null ]]; then
-  while [[ "$(aws_execute -r -s "ec2 describe-hosts --filter \"Name=tag:purpose,Values=${AWS_NONUNIQUE_LABEL}\"" | jq -r '.Hosts[0].State')" != 'available' ]]; do
-    echo "Dedicated Host still not available (this can take a while)..."
-    sleep 60
-  done
-  # Fix An error occurred (InvalidHostState) when calling the RunInstances operation: Dedicated host h-XXX is in an invalid state for launching instances.
-  sleep 120
-  while [[ "$(aws_execute -r -s "ec2 describe-hosts --host-ids \"${DEDICATED_HOST_ID}\"" | jq -r '.Hosts[0].AvailableCapacity.AvailableInstanceCapacity[0].AvailableCapacity')" != "1" ]]; do
-    echo "Dedicated Host capacity still not available (this can take a while)..."
-    sleep 60
-  done
-  echo "please wait several minutes while dedicated fully starts..."
-  sleep 240 # invalid state for dedicated host
-  ## Get latest AMI ID (regardless of region)
-  echo "${COLOR_CYAN}]] Creating Instance${COLOR_NC}"
-  COMMUNITY_AMI_ID="${COMMUNITY_AMI_ID:-$(aws_execute -r -s "ec2 describe-images \
-    --filters \"Name=name,Values=anka-build-*\" \"Name=state,Values=available\" \"Name=owner-id,Values=930457884660\" \
-    --query \"Images[?contains(Name,\\\`marketplace\\\`) == \\\`false\\\`] ${EXTRA_CONTAINS} | sort_by([*], &CreationDate)[-1].[ImageId]\" \
-    --output \"text\"")}"
   # We don't use ANKA_JOIN_ARGS here so we can set the instance IP
-  AWS_ANKA_NODE_NAME_TAG_LABEL="${AWS_ANKA_NODE_NAME_TAG_LABEL:-"Anka Build Node"}"
-  INSTANCE=$(aws_execute -r "ec2 run-instances \
-    --image-id \"${COMMUNITY_AMI_ID}\" \
-    --instance-type=\"${AWS_BUILD_CLOUD_MAC_INSTANCE_TYPE}\" \
-    --security-group-ids \"${SECURITY_GROUP_ID}\" \
-    --placement \"HostId=${DEDICATED_HOST_ID}\" \
-    --key-name \"${AWS_KEY_PAIR_NAME}\" \
-    --count 1 \
-    --associate-public-ip-address \
-    --ebs-optimized \
-    --metadata-options "HttpTokens=required" \
-    --block-device-mappings \"[\$(aws ec2 describe-images --image-ids $COMMUNITY_AMI_ID --query \"Images[0].BlockDeviceMappings[0]\" --output json | jq -cr '.Ebs.VolumeType = \"gp3\" | .Ebs.VolumeSize = ${EBS_VOLUME_SIZE:-200} | .Ebs.Iops = 6000 | .Ebs.Throughput = 256')]\" \
-    --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} ${AWS_ANKA_NODE_NAME_TAG_LABEL}"},{Key=purpose,Value="${AWS_ANKA_NODE_UNIQUE_LABEL_PURPOSE}"}]\" ${CLI_OPTIONS}")
-  INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
-  while [[ "$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\"" | jq -r '.InstanceStatuses[0].InstanceState.Name')" != 'running' ]]; do
-    echo "Instance still starting..."
-    sleep 10
-  done
-  INSTANCE_IP="$(aws_execute -r -s "ec2 describe-instances \
-    --instance-ids \"${INSTANCE_ID}\" \
-    --query 'Reservations[*].Instances[*].PublicIpAddress' --output text")"
-  echo " - Created Instance: ${COLOR_GREEN}${INSTANCE_ID} | ${INSTANCE_IP}${COLOR_NC}"
-  sleep 10
+  anka_node_launch_new_ec2_mac_instance
 else
   echo " - Using existing Instance: ${COLOR_GREEN}${INSTANCE_ID} | ${INSTANCE_IP}${COLOR_NC}"
 fi
@@ -213,6 +254,14 @@ fi
 #### SSH in and prepare the machine so it has the public IP
 if [[ -n "${INSTANCE_IP}" && "${INSTANCE_IP}" != null ]]; then
   while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "hostname &>/dev/null" &>/dev/null; do
+    if [[ -n "${INSTANCE_ID}" && "${INSTANCE_ID}" != null ]]; then
+      if [[ "$(anka_node_instance_reachability_status "${INSTANCE_ID}")" == "failed" ]]; then
+        warning "EC2 instance status reports failed reachability for ${INSTANCE_ID}; terminating and launching a replacement..."
+        anka_node_terminate_instance_and_strip_tags "${INSTANCE_ID}"
+        anka_node_launch_new_ec2_mac_instance
+        continue
+      fi
+    fi
     echo "Instance still starting..."
     sleep 60
   done

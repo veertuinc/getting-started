@@ -8,6 +8,9 @@ cd "$SCRIPT_DIR"
 [[ -z $(command -v jq) ]] && error "JQ is required. You can install it with brew install jq."
 warning "This script is tested with AWS CLI v2.2.9. If your version differs (mostly a concern for older versions), there is no guarantee it will function as expected!${COLOR_NC}" && sleep 2
 
+ANKA_NODE_MAX_REACHABILITY_RECREATES="${ANKA_NODE_MAX_REACHABILITY_RECREATES:-5}"
+ANKA_NODE_REACHABILITY_RECREATE_COUNT=0
+
 anka_node_instance_reachability_status() {
   local instance_id="$1"
   if [[ -z "${instance_id}" || "${instance_id}" == "null" ]]; then
@@ -29,6 +32,27 @@ anka_node_terminate_instance_and_strip_tags() {
     sleep 15
   done
   aws_execute "ec2 delete-tags --resources \"${instance_id}\" --tags Key=purpose Key=Name"
+}
+
+# After a "failed" reachability reading, wait 5 minutes and recheck.
+# Returns 0 if the instance was terminated (caller should relaunch or break to the outer launch loop).
+# Returns 1 if reachability is no longer failed (caller continues waiting on the same instance).
+# Exits the script if ANKA_NODE_MAX_REACHABILITY_RECREATES (default 5) has been reached.
+anka_node_act_on_reachability_failed() {
+  local instance_id="$1"
+  warning "EC2 instance status reports failed reachability for ${instance_id}; waiting 5 minutes to recheck (may be temporary)..."
+  sleep 300
+  if [[ "$(anka_node_instance_reachability_status "${instance_id}")" != "failed" ]]; then
+    echo "Reachability no longer failed; continuing to wait for this instance."
+    return 1
+  fi
+  if [[ "${ANKA_NODE_REACHABILITY_RECREATE_COUNT}" -ge "${ANKA_NODE_MAX_REACHABILITY_RECREATES}" ]]; then
+    error "Exceeded ${ANKA_NODE_MAX_REACHABILITY_RECREATES} reachability re-creation attempts (instance ${instance_id} still reports failed reachability)."
+  fi
+  ANKA_NODE_REACHABILITY_RECREATE_COUNT=$((ANKA_NODE_REACHABILITY_RECREATE_COUNT + 1))
+  warning "Reachability still failed after confirmation wait; terminating ${instance_id} and launching a replacement (${ANKA_NODE_REACHABILITY_RECREATE_COUNT}/${ANKA_NODE_MAX_REACHABILITY_RECREATES})..."
+  anka_node_terminate_instance_and_strip_tags "${instance_id}"
+  return 0
 }
 
 anka_node_launch_new_ec2_mac_instance() {
@@ -70,8 +94,9 @@ anka_node_launch_new_ec2_mac_instance() {
       INSTANCE_STATE_POLL="$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\" --include-all-instances" | jq -r '.InstanceStatuses[0].InstanceState.Name // empty')"
       INSTANCE_REACHABILITY="$(anka_node_instance_reachability_status "${INSTANCE_ID}")"
       if [[ "${INSTANCE_REACHABILITY}" == "failed" ]]; then
-        warning "EC2 instance status reports failed reachability for ${INSTANCE_ID}; terminating and launching a replacement..."
-        anka_node_terminate_instance_and_strip_tags "${INSTANCE_ID}"
+        if ! anka_node_act_on_reachability_failed "${INSTANCE_ID}"; then
+          continue
+        fi
         break
       fi
       if [[ "${INSTANCE_STATE_POLL}" == "running" ]]; then
@@ -256,9 +281,9 @@ if [[ -n "${INSTANCE_IP}" && "${INSTANCE_IP}" != null ]]; then
   while ! ssh -o "StrictHostKeyChecking=no" -o "ConnectTimeout=1" -i "${AWS_KEY_PATH}" "ec2-user@${INSTANCE_IP}" "hostname &>/dev/null" &>/dev/null; do
     if [[ -n "${INSTANCE_ID}" && "${INSTANCE_ID}" != null ]]; then
       if [[ "$(anka_node_instance_reachability_status "${INSTANCE_ID}")" == "failed" ]]; then
-        warning "EC2 instance status reports failed reachability for ${INSTANCE_ID}; terminating and launching a replacement..."
-        anka_node_terminate_instance_and_strip_tags "${INSTANCE_ID}"
-        anka_node_launch_new_ec2_mac_instance
+        if anka_node_act_on_reachability_failed "${INSTANCE_ID}"; then
+          anka_node_launch_new_ec2_mac_instance
+        fi
         continue
       fi
     fi

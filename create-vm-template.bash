@@ -1,5 +1,5 @@
 #!/bin/bash
-set -exo pipefail
+set -eo pipefail
 echo "]] Starting Anka VM Creation"
 [[ "${1}" != "--no-anka-create" ]] && MACOS_VERSION=${MACOS_VERSION:-"${1}"}
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"

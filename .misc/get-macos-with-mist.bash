@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -exo pipefail
+set -eo pipefail
+export NO_COLOR=1 CLICOLOR=0 CLICOLOR_FORCE=0
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin
 WORKDIR="/tmp"
 cd "${WORKDIR}"

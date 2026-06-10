@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -exo pipefail
+set -eo pipefail
+export NO_COLOR=1 CLICOLOR=0 CLICOLOR_FORCE=0
 RUNNER_HOME="${RUNNER_HOME:-"$HOME/actions-runner"}"
 mkdir -p "${RUNNER_HOME}"
 cd "${RUNNER_HOME}"

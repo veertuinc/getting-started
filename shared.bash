@@ -1,3 +1,11 @@
+# Web/CI log viewers often render bash xtrace/ANSI "dim" codes as pale gray on white.
+export NO_COLOR=1
+export CLICOLOR=0
+export CLICOLOR_FORCE=0
+if [[ "${BASH_VERSINFO[0]:-0}" -ge 5 ]]; then
+  export PS4='+ '
+fi
+
 [[ $DEBUG == true ]] && set -x
 [[ $DEBUG == true ]] && ANKA_DEBUG="--debug"
 

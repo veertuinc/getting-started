@@ -1,5 +1,5 @@
 #!/bin/bash
-set -exo pipefail
+set -eo pipefail
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_DIR"
 . ./shared.bash
@@ -7,7 +7,7 @@ cd "$SCRIPT_DIR"
 [[ -z "${1}" ]] && echo "you must provide the source template NAME (not UUID) as the first ARG..." && exit 2
 SOURCE_TEMPLATE="${1}"
 [[ -z $SOURCE_TEMPLATE ]] && echo "No Template Name specified as ARG1..." && exit 1
-HELPERS="set -exo pipefail;PATH=\\\$PATH:/usr/local/bin:/opt/homebrew/bin;"
+HELPERS="set -eo pipefail;PATH=\\\$PATH:/usr/local/bin:/opt/homebrew/bin;"
 ANKA_RUN="${SUDO} anka ${ANKA_DEBUG} run -N -n"
 [[ ! -z "$(${SUDO} anka registry list-repos | grep $CLOUD_REGISTRY_REPO_NAME)" ]] && REMOTE="--remote $CLOUD_REGISTRY_REPO_NAME"
 ANKA_REGISTRY="time ${SUDO} anka ${ANKA_DEBUG} registry $REMOTE $CERTS"

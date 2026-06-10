@@ -6,14 +6,14 @@ cd "$SCRIPT_DIR"
 SERVICE_PORT="8111"
 # Cleanup
 echo "]] Cleaning up the previous TeamCity installation"
-set -x
+[[ $DEBUG == true ]] && set -x
 execute-docker-compose down &>/dev/null || true
 docker stop $TEAMCITY_DOCKER_CONTAINER_NAME &>/dev/null || true
 docker rm $TEAMCITY_DOCKER_CONTAINER_NAME &>/dev/null || true
 rm -rf $TEAMCITY_DOCKER_DATA_DIR
 rm -f docker-compose.yml
 rm -rf $HOME/$TEAMCITY_DOCKER_CONTAINER_NAME.tar.gz
-set +x
+[[ $DEBUG == true ]] && set +x
 # Install
 if [[ $1 != "--uninstall" ]]; then
   echo "]] Starting the TeamCity Docker container"

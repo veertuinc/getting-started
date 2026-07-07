@@ -5,7 +5,6 @@ SCRIPT_DIR=$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd)
 cd "$SCRIPT_DIR"
 . ../shared.bash
 
-SERVICE_PORT="8080"
 JENKINS_BINARY_STATE_DIR="${JENKINS_BINARY_STATE_DIR:-$HOME/$JENKINS_DOCKER_CONTAINER_NAME-binary-state}"
 JENKINS_BINARY_PID_FILE="$JENKINS_BINARY_STATE_DIR/jenkins.pid"
 JENKINS_BINARY_LOG_FILE="$JENKINS_BINARY_STATE_DIR/jenkins.log"
@@ -151,9 +150,9 @@ if [[ "$JENKINS_BINARY_ACTION" == "install" ]]; then
   # Credential
   jenkins_obtain_crumb
   # Must do a failing curl to avoid WARNING: No such plugin credentials to install
-  jenkins_curl_or_warn "Priming Jenkins credentials plugin installation request" -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"credentials@2.5\" /></jenkins>" --header 'Content-Type: text/xml' "http://${JENKINS_DOCKER_CONTAINER_NAME}:${JENKINS_PORT}/pluginManager/installNecessaryPlugins"
+  jenkins_curl_or_warn "Priming Jenkins credentials plugin installation request" -X POST -H "$CRUMB" --cookie "$COOKIEJAR" -d "<jenkins><install plugin=\"credentials@$JENKINS_CREDENTIALS_PLUGIN_VERSION\" /></jenkins>" --header 'Content-Type: text/xml' "http://${JENKINS_DOCKER_CONTAINER_NAME}:${JENKINS_PORT}/pluginManager/installNecessaryPlugins"
   sleep 30
-  jenkins_binary_plugin_install "credentials@$CREDENTIALS_PLUGIN_VERSION"
+  jenkins_binary_plugin_install "credentials@$JENKINS_CREDENTIALS_PLUGIN_VERSION"
   echo "]] Adding the needed credentials"
   jenkins_curl_or_warn "Creating Jenkins Anka credentials entry" -X POST -H "$CRUMB" --cookie "$COOKIEJAR" "http://${JENKINS_DOCKER_CONTAINER_NAME}:${JENKINS_PORT}/credentials/store/system/domain/_/createCredentials" \
     --data-urlencode 'json={
@@ -173,11 +172,11 @@ if [[ "$JENKINS_BINARY_ACTION" == "install" ]]; then
   # Plugins
   echo "]] Installing Plugins (may take a while)..."
   sleep 80 # Waits for Jenkins initialization and plugin manager to settle
-  jenkins_binary_plugin_install "github@$GITHUB_PLUGIN_VERSION"
-  jenkins_binary_plugin_install "node-iterator-api@$NODE_ITERATOR_API_PLUGIN_VERSION"
-  jenkins_binary_plugin_install "ssh-slaves@$SSH_SLAVES_PLUGIN_VERSION"
-  jenkins_binary_plugin_install "workflow-basic-steps@$WORKFLOW_BASIC_STEPS_PLUGIN_VERSION"
-  jenkins_binary_plugin_install "workflow-durable-task-step@$WORKFLOW_DURABLE_TASK_STEP_PLUGIN_VERSION"
+  jenkins_binary_plugin_install "github@$JENKINS_GITHUB_PLUGIN_VERSION"
+  jenkins_binary_plugin_install "node-iterator-api@$JENKINS_NODE_ITERATOR_API_PLUGIN_VERSION"
+  jenkins_binary_plugin_install "ssh-slaves@$JENKINS_SSH_SLAVES_PLUGIN_VERSION"
+  jenkins_binary_plugin_install "workflow-basic-steps@$JENKINS_WORKFLOW_BASIC_STEPS_PLUGIN_VERSION"
+  jenkins_binary_plugin_install "workflow-durable-task-step@$JENKINS_WORKFLOW_DURABLE_TASK_STEP_PLUGIN_VERSION"
   jenkins_binary_plugin_install "pipeline-model-definition@$JENKINS_PIPELINE_PLUGIN_VERSION"
   jenkins_binary_plugin_install "anka-build@$JENKINS_PLUGIN_VERSION"
   # Add in the config.xml with the cloud

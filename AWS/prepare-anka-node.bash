@@ -8,13 +8,20 @@ cd "$SCRIPT_DIR"
 [[ -z $(command -v jq) ]] && error "JQ is required. You can install it with brew install jq."
 warning "This script is tested with AWS CLI v2.2.9. If your version differs (mostly a concern for older versions), there is no guarantee it will function as expected!${COLOR_NC}" && sleep 2
 
+# Poll instance status without aws_execute: AWS can return InvalidInstanceID.NotFound
+# briefly after run-instances due to eventual consistency, and aws_execute exits on that.
+anka_node_describe_instance_status_json() {
+  local instance_id="$1"
+  aws ec2 describe-instance-status --instance-ids "${instance_id}" --include-all-instances 2>/dev/null || true
+}
+
 anka_node_instance_reachability_status() {
   local instance_id="$1"
   if [[ -z "${instance_id}" || "${instance_id}" == "null" ]]; then
     echo ""
     return 0
   fi
-  aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${instance_id}\" --include-all-instances" | jq -r '
+  anka_node_describe_instance_status_json "${instance_id}" | jq -r '
     .InstanceStatuses[0] as $s
     | if ($s | type) != "object" then ""
       else (($s.InstanceStatus.Details // []) | map(select(.Name == "reachability")) | .[0].Status // "")
@@ -71,7 +78,7 @@ anka_node_launch_new_ec2_mac_instance() {
       --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value="${AWS_ANKA_NODE_UNIQUE_LABEL} ${AWS_ANKA_NODE_NAME_TAG_LABEL}"},{Key=purpose,Value="${AWS_ANKA_NODE_UNIQUE_LABEL_PURPOSE}"}]\" ${CLI_OPTIONS}")
     INSTANCE_ID="$(echo "${INSTANCE}" | jq -r '.Instances[0].InstanceId')"
     while true; do
-      INSTANCE_STATE_POLL="$(aws_execute -r -s "ec2 describe-instance-status --instance-ids \"${INSTANCE_ID}\" --include-all-instances" | jq -r '.InstanceStatuses[0].InstanceState.Name // empty')"
+      INSTANCE_STATE_POLL="$(anka_node_describe_instance_status_json "${INSTANCE_ID}" | jq -r '.InstanceStatuses[0].InstanceState.Name // empty')"
       INSTANCE_REACHABILITY="$(anka_node_instance_reachability_status "${INSTANCE_ID}")"
       if [[ "${INSTANCE_REACHABILITY}" == "failed" ]]; then
         anka_node_fail_on_reachability_failed "${INSTANCE_ID}" || continue

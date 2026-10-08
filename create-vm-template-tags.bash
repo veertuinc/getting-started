@@ -86,8 +86,21 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo defaults write /Library/Preferences/com.apple.keyboardtype "keyboardtype" -dict-add "3-7582-0" -int 40\" # Disable Keyboard Setup Assistant window
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo pmset hibernatemode 0; sudo rm -f /var/vm/sleepimage\" # Turn off hibernation and get rid of the sleepimage
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo xcodebuild -license || true\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"softwareupdate --list && /bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"[[ -f /opt/homebrew/bin/brew ]] && echo \\\"eval \\\"\\\$(/opt/homebrew/bin/brew shellenv)\\\"\\\" >> /Users/anka/.zprofile || true\"
+  if [[ \"\$(arch)\" == arm64 ]]; then
+    $ANKA_RUN $SOURCE_TEMPLATE bash -c \"softwareupdate --list && /bin/bash -c \\\"\\\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)\\\"\"
+    $ANKA_RUN $SOURCE_TEMPLATE bash -c \"[[ -f /opt/homebrew/bin/brew ]] && echo \\\"eval \\\"\\\$(/opt/homebrew/bin/brew shellenv)\\\"\\\" >> /Users/anka/.zprofile || true\"
+  else
+    # Homebrew 7.0.0 (2026-09-13) dropped Intel. 6.0.22 is the last 6.x tag.
+    # Installer 7a133dcc still allows Intel. HEAD install.sh aborts unless arch is arm64.
+    $ANKA_RUN $SOURCE_TEMPLATE bash -c \"softwareupdate --list || true\"
+    $ANKA_RUN $SOURCE_TEMPLATE bash -c \"curl -fsSL -o /tmp/install-brew.sh https://raw.githubusercontent.com/Homebrew/install/7a133dcc74051ee4efc79467ed215dfedf45aea2/install.sh\"
+    $ANKA_RUN $SOURCE_TEMPLATE bash -c \"perl -i -pe 's/LATEST_GIT_TAG=.*/LATEST_GIT_TAG=6.0.22/; s/.*brew. .update. .--force. .--quiet.*/true/' /tmp/install-brew.sh\"
+    $ANKA_RUN $SOURCE_TEMPLATE bash -c \"NONINTERACTIVE=1 /bin/bash /tmp/install-brew.sh\"
+    $ANKA_RUN $SOURCE_TEMPLATE bash -c \"[[ -f /usr/local/bin/brew ]] && echo \\\"eval \\\"\\\$(/usr/local/bin/brew shellenv)\\\"\\\" >> /Users/anka/.zprofile || true\"
+    # 6.0.22 still reads the live formula API. Current openjdk@21 has no Intel bottle and its harfbuzz formula does not load.
+    # homebrew-core 9ec9a2c (2026-08-18) still has an Intel sonoma bottle. Brew pours that on macOS 15.
+    $ANKA_RUN $SOURCE_TEMPLATE bash -c 'export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_FROM_API=1; mkdir -p \"\$HOME/.homebrew\"; printf \"%s\n\" HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_FROM_API=1 > \"\$HOME/.homebrew/brew.env\"; CORE=\"\$(/usr/local/bin/brew --repo)/Library/Taps/homebrew/homebrew-core\"; rm -rf \"\$CORE\"; mkdir -p \"\$CORE\"; git -C \"\$CORE\" init; git -C \"\$CORE\" remote add origin https://github.com/Homebrew/homebrew-core.git; git -C \"\$CORE\" fetch --depth 1 origin 9ec9a2c49b6685bb14e822321e7eb887510b9aa5; git -C \"\$CORE\" checkout --force FETCH_HEAD'
+  fi
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.coreduetd.osx.plist\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"launchctl unload -w /System/Library/LaunchAgents/com.apple.wifi.WiFiAgent.plist || true\"
   $ANKA_RUN $SOURCE_TEMPLATE bash -c \"sleep 40; pkill \\\"Feedback Assistant\\\" || true\"
@@ -99,7 +112,11 @@ prepare-and-push $SOURCE_TEMPLATE "$TAG+brew-git" "stop" "
     sudo mdutil -a -i off; \
     sudo launchctl unload -w /System/Library/LaunchDaemons/com.apple.metadata.mds.plist; \
     sudo rm -rf /.Spotlight-V100/*\"
-  $ANKA_RUN $SOURCE_TEMPLATE bash -c \"PATH=\\\"\\\$PATH:/opt/homebrew/bin\\\" brew install jq\"
+  if [[ \"\$(arch)\" == arm64 ]]; then
+    $ANKA_RUN $SOURCE_TEMPLATE bash -c \"PATH=\\\"\\\$PATH:/opt/homebrew/bin\\\" brew install jq\"
+  else
+    $ANKA_RUN $SOURCE_TEMPLATE bash -c \"export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_FROM_API=1; PATH=\\\"\\\$PATH:/usr/local/bin\\\" brew install jq\"
+  fi
 "
 
 if [[ $2 == '--github-actions' ]]; then
@@ -144,12 +161,23 @@ if [[ $2 == '--jenkins' ]] || [[ $2 == '--teamcity' ]]; then
         rm -f \\\$DMG && \
         rm -rf zulu*; \
       else \
+        export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_FROM_API=1; \
+        mkdir -p \\\"\\\$HOME/.homebrew\\\"; \
+        printf '%s\n' HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_FROM_API=1 > \\\"\\\$HOME/.homebrew/brew.env\\\"; \
+        CORE=\\\"\\\$(/usr/local/bin/brew --repo)/Library/Taps/homebrew/homebrew-core\\\"; \
+        if ! git -C \\\"\\\$CORE\\\" rev-parse HEAD 2>/dev/null | grep -qx 9ec9a2c49b6685bb14e822321e7eb887510b9aa5; then \
+          rm -rf \\\"\\\$CORE\\\"; mkdir -p \\\"\\\$CORE\\\"; \
+          git -C \\\"\\\$CORE\\\" init; \
+          git -C \\\"\\\$CORE\\\" remote add origin https://github.com/Homebrew/homebrew-core.git; \
+          git -C \\\"\\\$CORE\\\" fetch --depth 1 origin 9ec9a2c49b6685bb14e822321e7eb887510b9aa5; \
+          git -C \\\"\\\$CORE\\\" checkout --force FETCH_HEAD; \
+        fi; \
         PATH=\\\"\\\$PATH:/usr/local/bin\\\" brew install openjdk@21 && \
         sudo ln -sfn /usr/local/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk; \
         sudo ls -laht /Library/Java/JavaVirtualMachines/; \
       fi && \
       java -version 2>&1 | grep -qF '21.0'\"
-  " "fa990c7f-d540-4c5b-bf72-b886c4692c3a" # Intel: Homebrew openjdk@21 + symlink; ARM: Zulu aarch64 DMG (no reliable x64 DMG from this URL pattern)
+  " "fa990c7f-d540-4c5b-bf72-b886c4692c3a" # Intel: Homebrew 6.0.22 + core 9ec9a2c openjdk@21; ARM: Zulu aarch64 DMG
 fi
 
 if [[ $2 == '--jenkins' ]]; then

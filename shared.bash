@@ -22,7 +22,8 @@ ARCH_EXTENSION=""
 
 ARCH="$(arch)"
 if [[ "${ARCH}" != "arm64" ]]; then
-  SUDO="sudo" # Can't open the anka viewer to install macos and addons as ${SUDO} anka.
+  # Intel anka create must run as the login user. sudo fails after the macOS installer change.
+  SUDO=""
   ARCH="amd64"
 else
   ARCH_EXTENSION="-arm64"

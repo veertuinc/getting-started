@@ -89,6 +89,7 @@ fi
   git clone https://github.com/veertuinc/jenkins-job-examples.git $JENKINS_DATA_DIR/jobs
   # Plugins
   echo "]] Installing Plugins (may take a while)..."
+  ensure_github_release_version JENKINS_PLUGIN_VERSION "jenkinsci/anka-build-plugin" "anka-build-"
   sleep 80 # Waits for "jenkins.slaves.restarter.JnlpSlaveRestarterInstaller install" to finish
   jenkins_plugin_install "github@$JENKINS_GITHUB_PLUGIN_VERSION"
   jenkins_plugin_install "node-iterator-api@$JENKINS_NODE_ITERATOR_API_PLUGIN_VERSION"

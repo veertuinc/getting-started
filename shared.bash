@@ -53,6 +53,34 @@ warning() {
   echo "${COLOR_YELLOW}WARNING: $* ${COLOR_NC}"
 }
 
+# Print the latest GitHub release tag for owner/repo (follows /releases/latest redirect).
+github_latest_release_tag() {
+  local github_repo="$1"
+  local release_tag
+  release_tag="$(curl -fsSI "https://github.com/${github_repo}/releases/latest" | tr -d '\r' | awk 'tolower($1)=="location:" { print $2; exit }' | sed 's#.*/tag/##')"
+  [[ -n "$release_tag" ]] || error "Unable to obtain latest GitHub release tag for ${github_repo}"
+  printf '%s' "$release_tag"
+}
+
+# If VAR_NAME is empty, set it from the latest GitHub release tag.
+# Optional STRIP_PREFIX is removed from the start of the tag (e.g. anka-build- or v).
+ensure_github_release_version() {
+  local var_name="$1"
+  local github_repo="$2"
+  local strip_prefix="${3:-}"
+  local current_value="${!var_name:-}"
+  if [[ -n "$current_value" ]]; then
+    return 0
+  fi
+  local release_tag
+  release_tag="$(github_latest_release_tag "$github_repo")"
+  if [[ -n "$strip_prefix" ]]; then
+    release_tag="${release_tag#"$strip_prefix"}"
+  fi
+  printf -v "$var_name" '%s' "$release_tag"
+  echo "]] ${var_name}=${!var_name} (latest from github.com/${github_repo})"
+}
+
 obtain_anka_license() {
   if [[ -z "${ANKA_LICENSE}" ]]; then
     while true; do
@@ -66,7 +94,9 @@ obtain_anka_license() {
   fi
 }
 
-JENKINS_PLUGIN_VERSION="3.3.0"
+# Pin with env to skip GitHub latest lookup (e.g. JENKINS_PLUGIN_VERSION=3.3.0).
+# Empty values are filled by ensure_github_release_version from the repo release tag.
+JENKINS_PLUGIN_VERSION="${JENKINS_PLUGIN_VERSION:-}"
 JENKINS_PIPELINE_PLUGIN_VERSION="1.8.4"
 JENKINS_CREDENTIALS_PLUGIN_VERSION="2.5"
 JENKINS_GITHUB_PLUGIN_VERSION="1.33.1"
@@ -86,8 +116,8 @@ CLOUD_DOCKER_TAR=${CLOUD_DOCKER_TAR:-"anka-controller-registry-amd64-${CLOUD_VER
 ANKA_VIRTUALIZATION_PACKAGE=${ANKA_VIRTUALIZATION_PACKAGE:-"Anka-3.10.2.225.pkg"}
 # [[ "$(arch)" == "arm64" ]] && ANKA_VIRTUALIZATION_PACKAGE="${ANKA_VIRTUALIZATION_PACKAGE:-"Anka-3.3.2.166.pkg"}"
 TEAMCITY_VERSION="2026.1.2"
-PROMETHEUS_BINARY_VERSION=${PROMETHEUS_BINARY_VERSION:-"4.2.1"}
-GITLAB_RUNNER_CUSTOM_EXECUTOR_VERSION="v1.5.3"
+PROMETHEUS_BINARY_VERSION="${PROMETHEUS_BINARY_VERSION:-}"
+GITLAB_RUNNER_CUSTOM_EXECUTOR_VERSION="${GITLAB_RUNNER_CUSTOM_EXECUTOR_VERSION:-}"
 
 CLOUDFRONT_URL="https://downloads.veertu.com/anka"
 
@@ -144,7 +174,8 @@ GITLAB_RUNNER_LOCATION="/tmp/anka-gitlab-runner"
 GITLAB_RUNNER_DESTINATION="/usr/local/bin/"
 GITLAB_RUNNER_DOCKER_IMAGE="gitlab/gitlab-runner:latest"
 [[ "${ARCH}" == "amd64" ]] && RUNNER_ARCH="x86_64" || RUNNER_ARCH="arm64"
-GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME="anka-cloud-gitlab-executor_linux_${RUNNER_ARCH}"
+# Release assets use Linux/Darwin + x86_64/arm64 (mounted into the Linux runner container).
+GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME="anka-cloud-gitlab-executor_Linux_${RUNNER_ARCH}"
 GITLAB_VM_TEMPLATE_UUID_INTEL="${GITLAB_VM_TEMPLATE_UUID_INTEL:-"e69281a5-260e-47c2-bfb3-0d0027eb780c"}"
 GITLAB_VM_TEMPLATE_UUID_APPLE="${GITLAB_VM_TEMPLATE_UUID_APPLE:-"304db393-37a5-4e1c-aee5-82ffe32d87ea"}"
 GITLAB_VM_TEMPLATE_UUID="${GITLAB_VM_TEMPLATE_UUID_INTEL}"

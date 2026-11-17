@@ -7,6 +7,7 @@ echo "]] Removing previous files and processes"
 rm -f /tmp/$PROMETHEUS_BINARY_NAME
 kill -15 $(pgrep "[a]nka-prometheus") 2>/dev/null || true
 if [[ $1 != "--uninstall" ]]; then
+  ensure_github_release_version PROMETHEUS_BINARY_VERSION "veertuinc/anka-prometheus-exporter" "v"
   echo "]] Downloading $PROMETHEUS_BINARY_NAME from github"
   pushd /tmp &>/dev/null
   curl -L -O https://github.com/veertuinc/anka-prometheus-exporter/releases/download/v${PROMETHEUS_BINARY_VERSION}/${PROMETHEUS_BINARY_NAME}_v${PROMETHEUS_BINARY_VERSION}_darwin_amd64.zip

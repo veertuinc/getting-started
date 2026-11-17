@@ -30,6 +30,7 @@ if [[ $1 != "--uninstall" ]]; then
   # GitLab Runner
   [[ "$(uname)" == "Linux" ]] && DOCKER_RUN_EXTRAS="--add-host=${DOCKER_HOST_ADDRESS}:host-gateway ${DOCKER_RUN_EXTRAS}"
   # download the custom executor
+  ensure_github_release_version GITLAB_RUNNER_CUSTOM_EXECUTOR_VERSION "veertuinc/anka-cloud-gitlab-executor"
   rm -f ${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}
   curl -LO https://github.com/veertuinc/anka-cloud-gitlab-executor/releases/download/${GITLAB_RUNNER_CUSTOM_EXECUTOR_VERSION}/${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}
   chmod +x ${GITLAB_RUNNER_CUSTOM_EXECUTOR_FILE_NAME}

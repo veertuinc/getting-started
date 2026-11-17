@@ -171,6 +171,7 @@ if [[ "$JENKINS_BINARY_ACTION" == "install" ]]; then
   git clone https://github.com/veertuinc/jenkins-job-examples.git "$JENKINS_DATA_DIR/jobs" || true
   # Plugins
   echo "]] Installing Plugins (may take a while)..."
+  ensure_github_release_version JENKINS_PLUGIN_VERSION "jenkinsci/anka-build-plugin" "anka-build-"
   sleep 80 # Waits for Jenkins initialization and plugin manager to settle
   jenkins_binary_plugin_install "github@$JENKINS_GITHUB_PLUGIN_VERSION"
   jenkins_binary_plugin_install "node-iterator-api@$JENKINS_NODE_ITERATOR_API_PLUGIN_VERSION"
